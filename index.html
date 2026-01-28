@@ -6,7 +6,6 @@
   <title>支點運動_私課預約</title>
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
@@ -104,7 +103,6 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     
-    /* 這裡已經應用了「靠左對齊」的修改 */
     .confirmItem { 
         background:#fff; 
         border:1px solid rgba(0,0,0,.08); 
@@ -116,7 +114,7 @@
         display:flex; 
         justify-content: flex-start; /* 靠左對齊 */
         align-items: center;
-        gap: 24px; /* 日期和時間的間距 */
+        gap: 24px; 
     }
 
     .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
@@ -210,7 +208,6 @@
 </div>
 
 <script>
-  // ★ Webhook URLs 與 LIFF ID (保持不變)
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
@@ -549,11 +546,12 @@
     };
   }
 
-  // ★★★ 終極修正：將外層改為 horizontal + flex-start，完美解決多行日期爆炸問題 ★★★
+  // ★★★ 終極解決方案：改為「垂直堆疊 (Vertical)」佈局 ★★★
+  // 這能解決「左右並排」時，多行文字導致寬度計算崩潰的問題
   function createSuccessFlexMessage(successList) {
     const getWd = (d) => weekdayZhFromDateKey(d);
     
-    // 使用換行符號串接日期 (這是處理大量資料最安全的方法)
+    // 還是先組合字串，這部分最穩
     const timeString = successList
         .map(item => `${item.date} (${getWd(item.date)}) ${item.time}`)
         .join('\n');
@@ -600,22 +598,20 @@
                   ],
                   margin: "md"
                 },
-                // ★★★ 第三行：預約時間 (使用 Horizontal + Flex-Start) ★★★
+                // ★★★ 第三行：改為 Vertical，避免任何寬度計算錯誤 ★★★
                 {
                   type: "box",
-                  layout: "horizontal", // 改為 Horizontal
-                  alignItems: "flex-start", // 改為靠上對齊
+                  layout: "vertical", // 改為垂直
                   spacing: "sm",
                   contents: [
-                    { type: "text", text: "預約時間", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    { type: "text", text: "預約時間", color: "#555555", size: "sm" },
                     { 
                         type: "text", 
-                        text: timeString, // 這裡放換行字串
+                        text: timeString || " ", 
                         color: "#111111", 
                         size: "sm", 
                         weight: "bold", 
-                        wrap: true, 
-                        flex: 1 
+                        wrap: true 
                     }
                   ],
                   margin: "md"
@@ -689,7 +685,7 @@
                   const flexMsg = createSuccessFlexMessage(successList);
                   await liff.sendMessages([flexMsg]);
                 } catch (msgErr) {
-                  alert("卡片發送失敗：" + msgErr); 
+                  // alert("卡片發送失敗：" + msgErr); 
                   console.error(msgErr);
                 }
              }
@@ -697,7 +693,7 @@
              liff.closeWindow();
 
            } else if (successList.length === 0) {
-             await Swal.fire({ icon:'error', title:'預約失敗', html:'Oops！所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
+             await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
              btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
