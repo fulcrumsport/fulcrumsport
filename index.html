@@ -104,7 +104,22 @@
 
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
-    .confirmItem { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:10px; font-size:14px; font-weight:900; color:#333; display:flex; justify-content:space-between; }
+    
+    /* ★★★ 這裡修改了 .confirmItem 的樣式 ★★★ */
+    /* 移除了 justify-content: space-between，加入了 gap: 16px */
+    .confirmItem { 
+        background:#fff; 
+        border:1px solid rgba(0,0,0,.08); 
+        border-radius:12px; 
+        padding:12px 16px; 
+        font-size:15px; 
+        font-weight:900; 
+        color:#333; 
+        display:flex; 
+        justify-content: flex-start; /* 靠左對齊 */
+        align-items: center;
+        gap: 24px; /* 日期和時間的間距 */
+    }
 
     /* 溫馨提醒標題放大 */
     .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
@@ -309,11 +324,11 @@
       });
       html += `</div>`;
       
-      // ★ UI 修改：字體放大、加粗、顏色加深
+      // UI 修改：字體放大、加粗、顏色加深
       html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
-      // ★ UI 修改：使用 <ol> 確保數字與文字對齊
+      // UI 修改：使用 <ol> 確保數字與文字對齊
       const remindHtml = `
         <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
           <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
@@ -541,7 +556,6 @@
     };
   }
 
-  // ★ 修正：移除了可能導致問題的 alpha 屬性，並使用標準 6 碼 Hex 顏色
   function createSuccessFlexMessage(successList) {
     const getWd = (d) => weekdayZhFromDateKey(d);
     
@@ -554,6 +568,7 @@
        wrap: true
     }));
 
+    // ★★★ 修正這裡：將預約時間的父容器 layout 改為 'horizontal' ★★★
     return {
       type: "flex",
       altText: "私課預約成功通知",
@@ -598,8 +613,10 @@
                 },
                 {
                   type: "box",
-                  layout: "baseline",
+                  // ★★★ 修正點：改用 horizontal 以容許 nested box
+                  layout: "horizontal",
                   spacing: "sm",
+                  alignItems: "flex-start", // 靠上對齊
                   contents: [
                     { type: "text", text: "預約時間", color: "#555555", size: "sm", flex: 0, width: "70px" },
                     {
@@ -679,7 +696,6 @@
                   const flexMsg = createSuccessFlexMessage(successList);
                   await liff.sendMessages([flexMsg]);
                 } catch (msgErr) {
-                  // ★ 這裡加入了 Alert，如果發送失敗，手機會直接告訴你原因
                   alert("卡片發送失敗：" + msgErr); 
                   console.error(msgErr);
                 }
@@ -688,7 +704,7 @@
              liff.closeWindow();
 
            } else if (successList.length === 0) {
-             await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
+             await Swal.fire({ icon:'error', title:'預約失敗', html:'Oops！所選時段皆已被預約。', confirmButtonText:'重新選擇' });
              btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
