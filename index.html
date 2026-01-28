@@ -571,7 +571,7 @@
               liff.closeWindow();
 
            } else if (successList.length === 0) {
-              await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
+              await Swal.fire({ icon:'error', title:'預約失敗', html:'oops！所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
               btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
