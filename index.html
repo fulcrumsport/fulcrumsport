@@ -105,8 +105,7 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     
-    /* ★★★ 這裡修改了 .confirmItem 的樣式 ★★★ */
-    /* 移除了 justify-content: space-between，加入了 gap: 16px */
+    /* ★★★ 這裡修改了 .confirmItem 的樣式，讓Step 3排版靠左對齊 ★★★ */
     .confirmItem { 
         background:#fff; 
         border:1px solid rgba(0,0,0,.08); 
@@ -324,11 +323,9 @@
       });
       html += `</div>`;
       
-      // UI 修改：字體放大、加粗、顏色加深
       html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
-      // UI 修改：使用 <ol> 確保數字與文字對齊
       const remindHtml = `
         <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
           <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
@@ -556,9 +553,11 @@
     };
   }
 
+  // ★★★ 關鍵修正：修復 Flex Message 結構的函式 ★★★
   function createSuccessFlexMessage(successList) {
     const getWd = (d) => weekdayZhFromDateKey(d);
     
+    // 建立時間列表文字
     const timeRows = successList.map(item => ({
        type: "text",
        text: `${item.date} (${getWd(item.date)}) ${item.time}`,
@@ -568,7 +567,6 @@
        wrap: true
     }));
 
-    // ★★★ 修正這裡：將預約時間的父容器 layout 改為 'horizontal' ★★★
     return {
       type: "flex",
       altText: "私課預約成功通知",
@@ -592,36 +590,39 @@
               type: "box",
               layout: "vertical",
               contents: [
+                // 第一行：教練
                 {
                   type: "box",
                   layout: "baseline",
                   spacing: "sm",
                   contents: [
                     { type: "text", text: "預約教練", color: "#555555", size: "sm", flex: 0, width: "70px" },
-                    { type: "text", text: state.coach.name, color: "#111111", size: "sm", weight: "bold", wrap: true }
+                    { type: "text", text: state.coach.name, color: "#111111", size: "sm", weight: "bold", wrap: true, flex: 1 }
                   ]
                 },
+                // 第二行：人數
                 {
                   type: "box",
                   layout: "baseline",
                   spacing: "sm",
                   contents: [
                     { type: "text", text: "預約人數", color: "#555555", size: "sm", flex: 0, width: "70px" },
-                    { type: "text", text: `${state.people} 人`, color: "#111111", size: "sm", weight: "bold", wrap: true }
+                    { type: "text", text: `${state.people} 人`, color: "#111111", size: "sm", weight: "bold", wrap: true, flex: 1 }
                   ],
                   margin: "md"
                 },
+                // ★★★ 第三行：預約時間 (結構修正重點) ★★★
                 {
                   type: "box",
-                  // ★★★ 修正點：改用 horizontal 以容許 nested box
-                  layout: "horizontal",
+                  layout: "horizontal", // 1. 改為 horizontal
                   spacing: "sm",
-                  alignItems: "flex-start", // 靠上對齊
+                  alignItems: "flex-start",
                   contents: [
                     { type: "text", text: "預約時間", color: "#555555", size: "sm", flex: 0, width: "70px" },
                     {
                       type: "box",
                       layout: "vertical",
+                      flex: 1, // 2. 加上 flex: 1 支援 wrap: true
                       contents: timeRows
                     }
                   ],
@@ -704,7 +705,7 @@
              liff.closeWindow();
 
            } else if (successList.length === 0) {
-             await Swal.fire({ icon:'error', title:'預約失敗', html:'Oops！所選時段皆已被預約。', confirmButtonText:'重新選擇' });
+             await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
              btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
