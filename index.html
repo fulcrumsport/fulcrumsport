@@ -106,9 +106,10 @@
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     .confirmItem { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:10px; font-size:14px; font-weight:900; color:#333; display:flex; justify-content:space-between; }
 
-    /* 溫馨提醒：暗紅色樣式 */
-    .remindTitle{ width:100%; font-weight:950; font-size:12px; color:var(--danger); margin-top:2px; }
-    .remindBox{ width:100%; border-radius:16px; border:1px solid rgba(178, 58, 43, 0.2); background:#fff5f5; padding:12px; font-size:12px; line-height:1.6; font-weight:900; color:var(--danger); }
+    /* ★ 修正：溫馨提醒標題放大 ★ */
+    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
+    
+    .remindBox{ width:100%; border-radius:16px; border:1px solid rgba(178, 58, 43, 0.2); background:#fff5f5; padding:12px; font-size:13px; line-height:1.6; font-weight:900; color:var(--danger); }
     
     .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); }
     .btnRow{ display:flex; gap:12px; }
@@ -120,6 +121,9 @@
     .status{ margin-top:8px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:18px; white-space:pre-wrap; }
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
+
+    /* ★ 修正：強制 SweetAlert 文字置中 ★ */
+    .swal2-html-container { text-align: center !important; font-weight: 900 !important; }
     .swal2-popup { font-family: system-ui, -apple-system, sans-serif !important; border-radius: 20px !important; }
   </style>
 </head>
@@ -182,9 +186,8 @@
         <div class="infoBox" id="confirmInfo"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
-          1. 預約及取消請在課堂開始前1小時執行。<br/>
-          2. 本系統將為您送出多筆預約並檢核。<br/>
-          3. 若某時段已被搶先預約，系統會提醒並取消跳過已被預約時段。
+          1. 預約及取消請在課堂開始前 1 小時執行。<br/>
+          2. 若某時段已被預約，將發出提醒並跳過該時段，僅預約可預約時段 。
         </div>
       </div>
     </div>
@@ -245,7 +248,6 @@
   
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.textContent = msg || ''; }
 
-  // 統一更新狀態列 (簡化版)
   function updateStatusInStep2() {
       if(state.loadingOptions) {
           setStatus(`讀取 ${state.coach.name} 的可預約時段中…`);
@@ -300,7 +302,9 @@
       btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       
-      let html = `<div style="margin-bottom:8px;"><b>預約教練：</b>${state.coach.name} (${state.people}人)</div>`;
+      // ★ 修正：移除教練後面的 (1人) ★
+      let html = `<div style="margin-bottom:8px;"><b>預約教練：</b>${state.coach.name}</div>`;
+      
       html += `<div class="confirmList">`;
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
@@ -309,11 +313,11 @@
       html += `</div>`;
       html += `<div style="text-align:right; margin-top:8px; font-size:13px; color:#666;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
+      
       setStatus('');
     }
   }
 
-  // ★ 按鈕狀態更新：純粹顯示下一步 ★
   function updateNextButtonState() {
       const count = state.cart.length;
       if (count > 0) {
@@ -382,10 +386,10 @@
           if(repeatBtn) {
               repeatBtn.onclick = (e) => {
                  e.stopPropagation();
-                 // ★ 優化提示：加入日期、星期與時段強調 ★
+                 // ★ 修正：一鍵包月提示文案 (統一顏色大小，移除紅色) ★
                  Swal.fire({
                      title: '一鍵包月',
-                     html: `要加入 ${item.date} 後續 3 週<br><b style="color:#d33; font-size:1.1em;">每週${wd} ${item.time}</b> 時段的預約嗎？`,
+                     text: `是否要加入 ${item.date} 後續 3 週 每週 ${item.time} 時段的預約?`,
                      icon: 'question',
                      showCancelButton: true,
                      confirmButtonText: '加入',
@@ -574,7 +578,7 @@
            }
         }catch(e){ 
             console.error(e);
-            // ★ 修改 4：更新錯誤訊息 ★
+            // ★ 修正：確保錯誤訊息置中 (已透過 CSS .swal2-html-container 強制執行) ★
             Swal.fire({ icon:'error', title:'錯誤', text:'系統異常，請聯繫教練處理。' }); 
             btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
