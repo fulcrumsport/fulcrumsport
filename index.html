@@ -106,7 +106,7 @@
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     .confirmItem { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:10px; font-size:14px; font-weight:900; color:#333; display:flex; justify-content:space-between; }
 
-    /* ★ 修正：溫馨提醒標題放大 ★ */
+    /* 溫馨提醒標題放大 */
     .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
     
     .remindBox{ width:100%; border-radius:16px; border:1px solid rgba(178, 58, 43, 0.2); background:#fff5f5; padding:12px; font-size:13px; line-height:1.6; font-weight:900; color:var(--danger); }
@@ -122,7 +122,7 @@
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
-    /* ★ 修正：強制 SweetAlert 文字置中 ★ */
+    /* 強制 SweetAlert 文字置中 */
     .swal2-html-container { text-align: center !important; font-weight: 900 !important; }
     .swal2-popup { font-family: system-ui, -apple-system, sans-serif !important; border-radius: 20px !important; }
   </style>
@@ -182,12 +182,12 @@
 
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
-        <div class="h">Step 3｜確認預約內容</div>
+        <div class="h">Step 3｜確認預約時段</div>
         <div class="infoBox" id="confirmInfo"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
           1. 預約及取消請在課堂開始前 1 小時執行。<br/>
-          2. 若某時段已被預約，將發出提醒並跳過該時段，僅預約可預約時段 。
+          2. 若某時段已被預約，將直接取消該時段預約。
         </div>
       </div>
     </div>
@@ -203,6 +203,7 @@
 </div>
 
 <script>
+  // ★ 重要：請確認這些 URL 與您的 Make Webhook 一致
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
@@ -302,8 +303,8 @@
       btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       
-      // ★ 修正：移除教練後面的 (1人) ★
-      let html = `<div style="margin-bottom:8px;"><b>預約教練：</b>${state.coach.name}</div>`;
+      // ★ 修改 2：教練名字加粗放大 ★
+      let html = `<div style="margin-bottom:8px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
       
       html += `<div class="confirmList">`;
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
@@ -313,6 +314,13 @@
       html += `</div>`;
       html += `<div style="text-align:right; margin-top:8px; font-size:13px; color:#666;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
+      
+      // ★ 修改 3：溫馨提醒文案同步更新 ★
+      const remindHtml = `
+          1. 預約及取消請在課堂開始前 1 小時執行。<br/>
+          2. 若某時段已被預約，將直接取消該時段預約。
+      `;
+      document.querySelector('.remindBox').innerHTML = remindHtml;
       
       setStatus('');
     }
@@ -386,7 +394,7 @@
           if(repeatBtn) {
               repeatBtn.onclick = (e) => {
                  e.stopPropagation();
-                 // ★ 修正：一鍵包月提示文案 (統一顏色大小，移除紅色) ★
+                 // 一鍵包月提示文案
                  Swal.fire({
                      title: '一鍵包月',
                      text: `是否要加入 ${item.date} 後續 3 週 每週 ${item.time} 時段的預約?`,
@@ -578,8 +586,8 @@
            }
         }catch(e){ 
             console.error(e);
-            // ★ 修正：確保錯誤訊息置中 (已透過 CSS .swal2-html-container 強制執行) ★
-            Swal.fire({ icon:'error', title:'錯誤', text:'系統異常，請聯繫教練處理。' }); 
+            // ★ 修改 1：錯誤訊息文案更新 ★
+            Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練處理。' }); 
             btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
       }
