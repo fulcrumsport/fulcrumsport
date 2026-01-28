@@ -71,7 +71,7 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★ 預約清單樣式 (優化版) ★ */
+    /* 預約清單樣式 */
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);
       display: flex; flex-direction: column; gap: 6px; 
@@ -105,6 +105,10 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     .confirmItem { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:10px; font-size:14px; font-weight:900; color:#333; display:flex; justify-content:space-between; }
+
+    /* 溫馨提醒：暗紅色樣式 */
+    .remindTitle{ width:100%; font-weight:950; font-size:12px; color:var(--danger); margin-top:2px; }
+    .remindBox{ width:100%; border-radius:16px; border:1px solid rgba(178, 58, 43, 0.2); background:#fff5f5; padding:12px; font-size:12px; line-height:1.6; font-weight:900; color:var(--danger); }
     
     .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); }
     .btnRow{ display:flex; gap:12px; }
@@ -178,8 +182,9 @@
         <div class="infoBox" id="confirmInfo"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
-          1. 系統將為您檢查並送出多筆預約。<br/>
-          2. 若某時段已被搶先預約，系統將會告知並跳過。
+          1. 預約及取消請在課堂開始前1小時執行。<br/>
+          2. 本系統將為您送出多筆預約並檢核。<br/>
+          3. 若某時段已被搶先預約，系統會提醒並取消跳過已被預約時段。
         </div>
       </div>
     </div>
@@ -195,7 +200,6 @@
 </div>
 
 <script>
-  // ★ 使用您提供的 ID
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
@@ -208,7 +212,6 @@
   const state = {
     step: 1, uid: '', name: '', coach: null, people: null,
     weekStart: null, dateKey: null, tab: 'am',
-    // ★ 變更：使用 cart 陣列來儲存多筆預約
     cart: [],
     optionsRaw: [], availabilityMap: {}, loadingOptions: false
   };
@@ -242,17 +245,30 @@
   
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.textContent = msg || ''; }
 
-  // ★ 新增：檢查未來 3 週同一時段是否都有空
+  // 統一更新狀態列 (簡化版)
+  function updateStatusInStep2() {
+      if(state.loadingOptions) {
+          setStatus(`讀取 ${state.coach.name} 的可預約時段中…`);
+      } else if(state.cart.length > 0) {
+          setStatus(`已選擇 ${state.cart.length} 堂課`);
+      } else if(!hasAnySlots()) {
+          setStatus('目前沒有可預約的時段', true);
+      } else if(state.dateKey) {
+          setStatus(`已選日期：${state.dateKey}`);
+      } else {
+          setStatus('請先選擇上方日期');
+      }
+  }
+
   function checkRecurringAvailable(startDateKey, timeStr) {
       let current = new Date(startDateKey + 'T00:00:00');
       for (let i = 1; i <= 3; i++) {
           current = addDays(current, 7);
           const dKey = ymd(current);
           const slotsForDay = state.availabilityMap[dKey];
-          // 如果某一天沒資料，或者該時段被訂走，就回傳 false
           if (!slotsForDay || !slotsForDay.includes(timeStr)) return false; 
       }
-      return true; // 連續3週都有空
+      return true;
   }
 
   function step1StatusText(){
@@ -277,16 +293,13 @@
     if(n===2){
       btnBack.classList.remove('hide'); 
       updateNextButtonState(); 
-      if(state.loadingOptions) setStatus(`讀取 ${state.coach.name} 的可預約時段中…`);
-      else if(!hasAnySlots()) setStatus('目前沒有可預約的時段', true);
-      else setStatus(state.dateKey ? `已選日期：${state.dateKey}` : '請先選擇上方日期');
-      renderCart(); // 切換步驟時重繪購物車
+      updateStatusInStep2();
+      renderCart();
     }
     if(n===3){
       btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       
-      // 渲染確認清單
       let html = `<div style="margin-bottom:8px;"><b>預約教練：</b>${state.coach.name} (${state.people}人)</div>`;
       html += `<div class="confirmList">`;
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
@@ -300,10 +313,11 @@
     }
   }
 
+  // ★ 按鈕狀態更新：純粹顯示下一步 ★
   function updateNextButtonState() {
       const count = state.cart.length;
       if (count > 0) {
-          btnNext.textContent = `下一步 (已選 ${count} 堂)`;
+          btnNext.textContent = `下一步`;
           btnNext.disabled = false;
       } else {
           btnNext.textContent = '下一步';
@@ -313,22 +327,17 @@
 
   function toggleCartItem(date, time) {
       const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) {
-          // 移除
-          state.cart.splice(idx, 1);
-      } else {
-          // 加入
-          const d = new Date(date + 'T' + time);
-          state.cart.push({ date: date, time: time, ts: d.getTime() });
-      }
+      if (idx >= 0) { state.cart.splice(idx, 1); } 
+      else { const d = new Date(date + 'T' + time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
       renderCart(); 
-      renderSlotsStep2(); // 重新渲染格子顏色
+      renderSlotsStep2();
       updateNextButtonState();
+      updateStatusInStep2();
   }
 
   function addBatchItems(startDateKey, timeStr, weeks = 4) {
       let current = new Date(startDateKey + 'T00:00:00');
-      current = addDays(current, 7); // 從下週開始算
+      current = addDays(current, 7);
       let addedCount = 0;
       for (let i = 0; i < (weeks - 1); i++) {
           const dKey = ymd(current);
@@ -343,7 +352,6 @@
       return addedCount;
   }
 
-  // ★ 渲染預約清單 (含包月按鈕邏輯)
   function renderCart() {
       cartList.innerHTML = '';
       if (state.cart.length === 0) {
@@ -355,12 +363,9 @@
           const el = document.createElement('div');
           el.className = 'cartItem';
           const wd = weekdayZhFromDateKey(item.date);
-          
-          // 檢查這筆訂單是否符合「包月資格」
           const isRecurringEligible = checkRecurringAvailable(item.date, item.time);
           
           let btnHtml = '';
-          // 只有符合資格才顯示按鈕
           if (isRecurringEligible) {
              btnHtml = `<div class="repeatBtn" title="自動加入未來 3 週的同一時段">+包月</div>`;
           }
@@ -373,14 +378,14 @@
             </div>
           `;
           
-          // 包月按鈕事件
           const repeatBtn = el.querySelector('.repeatBtn');
           if(repeatBtn) {
               repeatBtn.onclick = (e) => {
                  e.stopPropagation();
+                 // ★ 優化提示：加入日期、星期與時段強調 ★
                  Swal.fire({
                      title: '一鍵包月',
-                     text: `要自動加入 ${item.date} 後續 3 週的 ${item.time} 嗎？`,
+                     html: `要加入 ${item.date} 後續 3 週<br><b style="color:#d33; font-size:1.1em;">每週${wd} ${item.time}</b> 時段的預約嗎？`,
                      icon: 'question',
                      showCancelButton: true,
                      confirmButtonText: '加入',
@@ -389,14 +394,13 @@
                  }).then((res)=>{
                      if(res.isConfirmed){
                          const c = addBatchItems(item.date, item.time, 4);
-                         renderCart(); renderSlotsStep2(); updateNextButtonState();
+                         renderCart(); renderSlotsStep2(); updateNextButtonState(); updateStatusInStep2();
                          Swal.fire({ icon:'success', title:'已加入', text:`成功加入後續 ${c} 堂課`, timer:1500, showConfirmButton:false });
                      }
                  });
               };
           }
 
-          // 刪除按鈕事件
           el.querySelector('.delBtn').onclick = (e) => { 
              e.stopPropagation(); 
              toggleCartItem(item.date, item.time); 
@@ -464,7 +468,8 @@
       cell.onclick=()=>{
         if(cell.classList.contains('disabled')) return;
         state.dateKey=key; 
-        renderWeekStrip(); renderSlotsStep2(); setStatus(`已選日期：${state.dateKey}`);
+        renderWeekStrip(); renderSlotsStep2(); 
+        updateStatusInStep2();
       };
       weekStrip.appendChild(cell);
     }
@@ -489,7 +494,6 @@
       div.className='slot'+(disabled?' disabled':'')+(isSelected?' sel':'');
       div.textContent=t;
       
-      // ★ 靜音模式：點擊就是選取，不跳任何視窗 (除非disabled)
       div.onclick=async ()=>{ 
         if(disabled) return; 
         toggleCartItem(state.dateKey, t);
@@ -511,10 +515,9 @@
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
     }catch(e){ console.error(e); }
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2();
-    if(!hasAnySlots()) setStatus('目前沒有可預約的時段', true); else setStatus('請先選擇上方日期');
+    updateStatusInStep2();
   }
 
-  // ★ 構建批量預約資料 ★
   function buildBatchBookingData(){
     return {
       action: "book", 
@@ -541,30 +544,25 @@
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
-        // ★ 核心邏輯：送出批量預約並解析成績單
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         try{
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(buildBatchBookingData()) });
            const result = await res.json();
            
-           // Make 回傳範例: { "status": "completed", "results": [{date:"...", status:"success"}, ...] }
            const results = result.results || [];
            const successList = results.filter(r => r.status === 'success');
            const failedList = results.filter(r => r.status !== 'success');
 
            if (failedList.length === 0 && successList.length > 0) {
-              // 全部成功
               await Swal.fire({ icon:'success', title:'預約成功', text:`${successList.length} 堂課皆已預約完成！`, confirmButtonColor: '#1bb57a' });
               if(liff.isInClient()) await liff.sendMessages([{ type:"text", text:`🎉 成功預約 ${successList.length} 堂私課！` }]);
               liff.closeWindow();
 
            } else if (successList.length === 0) {
-              // 全部失敗
               await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
               btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
-              // 部分成功
               let failMsg = failedList.map(f => `<li>${f.date}: ${f.msg||'額滿'}</li>`).join('');
               await Swal.fire({
                   icon: 'warning',
@@ -576,7 +574,8 @@
            }
         }catch(e){ 
             console.error(e);
-            Swal.fire({ icon:'error', title:'錯誤', text:'系統忙碌中' }); 
+            // ★ 修改 4：更新錯誤訊息 ★
+            Swal.fire({ icon:'error', title:'錯誤', text:'系統異常，請聯繫教練處理。' }); 
             btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
       }
