@@ -308,11 +308,12 @@
         html += `<div class="confirmItem"><span>${item.date} (${wd})</span> <span>${item.time}</span></div>`;
       });
       html += `</div>`;
-      // ★ (LIFF UI) 總課堂數：字體放大、加粗、深色 ★
+      
+      // ★ UI 修改：字體放大、加粗、顏色加深
       html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
-      // ★ (LIFF UI) 溫馨提醒：使用 <ol> 讓數字與文字對齊 ★
+      // ★ UI 修改：使用 <ol> 確保數字與文字對齊
       const remindHtml = `
         <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
           <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
@@ -540,11 +541,10 @@
     };
   }
 
-  // ★ 新增：產生預約成功 Flex Message 的函式 ★
+  // ★ 修正：產生預約成功 Flex Message (使用標準 6 碼 Hex 顏色)
   function createSuccessFlexMessage(successList) {
     const getWd = (d) => weekdayZhFromDateKey(d);
     
-    // 產生時間列表 (如果有多堂課，會垂直排列)
     const timeRows = successList.map(item => ({
        type: "text",
        text: `${item.date} (${getWd(item.date)}) ${item.time}`,
@@ -564,7 +564,7 @@
           layout: "vertical",
           contents: [
             { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "sm" }
+            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffff", margin: "sm", alpha: 0.8 } 
           ],
           backgroundColor: "#1bb57a",
           paddingAll: "20px"
@@ -672,19 +672,25 @@
            const failedList = results.filter(r => r.status !== 'success');
 
            if (failedList.length === 0 && successList.length > 0) {
-             // ★ (JS) 彈窗文字更新：預約成功後顯示「已成功預約 x 堂私課！」 ★
+             // 1. 先顯示預約成功視窗 (確保使用者知道已經成功)
              await Swal.fire({ icon:'success', title:'預約成功', text:`已成功預約 ${successList.length} 堂私課！`, confirmButtonColor: '#1bb57a' });
              
-             // ★ (JS) 成功後發送 Flex Message ★
+             // 2. 嘗試發送 Flex Message (防呆機制：包裹獨立 try-catch)
              if(liff.isInClient()) {
-                const flexMsg = createSuccessFlexMessage(successList);
-                await liff.sendMessages([flexMsg]);
+                try {
+                  const flexMsg = createSuccessFlexMessage(successList);
+                  await liff.sendMessages([flexMsg]);
+                } catch (msgErr) {
+                  // 如果發送失敗 (例如權限不足)，僅在後台記錄，不阻擋流程
+                  console.error("Flex Message 發送失敗 (可能是權限不足):", msgErr);
+                }
              }
              
+             // 3. 關鍵修正：無論訊息是否發送成功，這裡一定會關閉視窗
              liff.closeWindow();
 
            } else if (successList.length === 0) {
-             await Swal.fire({ icon:'error', title:'預約失敗', html:'Oops！所選時段皆已被預約。', confirmButtonText:'重新選擇' });
+             await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
              btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
@@ -699,6 +705,7 @@
            }
         }catch(e){ 
             console.error(e);
+            // 只有當網路連線失敗等嚴重錯誤時，才顯示系統異常
             Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練處理。' }); 
             btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
