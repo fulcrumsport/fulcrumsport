@@ -103,7 +103,7 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     
-    /* ★★★ Step 3 排版修改：改為 space-between 讓內容平均分配 ★★★ */
+    /* ★★★ Step 3 排版修正：日期時間靠左，人數在後，顏色加深 ★★★ */
     .confirmItem { 
         background:#fff; 
         border:1px solid rgba(0,0,0,.08); 
@@ -111,10 +111,21 @@
         padding:14px 16px; 
         font-size:15px; 
         font-weight:900; 
-        color:#333; 
+        color:#111; /* 人數顏色也統一用深色 */
         display:flex; 
-        justify-content: space-between; /* 左右平均分配 */
         align-items: center;
+        justify-content: flex-start; /* 整體靠左 */
+    }
+    /* 日期與時間的群組 */
+    .confirmItem .dt-group {
+        display: flex;
+        gap: 12px; /* 日期和時間的間距 */
+        flex: 1;   /* 佔據剩餘空間 */
+    }
+    /* 人數 */
+    .confirmItem .ppl {
+        margin-left: auto; /* 將人數推到最右邊 (如果不想要最右邊，可以拿掉這行) */
+        color: #111; /* 確保人數是深色 */
     }
 
     .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
@@ -310,13 +321,15 @@
       let html = `<div style="margin-bottom:8px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
       
       html += `<div class="confirmList">`;
-      // ★★★ Step 3 排版修改：加入人數，並透過 CSS space-between 自動排版 ★★★
+      // ★★★ Step 3 排版調整：使用 CSS class 來控制距離 ★★★
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
         html += `<div class="confirmItem">
-                   <span>${item.date} (${wd})</span>
-                   <span>${item.time}</span>
-                   <span style="color:#666; font-size:0.9em;">${state.people}人</span>
+                   <div class="dt-group">
+                     <span>${item.date} (${wd})</span>
+                     <span>${item.time}</span>
+                   </div>
+                   <div class="ppl">${state.people} 人</div>
                  </div>`;
       });
       html += `</div>`;
@@ -551,38 +564,140 @@
     };
   }
 
-  // ★★★ Flex Message 極簡版：只傳送一張簡單的預約成功卡片+按鈕 ★★★
-  // 這可以避免因為資料格式或排版導致的 INVALID_MESSAGE
-  function createSimpleSuccessFlex(successList) {
+  // ★★★ Flex Message 設計更新：綠色標頭 + 垂直列表 + 大按鈕 ★★★
+  function createSuccessFlexMessage(successList) {
+    const getWd = (d) => weekdayZhFromDateKey(d);
+    
+    // 使用字串串接是最安全的方法
+    const timeString = successList
+        .map(item => `${item.date} (${getWd(item.date)}) ${item.time}`)
+        .join('\n');
+
     return {
       type: "flex",
-      altText: "預約成功通知",
+      altText: "私課預約成功通知",
       contents: {
         type: "bubble",
+        // 1. 綠色標頭
+        header: {
+          type: "box",
+          layout: "vertical",
+          backgroundColor: "#1bb57a",
+          paddingAll: "20px",
+          contents: [
+            { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
+            { type: "text", text: "支點運動空間", size: "xs", color: "#eeeeee", margin: "sm" }
+          ]
+        },
+        // 2. 內容區塊
         body: {
           type: "box",
           layout: "vertical",
-          spacing: "md",
           contents: [
-            { type: "text", text: "預約成功", weight: "bold", size: "xl", color: "#1bb57a", align: "center" },
-            { type: "text", text: `已成功預約 ${successList.length} 堂課程`, size: "md", color: "#555555", align: "center", wrap: true },
-            { type: "text", text: `教練：${state.coach.name}`, size: "sm", color: "#aaaaaa", align: "center" }
+            {
+              type: "box",
+              layout: "vertical",
+              backgroundColor: "#f5fcf9",
+              cornerRadius: "10px",
+              paddingAll: "16px",
+              contents: [
+                // 教練
+                {
+                  type: "box",
+                  layout: "horizontal",
+                  contents: [
+                    { type: "text", text: "預約教練", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    { type: "text", text: state.coach.name, color: "#111111", size: "sm", weight: "bold", wrap: true }
+                  ]
+                },
+                // 人數
+                {
+                  type: "box",
+                  layout: "horizontal",
+                  margin: "md",
+                  contents: [
+                    { type: "text", text: "預約人數", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    { type: "text", text: `${state.people} 人`, color: "#111111", size: "sm", weight: "bold", wrap: true }
+                  ]
+                },
+                // 時間 (使用最安全的 Vertical + Horizontal + Flex-Start 結構)
+                {
+                  type: "box",
+                  layout: "horizontal",
+                  alignItems: "flex-start", // 靠上對齊
+                  margin: "md",
+                  contents: [
+                    { type: "text", text: "預約時間", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    { 
+                        type: "text", 
+                        text: timeString, 
+                        color: "#111111", 
+                        size: "sm", 
+                        weight: "bold", 
+                        wrap: true, 
+                        flex: 1 
+                    }
+                  ]
+                }
+              ]
+            },
+            // 溫馨提醒
+            {
+              type: "text",
+              text: "溫馨提醒",
+              margin: "xl",
+              weight: "bold",
+              size: "sm",
+              color: "#b2682b"
+            },
+            {
+              type: "text",
+              text: "1. 取消或改期，請於開課前 1 小時完成。",
+              margin: "sm",
+              size: "xs",
+              color: "#666666",
+              wrap: true,
+              lineSpacing: "4px"
+            },
+            {
+              type: "text",
+              text: "2. 如有任何問題，請於「支點運動空間」官方 Line 聯繫我們。",
+              margin: "sm",
+              size: "xs",
+              color: "#666666",
+              wrap: true,
+              lineSpacing: "4px"
+            }
           ]
         },
+        // 3. 底部按鈕區 (使用 Box 模擬按鈕以支援大字體)
         footer: {
           type: "box",
           layout: "vertical",
           contents: [
             {
-              type: "button",
-              style: "primary",
-              color: "#1bb57a",
+              type: "box",
+              layout: "vertical",
+              backgroundColor: "#1bb57a",
+              cornerRadius: "12px",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50px", // 增加高度
               action: {
                 type: "uri",
                 label: "查看預約",
-                // ★ 這裡我設定連回原本的 LIFF 頁面，您也可以換成官方帳號連結或其他網址
+                // 回到 LIFF 首頁
                 uri: "https://liff.line.me/" + LIFF_ID 
-              }
+              },
+              contents: [
+                {
+                  type: "text",
+                  text: "查看預約",
+                  color: "#ffffff",
+                  size: "lg", // 字體放大
+                  weight: "bold" // 字體加粗
+                }
+              ]
             }
           ]
         }
@@ -618,12 +733,10 @@
              
              if(liff.isInClient()) {
                 try {
-                  // ★ 改用極簡版 Flex Message
-                  const flexMsg = createSimpleSuccessFlex(successList);
+                  const flexMsg = createSuccessFlexMessage(successList);
                   await liff.sendMessages([flexMsg]);
                 } catch (msgErr) {
                   console.error(msgErr);
-                  // 萬一還是失敗，至少用 alert 告訴使用者（但應該不會失敗了）
                 }
              }
              
