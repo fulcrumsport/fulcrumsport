@@ -200,7 +200,7 @@
 </div>
 
 <script>
-  // ★ 重要：請確認這些 URL 與您的 Make Webhook 一致
+  // ★ 請再次確認這些 URL 與您的 Make Webhook 一致
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
@@ -308,11 +308,11 @@
         html += `<div class="confirmItem"><span>${item.date} (${wd})</span> <span>${item.time}</span></div>`;
       });
       html += `</div>`;
-      // ★ 修改 2：將「共 x 堂課」的字體放大 (16px)、加粗 (950)、顏色加深 (#111) ★
+      // ★ (LIFF UI) 總課堂數：字體放大、加粗、深色 ★
       html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
-      // ★ 修改 3：使用有序列表 <ol> 來確保溫馨提醒的數字與文字完美對齊 ★
+      // ★ (LIFF UI) 溫馨提醒：使用 <ol> 讓數字與文字對齊 ★
       const remindHtml = `
         <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
           <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
@@ -393,7 +393,6 @@
           if(repeatBtn) {
               repeatBtn.onclick = (e) => {
                   e.stopPropagation();
-                  // 一鍵包月提示文案
                   Swal.fire({
                       title: '一鍵包月',
                       text: `是否要加入 ${item.date} 後續 3 週 每週 ${item.time} 時段的預約?`,
@@ -541,6 +540,114 @@
     };
   }
 
+  // ★ 新增：產生預約成功 Flex Message 的函式 ★
+  function createSuccessFlexMessage(successList) {
+    const getWd = (d) => weekdayZhFromDateKey(d);
+    
+    // 產生時間列表 (如果有多堂課，會垂直排列)
+    const timeRows = successList.map(item => ({
+       type: "text",
+       text: `${item.date} (${getWd(item.date)}) ${item.time}`,
+       size: "sm",
+       color: "#111111",
+       weight: "bold",
+       wrap: true
+    }));
+
+    return {
+      type: "flex",
+      altText: "私課預約成功通知",
+      contents: {
+        type: "bubble",
+        header: {
+          type: "box",
+          layout: "vertical",
+          contents: [
+            { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
+            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "sm" }
+          ],
+          backgroundColor: "#1bb57a",
+          paddingAll: "20px"
+        },
+        body: {
+          type: "box",
+          layout: "vertical",
+          contents: [
+            {
+              type: "box",
+              layout: "vertical",
+              contents: [
+                {
+                  type: "box",
+                  layout: "baseline",
+                  spacing: "sm",
+                  contents: [
+                    { type: "text", text: "預約教練", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    { type: "text", text: state.coach.name, color: "#111111", size: "sm", weight: "bold", wrap: true }
+                  ]
+                },
+                {
+                  type: "box",
+                  layout: "baseline",
+                  spacing: "sm",
+                  contents: [
+                    { type: "text", text: "預約人數", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    { type: "text", text: `${state.people} 人`, color: "#111111", size: "sm", weight: "bold", wrap: true }
+                  ],
+                  margin: "md"
+                },
+                {
+                  type: "box",
+                  layout: "baseline",
+                  spacing: "sm",
+                  contents: [
+                    { type: "text", text: "預約時間", color: "#555555", size: "sm", flex: 0, width: "70px" },
+                    {
+                      type: "box",
+                      layout: "vertical",
+                      contents: timeRows
+                    }
+                  ],
+                  margin: "md"
+                }
+              ],
+              backgroundColor: "#f5fcf9",
+              cornerRadius: "10px",
+              paddingAll: "16px"
+            },
+            {
+              type: "text",
+              text: "溫馨提醒",
+              margin: "xl",
+              weight: "bold",
+              size: "sm",
+              color: "#b2682b"
+            },
+            {
+              type: "text",
+              text: "1. 取消或改期，請於開課前 1 小時完成。",
+              margin: "sm",
+              size: "xs",
+              color: "#666666",
+              wrap: true,
+              lineSpacing: "4px"
+            },
+            {
+              type: "text",
+              text: "2. 如有任何問題，請於「支點運動空間」官方 Line 聯繫我們。",
+              margin: "sm",
+              size: "xs",
+              color: "#666666",
+              wrap: true,
+              lineSpacing: "4px"
+            }
+          ],
+          paddingAll: "20px"
+        }
+      }
+    };
+  }
+
   async function init(){
     renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
     
@@ -565,9 +672,15 @@
            const failedList = results.filter(r => r.status !== 'success');
 
            if (failedList.length === 0 && successList.length > 0) {
-             // ★ 修改 1：將成功訊息的文字改為「已成功預約 x 堂私課！」 ★
+             // ★ (JS) 彈窗文字更新：預約成功後顯示「已成功預約 x 堂私課！」 ★
              await Swal.fire({ icon:'success', title:'預約成功', text:`已成功預約 ${successList.length} 堂私課！`, confirmButtonColor: '#1bb57a' });
-             if(liff.isInClient()) await liff.sendMessages([{ type:"text", text:`🎉 成功預約 ${successList.length} 堂私課！` }]);
+             
+             // ★ (JS) 成功後發送 Flex Message ★
+             if(liff.isInClient()) {
+                const flexMsg = createSuccessFlexMessage(successList);
+                await liff.sendMessages([flexMsg]);
+             }
+             
              liff.closeWindow();
 
            } else if (successList.length === 0) {
