@@ -185,10 +185,7 @@
         <div class="h">Step 3｜確認預約時段</div>
         <div class="infoBox" id="confirmInfo"></div>
         <div class="remindTitle">溫馨提醒</div>
-        <div class="remindBox">
-          1. 預約及取消請在課堂開始前 1 小時執行。<br/>
-          2. 若某時段已被預約，將直接取消該時段預約。
-        </div>
+        <div class="remindBox"></div>
       </div>
     </div>
   </div>
@@ -303,7 +300,6 @@
       btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       
-      // ★ 修改 2：教練名字加粗放大 ★
       let html = `<div style="margin-bottom:8px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
       
       html += `<div class="confirmList">`;
@@ -312,13 +308,16 @@
         html += `<div class="confirmItem"><span>${item.date} (${wd})</span> <span>${item.time}</span></div>`;
       });
       html += `</div>`;
-      html += `<div style="text-align:right; margin-top:8px; font-size:13px; color:#666;">共 ${state.cart.length} 堂課</div>`;
+      // ★ 修改 2：將「共 x 堂課」的字體放大 (16px)、加粗 (950)、顏色加深 (#111) ★
+      html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
-      // ★ 修改 3：溫馨提醒文案同步更新 ★
+      // ★ 修改 3：使用有序列表 <ol> 來確保溫馨提醒的數字與文字完美對齊 ★
       const remindHtml = `
-          1. 預約及取消請在課堂開始前 1 小時執行。<br/>
-          2. 若某時段已被預約，將直接取消該時段預約。
+        <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
+          <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
+          <li style="padding-left: 4px;">若某時段已被預約，將直接取消該時段預約。</li>
+        </ol>
       `;
       document.querySelector('.remindBox').innerHTML = remindHtml;
       
@@ -393,23 +392,23 @@
           const repeatBtn = el.querySelector('.repeatBtn');
           if(repeatBtn) {
               repeatBtn.onclick = (e) => {
-                 e.stopPropagation();
-                 // 一鍵包月提示文案
-                 Swal.fire({
-                     title: '一鍵包月',
-                     text: `是否要加入 ${item.date} 後續 3 週 每週 ${item.time} 時段的預約?`,
-                     icon: 'question',
-                     showCancelButton: true,
-                     confirmButtonText: '加入',
-                     confirmButtonColor: '#1bb57a',
-                     cancelButtonText: '取消'
-                 }).then((res)=>{
-                     if(res.isConfirmed){
-                         const c = addBatchItems(item.date, item.time, 4);
-                         renderCart(); renderSlotsStep2(); updateNextButtonState(); updateStatusInStep2();
-                         Swal.fire({ icon:'success', title:'已加入', text:`成功加入後續 ${c} 堂課`, timer:1500, showConfirmButton:false });
-                     }
-                 });
+                  e.stopPropagation();
+                  // 一鍵包月提示文案
+                  Swal.fire({
+                      title: '一鍵包月',
+                      text: `是否要加入 ${item.date} 後續 3 週 每週 ${item.time} 時段的預約?`,
+                      icon: 'question',
+                      showCancelButton: true,
+                      confirmButtonText: '加入',
+                      confirmButtonColor: '#1bb57a',
+                      cancelButtonText: '取消'
+                  }).then((res)=>{
+                      if(res.isConfirmed){
+                          const c = addBatchItems(item.date, item.time, 4);
+                          renderCart(); renderSlotsStep2(); updateNextButtonState(); updateStatusInStep2();
+                          Swal.fire({ icon:'success', title:'已加入', text:`成功加入後續 ${c} 堂課`, timer:1500, showConfirmButton:false });
+                      }
+                  });
               };
           }
 
@@ -566,27 +565,27 @@
            const failedList = results.filter(r => r.status !== 'success');
 
            if (failedList.length === 0 && successList.length > 0) {
-              await Swal.fire({ icon:'success', title:'預約成功', text:`${successList.length} 堂課皆已預約完成！`, confirmButtonColor: '#1bb57a' });
-              if(liff.isInClient()) await liff.sendMessages([{ type:"text", text:`🎉 成功預約 ${successList.length} 堂私課！` }]);
-              liff.closeWindow();
+             // ★ 修改 1：將成功訊息的文字改為「已成功預約 x 堂私課！」 ★
+             await Swal.fire({ icon:'success', title:'預約成功', text:`已成功預約 ${successList.length} 堂私課！`, confirmButtonColor: '#1bb57a' });
+             if(liff.isInClient()) await liff.sendMessages([{ type:"text", text:`🎉 成功預約 ${successList.length} 堂私課！` }]);
+             liff.closeWindow();
 
            } else if (successList.length === 0) {
-              await Swal.fire({ icon:'error', title:'預約失敗', html:'oops！所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
-              btnNext.disabled=false; btnNext.textContent="確認送出";
+             await Swal.fire({ icon:'error', title:'預約失敗', html:'Oops！所選時段皆已被預約。', confirmButtonText:'重新選擇' });
+             btnNext.disabled=false; btnNext.textContent="確認送出";
 
            } else {
-              let failMsg = failedList.map(f => `<li>${f.date}: ${f.msg||'額滿'}</li>`).join('');
-              await Swal.fire({
-                  icon: 'warning',
-                  title: '部分預約完成',
-                  html: `<div style="text-align:left;">成功：<b>${successList.length}</b> 堂<br/><span style="color:#d33">失敗：<b>${failedList.length}</b> 堂</span><ul style="margin-top:5px; padding-left:20px; color:#d33;">${failMsg}</ul></div>`,
-                  confirmButtonText: '了解'
-              });
-              liff.closeWindow();
+             let failMsg = failedList.map(f => `<li>${f.date}: ${f.msg||'額滿'}</li>`).join('');
+             await Swal.fire({
+                 icon: 'warning',
+                 title: '部分預約完成',
+                 html: `<div style="text-align:left;">成功：<b>${successList.length}</b> 堂<br/><span style="color:#d33">失敗：<b>${failedList.length}</b> 堂</span><ul style="margin-top:5px; padding-left:20px; color:#d33;">${failMsg}</ul></div>`,
+                 confirmButtonText: '了解'
+             });
+             liff.closeWindow();
            }
         }catch(e){ 
             console.error(e);
-            // ★ 修改 1：錯誤訊息文案更新 ★
             Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練處理。' }); 
             btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
