@@ -6,12 +6,10 @@
   <title>支點運動_私課預約</title>
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* 基礎變數與設定 */
-    :root{ --bg:#f6f7f8; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); --warnBg:#fff7e6; --warnBorder:rgba(192,122,0,.18); --warnText:#7a4a00; --selBg:#e3f9ef; --selText:#0d7a55; }
+    :root{ --bg:#f6f7f8; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); --selBg:#e3f9ef; --selText:#0d7a55; }
     *{ box-sizing:border-box; }
     html, body{ height:100%; overflow:hidden; }
     body{ margin:0; font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); }
@@ -33,7 +31,6 @@
     .chip{ padding:14px 16px; border-radius:16px; background:#eeeeee; font-weight:950; font-size:18px; cursor:pointer; user-select:none; border:2px solid transparent; min-width:140px; text-align:center; flex:1 1 0; }
     .chip.sel{ background:#dff4ea; border-color:rgba(27,181,122,.45); box-shadow:0 0 0 3px rgba(27,181,122,.14) inset; }
     .chip.peoplemp{ flex:1 1 0; min-width:140px; font-size:18px; }
-    .chip.disabled{ opacity:.55; pointer-events:none; }
 
     .subTitle{ margin:14px 0 10px; font-weight:950; font-size:15px; color:#111; }
 
@@ -71,7 +68,6 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* 預約清單樣式 */
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);
       display: flex; flex-direction: column; gap: 6px; 
@@ -87,7 +83,6 @@
     }
     .cartActions { display: flex; align-items: center; gap: 8px; }
     
-    /* 包月按鈕樣式 */
     .repeatBtn {
       font-size: 11px; padding: 3px 8px; border-radius: 6px;
       background: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb;
@@ -95,20 +90,14 @@
     }
     .repeatBtn:active { transform: scale(0.95); background: #bbdefb; }
     
-    .delBtn {
-      width: 24px; height: 24px; font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
-      color: #ccc; cursor: pointer;
-    }
+    .delBtn { width: 24px; height: 24px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #ccc; cursor: pointer; }
     .delBtn:hover { color: var(--danger); }
 
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     .confirmItem { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:10px; font-size:14px; font-weight:900; color:#333; display:flex; justify-content:space-between; }
 
-    /* 溫馨提醒標題放大 */
     .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
-    
     .remindBox{ width:100%; border-radius:16px; border:1px solid rgba(178, 58, 43, 0.2); background:#fff5f5; padding:12px; font-size:13px; line-height:1.6; font-weight:900; color:var(--danger); }
     
     .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); }
@@ -122,7 +111,6 @@
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
-    /* 強制 SweetAlert 文字置中 */
     .swal2-html-container { text-align: center !important; font-weight: 900 !important; }
     .swal2-popup { font-family: system-ui, -apple-system, sans-serif !important; border-radius: 20px !important; }
   </style>
@@ -172,7 +160,6 @@
           </div>
           <div id="slotGrid2" class="slotGrid"></div>
         </div>
-        
         <div class="cartSection">
             <div class="cartTitle">已選擇預約清單</div>
             <div id="cartList"></div>
@@ -200,7 +187,6 @@
 </div>
 
 <script>
-  // ★ 請再次確認這些 URL 與您的 Make Webhook 一致
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
@@ -271,13 +257,6 @@
       return true;
   }
 
-  function step1StatusText(){
-    if(!state.coach && !state.people) return `${state.name||'User'}您好，請選擇教練與人數`;
-    if(!state.coach) return `已選人數：${state.people} 人｜請選擇教練`;
-    if(!state.people) return `已選教練：${state.coach.name}｜請選擇人數`;
-    return `已選：${state.coach.name} / ${state.people} 人`;
-  }
-
   function setStep(n){
     state.step = n;
     [dot1,dot2,dot3].forEach((d,i)=>d.classList.toggle('active', i+1===n));
@@ -288,11 +267,11 @@
     if(n===1){
       btnBack.classList.add('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.people);
-      setStatus(step1StatusText());
+      setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數');
     }
     if(n===2){
       btnBack.classList.remove('hide'); 
-      updateNextButtonState(); 
+      btnNext.disabled = state.cart.length === 0;
       updateStatusInStep2();
       renderCart();
     }
@@ -301,67 +280,24 @@
       btnNext.disabled = state.cart.length === 0;
       
       let html = `<div style="margin-bottom:8px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
-      
       html += `<div class="confirmList">`;
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
         html += `<div class="confirmItem"><span>${item.date} (${wd})</span> <span>${item.time}</span></div>`;
       });
       html += `</div>`;
-      
-      // ★ UI 修改：字體放大、加粗、顏色加深
       html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
-      // ★ UI 修改：使用 <ol> 確保數字與文字對齊
       const remindHtml = `
         <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
-          <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
+          <li style="margin-bottom: 4px; padding-left: 4px;">取消或改期，請於課堂開始前 2 小時完成。</li>
           <li style="padding-left: 4px;">若某時段已被預約，將直接取消該時段預約。</li>
         </ol>
       `;
       document.querySelector('.remindBox').innerHTML = remindHtml;
-      
       setStatus('');
     }
-  }
-
-  function updateNextButtonState() {
-      const count = state.cart.length;
-      if (count > 0) {
-          btnNext.textContent = `下一步`;
-          btnNext.disabled = false;
-      } else {
-          btnNext.textContent = '下一步';
-          btnNext.disabled = true;
-      }
-  }
-
-  function toggleCartItem(date, time) {
-      const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) { state.cart.splice(idx, 1); } 
-      else { const d = new Date(date + 'T' + time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
-      renderCart(); 
-      renderSlotsStep2();
-      updateNextButtonState();
-      updateStatusInStep2();
-  }
-
-  function addBatchItems(startDateKey, timeStr, weeks = 4) {
-      let current = new Date(startDateKey + 'T00:00:00');
-      current = addDays(current, 7);
-      let addedCount = 0;
-      for (let i = 0; i < (weeks - 1); i++) {
-          const dKey = ymd(current);
-          const exists = state.cart.some(item => item.date === dKey && item.time === timeStr);
-          const validTime = canBookNow(dKey, timeStr);
-          if (!exists && validTime) {
-             state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 });
-             addedCount++;
-          }
-          current = addDays(current, 7);
-      }
-      return addedCount;
   }
 
   function renderCart() {
@@ -376,27 +312,16 @@
           el.className = 'cartItem';
           const wd = weekdayZhFromDateKey(item.date);
           const isRecurringEligible = checkRecurringAvailable(item.date, item.time);
-          
-          let btnHtml = '';
-          if (isRecurringEligible) {
-             btnHtml = `<div class="repeatBtn" title="自動加入未來 3 週的同一時段">+包月</div>`;
-          }
+          let btnHtml = isRecurringEligible ? `<div class="repeatBtn">+包月</div>` : '';
 
-          el.innerHTML = `
-            <span>${item.date} (${wd}) ${item.time}</span>
-            <div class="cartActions">
-               ${btnHtml}
-               <div class="delBtn">×</div>
-            </div>
-          `;
+          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions">${btnHtml}<div class="delBtn">×</div></div>`;
           
-          const repeatBtn = el.querySelector('.repeatBtn');
-          if(repeatBtn) {
-              repeatBtn.onclick = (e) => {
+          if(el.querySelector('.repeatBtn')) {
+              el.querySelector('.repeatBtn').onclick = (e) => {
                   e.stopPropagation();
                   Swal.fire({
                       title: '一鍵包月',
-                      text: `是否要加入 ${item.date} 後續 3 週 每週 ${item.time} 時段的預約?`,
+                      text: `是否要加入 ${item.date} (${wd}) 後續 3 週，每週 (${wd}) ${item.time} 時段的預約?`,
                       icon: 'question',
                       showCancelButton: true,
                       confirmButtonText: '加入',
@@ -405,20 +330,37 @@
                   }).then((res)=>{
                       if(res.isConfirmed){
                           const c = addBatchItems(item.date, item.time, 4);
-                          renderCart(); renderSlotsStep2(); updateNextButtonState(); updateStatusInStep2();
+                          renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
                           Swal.fire({ icon:'success', title:'已加入', text:`成功加入後續 ${c} 堂課`, timer:1500, showConfirmButton:false });
                       }
                   });
               };
           }
-
-          el.querySelector('.delBtn').onclick = (e) => { 
-             e.stopPropagation(); 
-             toggleCartItem(item.date, item.time); 
-          };
-          
+          el.querySelector('.delBtn').onclick = (e) => { e.stopPropagation(); toggleCartItem(item.date, item.time); };
           cartList.appendChild(el);
       });
+  }
+
+  function toggleCartItem(date, time) {
+      const idx = state.cart.findIndex(i => i.date === date && i.time === time);
+      if (idx >= 0) state.cart.splice(idx, 1);
+      else { const d = new Date(date + 'T' + time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
+      renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
+  }
+
+  function addBatchItems(startDateKey, timeStr, weeks = 4) {
+      let current = new Date(startDateKey + 'T00:00:00');
+      let addedCount = 0;
+      for (let i = 0; i < (weeks - 1); i++) {
+          current = addDays(current, 7);
+          const dKey = ymd(current);
+          const exists = state.cart.some(item => item.date === dKey && item.time === timeStr);
+          if (!exists && canBookNow(dKey, timeStr)) {
+             state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 });
+             addedCount++;
+          }
+      }
+      return addedCount;
   }
 
   function renderCoaches(){
@@ -426,7 +368,7 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      div.onclick=()=>{ state.coach=c; renderCoaches(); renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(step1StatusText()); };
+      div.onclick=()=>{ state.coach=c; renderCoaches(); renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數'); };
       coachRow.appendChild(div);
     });
   }
@@ -436,7 +378,7 @@
     [1,2].forEach(n=>{
       const div=document.createElement('div');
       div.className = 'chip peoplemp' + (state.people===n ? ' sel' : ''); div.textContent = `${n} 人`;
-      div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(step1StatusText()); };
+      div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數'); };
       peopleRow.appendChild(div);
     });
   }
@@ -446,6 +388,7 @@
     coachAvatar2.src = state.coach.avatar; coachName2.textContent = state.coach.name; coachTags2.innerHTML='';
     state.coach.tags.forEach(t=>{ const el=document.createElement('div'); el.className='tag'; el.textContent=t; coachTags2.appendChild(el); });
   }
+
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   function buildAvailabilityMap(options){
     const map = {};
@@ -476,12 +419,7 @@
       const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i);
       const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate();
       cell.append(dow, dot);
-      cell.onclick=()=>{
-        if(cell.classList.contains('disabled')) return;
-        state.dateKey=key; 
-        renderWeekStrip(); renderSlotsStep2(); 
-        updateStatusInStep2();
-      };
+      cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } };
       weekStrip.appendChild(cell);
     }
   }
@@ -500,15 +438,10 @@
     list.forEach(t=>{
       const disabled = !canBookNow(state.dateKey, t);
       const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t);
-      
       const div=document.createElement('div'); 
       div.className='slot'+(disabled?' disabled':'')+(isSelected?' sel':'');
       div.textContent=t;
-      
-      div.onclick=async ()=>{ 
-        if(disabled) return; 
-        toggleCartItem(state.dateKey, t);
-      };
+      div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); };
       slotGrid2.appendChild(div);
     });
   }
@@ -525,35 +458,10 @@
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
     }catch(e){ console.error(e); }
-    state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2();
-    updateStatusInStep2();
+    state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
-  function buildBatchBookingData(){
-    return {
-      action: "book", 
-      userId: state.uid,
-      displayName: state.name,
-      coachName: state.coach.name,
-      people: state.people,
-      bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
-      createdAt: new Date().toISOString()
-    };
-  }
-
-  // ★ 修正：移除了可能導致問題的 alpha 屬性，並使用標準 6 碼 Hex 顏色
-  function createSuccessFlexMessage(successList) {
-    const getWd = (d) => weekdayZhFromDateKey(d);
-    
-    const timeRows = successList.map(item => ({
-       type: "text",
-       text: `${item.date} (${getWd(item.date)}) ${item.time}`,
-       size: "sm",
-       color: "#111111",
-       weight: "bold",
-       wrap: true
-    }));
-
+  function createSuccessFlexMessage(successCount) {
     return {
       type: "flex",
       altText: "私課預約成功通知",
@@ -578,37 +486,12 @@
               layout: "vertical",
               contents: [
                 {
-                  type: "box",
-                  layout: "baseline",
-                  spacing: "sm",
-                  contents: [
-                    { type: "text", text: "預約教練", color: "#555555", size: "sm", flex: 0, width: "70px" },
-                    { type: "text", text: state.coach.name, color: "#111111", size: "sm", weight: "bold", wrap: true }
-                  ]
-                },
-                {
-                  type: "box",
-                  layout: "baseline",
-                  spacing: "sm",
-                  contents: [
-                    { type: "text", text: "預約人數", color: "#555555", size: "sm", flex: 0, width: "70px" },
-                    { type: "text", text: `${state.people} 人`, color: "#111111", size: "sm", weight: "bold", wrap: true }
-                  ],
-                  margin: "md"
-                },
-                {
-                  type: "box",
-                  layout: "baseline",
-                  spacing: "sm",
-                  contents: [
-                    { type: "text", text: "預約時間", color: "#555555", size: "sm", flex: 0, width: "70px" },
-                    {
-                      type: "box",
-                      layout: "vertical",
-                      contents: timeRows
-                    }
-                  ],
-                  margin: "md"
+                  type: "text",
+                  text: `已成功預約 ${successCount} 堂課`,
+                  color: "#111111",
+                  size: "md",
+                  weight: "bold",
+                  align: "center"
                 }
               ],
               backgroundColor: "#f5fcf9",
@@ -625,7 +508,7 @@
             },
             {
               type: "text",
-              text: "1. 取消或改期，請於開課前 1 小時完成。",
+              text: "1. 取消或改期，請於開課前 2 小時完成。",
               margin: "sm",
               size: "xs",
               color: "#666666",
@@ -650,66 +533,37 @@
 
   async function init(){
     renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
-    
     document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{
        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
        state.tab=el.dataset.tab; renderSlotsStep2();
     });
-
     btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
-
     btnNext.onclick=async ()=>{
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         try{
-           const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(buildBatchBookingData()) });
+           const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+              action: "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, people: state.people,
+              bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
+           })});
            const result = await res.json();
-           
            const results = result.results || [];
            const successList = results.filter(r => r.status === 'success');
-           const failedList = results.filter(r => r.status !== 'success');
-
-           if (failedList.length === 0 && successList.length > 0) {
+           if (successList.length > 0 && results.filter(r => r.status !== 'success').length === 0) {
              await Swal.fire({ icon:'success', title:'預約成功', text:`已成功預約 ${successList.length} 堂私課！`, confirmButtonColor: '#1bb57a' });
-             
-             if(liff.isInClient()) {
-                try {
-                  const flexMsg = createSuccessFlexMessage(successList);
-                  await liff.sendMessages([flexMsg]);
-                } catch (msgErr) {
-                  // ★ 這裡加入了 Alert，如果發送失敗，手機會直接告訴你原因
-                  alert("卡片發送失敗：" + msgErr); 
-                  console.error(msgErr);
-                }
-             }
-             
+             if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length)]);
              liff.closeWindow();
-
-           } else if (successList.length === 0) {
-             await Swal.fire({ icon:'error', title:'預約失敗', html:'很抱歉，所選時段皆已被預約，請重新選擇。', confirmButtonText:'重新選擇' });
-             btnNext.disabled=false; btnNext.textContent="確認送出";
-
            } else {
-             let failMsg = failedList.map(f => `<li>${f.date}: ${f.msg||'額滿'}</li>`).join('');
-             await Swal.fire({
-                 icon: 'warning',
-                 title: '部分預約完成',
-                 html: `<div style="text-align:left;">成功：<b>${successList.length}</b> 堂<br/><span style="color:#d33">失敗：<b>${failedList.length}</b> 堂</span><ul style="margin-top:5px; padding-left:20px; color:#d33;">${failMsg}</ul></div>`,
-                 confirmButtonText: '了解'
-             });
+             await Swal.fire({ icon:'warning', title:'預約結果', text:'部分或全部時段預約失敗，請確認。' });
              liff.closeWindow();
            }
-        }catch(e){ 
-            console.error(e);
-            Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練處理。' }); 
-            btnNext.disabled=false; btnNext.textContent="確認送出"; 
-        }
+        }catch(e){ Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練。' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
     setStep(1);
-    try { await liff.init({ liffId: LIFF_ID }); if(!liff.isLoggedIn()) liff.login(); const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; } catch(err) { console.error('LIFF Init failed:', err); }
+    try { await liff.init({ liffId: LIFF_ID }); if(!liff.isLoggedIn()) liff.login(); const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; } catch(err) { console.error(err); }
   }
   init();
 </script>
