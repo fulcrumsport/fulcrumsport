@@ -9,71 +9,72 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* === 基礎設定 === */
+    /* === 基礎變數 === */
     :root{ --bg:#f6f7f8; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); }
     *{ box-sizing:border-box; }
     html, body{ height:100%; overflow:hidden; }
     body{ margin:0; font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); }
-    
     .wrap{ height:100dvh; display:flex; flex-direction:column; max-width:560px; margin:0 auto; position:relative; }
     
-    /* 頁面切換容器 */
-    .page-section { position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; background:var(--bg); transition: opacity 0.3s; z-index:1; }
+    /* 頁面切換機制 */
+    .page-section { position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; background:var(--bg); transition: opacity 0.2s; z-index:1; }
     .page-section.hidden { opacity:0; z-index:-1; pointer-events:none; }
 
-    /* === 通用樣式 === */
+    /* === 通用元件 === */
     .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); flex:0 0 auto; background:linear-gradient(180deg, #f6f7f8 75%, rgba(246,247,248,0)); }
-    .h{ margin:0 0 10px; font-weight:950; font-size:22px; color:#111; }
-    .card{ background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:14px; overflow:hidden; display:flex; flex-direction:column; margin-bottom:12px; }
-    
-    .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); text-align:center; }
-    .btnPrimary{ background:var(--primary); color:#fff; }
-    .btnGhost{ background:#fff; color:#111; border:1px solid rgba(0,0,0,.10); }
-    .btn:disabled{ opacity:.45; cursor:not-allowed; }
-    .footer{ padding:10px 14px 12px; background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); flex:0 0 auto; }
-    .btnRow{ display:flex; gap:12px; }
-    .hide{ display:none !important; }
-
-    /* === 預約流程元件 === */
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; }
     .dot{ width:30px; height:30px; border-radius:999px; background:#e9f7f0; color:var(--primary); font-weight:900; display:flex; align-items:center; justify-content:center; font-size:14px; }
     .dot.active{ background:var(--primary); color:#fff; }
-    .label{ font-size:15px; font-weight:900; color:var(--muted); }
+    .label{ font-size:15px; font-weight:900; color:var(--muted); white-space:nowrap; }
     .label.active{ color:var(--text); }
 
-    .main{ flex:1 1 auto; overflow:hidden; padding:0 14px; display:flex; flex-direction:column; }
+    .main{ flex:1 1 auto; overflow:hidden; padding:0 14px; display:flex; flex-direction:column; gap:10px; }
+    .card{ background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:14px; overflow:hidden; display:flex; flex-direction:column; }
+    .h{ margin:0 0 10px; font-weight:950; font-size:22px; color:#111; }
     .row{ display:flex; gap:12px; flex-wrap:wrap; }
+    
     .chip{ padding:14px 16px; border-radius:16px; background:#eeeeee; font-weight:950; font-size:18px; cursor:pointer; min-width:140px; text-align:center; flex:1 1 0; border:2px solid transparent; }
     .chip.sel{ background:#dff4ea; border-color:rgba(27,181,122,.45); box-shadow:0 0 0 3px rgba(27,181,122,.14) inset; }
+    .chip.peoplemp{ flex:1 1 0; min-width:140px; font-size:18px; }
     
-    /* 日曆相關 */
+    /* 日曆與時段 */
+    .cal{ border-radius:18px; border:1px solid rgba(0,0,0,.08); padding:10px; background:#fff; flex:0 0 auto; }
     .calHead{ display:grid; grid-template-columns:42px 1fr 42px; gap:10px; align-items:center; margin-bottom:6px; }
     .calBtn{ width:42px; height:42px; border-radius:14px; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-weight:950; color:#0d7a55; border:1px solid rgba(0,0,0,.08); }
+    .calBtn.disabled{ opacity:0.3; pointer-events:none; background:#f0f0f0; color:#999; }
     .weekStrip{ display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
     .dayCell{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 0; border-radius:14px; border:1px solid rgba(0,0,0,.06); background:#fff; cursor:pointer; min-height:64px; }
+    .dayCell.disabled{ opacity:.35; pointer-events:none; }
     .dayCell.sel .dateDot{ background:var(--primary); color:#fff; }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; }
-    .dayCell.disabled{ opacity:.3; pointer-events:none; }
-    .dayCell.hidden{ visibility:hidden; pointer-events:none; }
-
-    /* 時段與清單 */
+    
     .slotGrid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; overflow:auto; padding-right:2px; flex:1; min-height:0; }
     .slot{ padding:10px 0; border-radius:999px; background:#ededed; font-weight:950; font-size:13px; text-align:center; cursor:pointer; border:2px solid transparent; }
     .slot.sel{ background:#e3f9ef; color:#0d7a55; border-color:rgba(27,181,122,.35); }
-    .slot.disabled{ opacity:.3; pointer-events:none; }
-    
-    .cartSection { margin-top:8px; padding:8px; border-top:1px solid rgba(0,0,0,0.08); background:#fafafa; border-radius:12px; max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
-    .cartItem { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:10px 14px; border-radius:8px; font-weight:900; font-size:14px; border-left:4px solid var(--primary); box-shadow:0 2px 4px rgba(0,0,0,0.03); }
+    .slot.disabled{ opacity:.35; pointer-events:none; }
 
-    /* Step 3 確認樣式 */
-    .confirmList { display:flex; flex-direction:column; gap:8px; max-height:250px; overflow-y:auto; }
+    /* 購物車與確認列表 */
+    .cartSection { margin-top:8px; padding-top:8px; border-top:1px solid rgba(0,0,0,0.08); display:flex; flex-direction:column; gap:6px; flex:0 0 auto; max-height:120px; overflow-y:auto; }
+    .cartItem { display:flex; justify-content:space-between; align-items:center; background:#fafafa; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:950; color:#333; border:1px solid #eee; }
+    
+    /* ★★★ Step 3 排版修正：左右平均分配 ★★★ */
+    .confirmList { display:flex; flex-direction:column; gap:8px; max-height:250px; overflow-y:auto; margin-bottom:10px; }
     .confirmItem { 
         background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:14px 16px; 
         font-size:15px; font-weight:900; color:#111; 
-        display:flex; justify-content:space-between; align-items:center;
+        display:flex; justify-content:space-between; align-items:center; /* 重點：space-between */
     }
     
+    .footer{ padding:10px 14px 12px; background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); flex:0 0 auto; }
+    .btnRow{ display:flex; gap:12px; }
+    .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); text-align:center; }
+    .btnPrimary{ background:var(--primary); color:#fff; }
+    .btnGhost{ background:#fff; color:#111; border:1px solid rgba(0,0,0,.10); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .status{ margin-top:8px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:18px; }
+    .hide{ display:none !important; }
+
     /* === 紀錄頁面 (History) === */
     .historyList { display:flex; flex-direction:column; gap:10px; overflow-y:auto; flex:1; padding-bottom:20px; }
     .historyItem { 
@@ -84,9 +85,6 @@
     .historyItem.cancelled { border-left-color:#aaa; opacity:0.6; }
     .btnCancel { padding:6px 12px; background:#fff0f0; color:#d33; border:1px solid #fcc; border-radius:8px; font-size:12px; font-weight:900; cursor:pointer; }
 
-    .status{ margin-top:8px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:18px; white-space:pre-wrap; }
-    
-    /* SweetAlert 字體修正 */
     .swal2-popup { font-family: system-ui !important; border-radius: 20px !important; }
   </style>
 </head>
@@ -107,7 +105,7 @@
       <div id="card1" class="card">
         <div class="h">Step 1｜選擇教練</div>
         <div id="coachRow" class="row"></div>
-        <div style="margin:14px 0 10px; font-weight:950; font-size:15px;">選擇人數</div>
+        <div class="subTitle">選擇人數</div>
         <div id="peopleRow" class="row"></div>
       </div>
 
@@ -139,7 +137,7 @@
 
       <div id="card3" class="card hide" style="flex:1; min-height:0;">
         <div class="h">Step 3｜確認預約</div>
-        <div id="confirmHeader" style="margin-bottom:10px; font-weight:900; font-size:1.1em;"></div>
+        <div id="confirmHeader" style="margin-bottom:10px; font-weight:900; font-size:1.1em; color:#1bb57a;"></div>
         <div id="confirmList" class="confirmList"></div>
         <div style="margin-top:auto; background:#fff5f5; padding:12px; border-radius:12px; color:#b23a2b; font-size:13px; font-weight:900; line-height:1.5;">
            溫馨提醒：<br>1. 取消或改期，請於開課前 1 小時完成。<br>2. 某時段若已被預約，系統將自動取消該筆預約。
@@ -172,11 +170,9 @@
 </div>
 
 <script>
-  // ★ 請設定您的資訊
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
 
-  // 模擬教練資料
   const COACHES = [
     { id:'coachA', name:'偉銘', tags:['肌力訓練','樂齡運動'] },
     { id:'coachB', name:'教練 B', tags:['肌力訓練','姿勢調整'] },
@@ -204,21 +200,16 @@
     state.uid = p.userId;
     state.name = p.displayName;
 
-    // ★★★ 路由判斷：檢查網址參數 ?page=history ★★★
+    // 路由邏輯：如果有 ?page=history 參數，直接進入紀錄頁
     const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page');
-
-    if(page === 'history'){
-       // 進入紀錄頁
+    if(urlParams.get('page') === 'history'){
        showPage('history');
        loadHistory();
     } else {
-       // 進入預約頁 (預設)
        showPage('booking');
        initBooking();
     }
 
-    // 綁定通用事件
     $('#btnRefresh').onclick = loadHistory;
   }
 
@@ -227,8 +218,7 @@
      $(`#page-${pageName}`).classList.remove('hidden');
   }
 
-  // ================= 預約流程邏輯 =================
-
+  // --- 預約流程 ---
   function initBooking(){
     renderCoaches(); renderPeople();
     state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
@@ -244,7 +234,6 @@
 
     $('#btnBack').onclick = () => setStep(state.step - 1);
     $('#btnNext').onclick = handleNext;
-    
     setStep(1);
   }
 
@@ -258,7 +247,6 @@
     $('#btnBack').classList.toggle('hide', n===1);
     $('#btnNext').textContent = n===3 ? '確認送出' : '下一步';
     $('#status').textContent = '';
-    
     if(n===1) updateBtnState();
     if(n===2) { updateBtnState(); renderCart(); }
     if(n===3) renderConfirm();
@@ -372,177 +360,6 @@
      const list = $('#confirmList'); list.innerHTML='';
      state.cart.sort((a,b)=>a.ts-b.ts).forEach(item => {
         const div = document.createElement('div'); div.className='confirmItem';
-        div.innerHTML = `<div style="display:flex; gap:12px;">
-                           <span>${item.date} (${getWd(item.date)})</span>
-                           <span>${item.time}</span>
-                         </div>
-                         <div>${state.people} 人</div>`;
-        list.appendChild(div);
-     });
-     // 總數顯示在最後
-     const total = document.createElement('div');
-     total.style.cssText = "text-align:right; margin-top:8px; font-weight:900; color:#111;";
-     total.textContent = `共 ${state.cart.length} 堂課`;
-     list.appendChild(total);
-  }
-
-  async function handleNext(){
-     if(state.step===1) { await loadOptions(); setStep(2); return; }
-     if(state.step===2) { setStep(3); return; }
-     if(state.step===3) {
-        $('#btnNext').disabled=true; $('#btnNext').textContent='處理中...';
-        try {
-           const payload = {
-              action: 'book',
-              userId: state.uid,
-              displayName: state.name,
-              coach: state.coach.name,
-              people: state.people,
-              bookings: state.cart
-           };
-           const res = await fetch(MAKE_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-           const json = await res.json();
-           
-           if(json.status === 'success'){
-              await Swal.fire({ icon:'success', title:'預約成功', text:'已發送通知', confirmButtonColor:'#1bb57a' });
-              
-              if(liff.isInClient()){
-                 // ★★★ 組合技：發送兩則訊息 ★★★
-                 const flexMsg = createSimpleSuccessFlex(state.cart); // 1. 卡片
-                 const textMsg = createTextListMsg(state.cart);       // 2. 文字列表
-                 
-                 await liff.sendMessages([flexMsg, textMsg]).catch(e=>console.log(e));
-              }
-              liff.closeWindow();
-           } else {
-              throw new Error(json.message || '部分預約失敗');
-           }
-        } catch(e) {
-           Swal.fire({ icon:'error', title:'預約失敗', text: e.message });
-           $('#btnNext').disabled=false; $('#btnNext').textContent='確認送出';
-        }
-     }
-  }
-
-  // --- 訊息產生器 ---
-
-  // 1. 卡片：簡單大方，帶有取消連結
-  function createSimpleSuccessFlex(list){
-     return {
-        type: "flex", altText: "預約成功",
-        contents: {
-           type: "bubble",
-           body: {
-              type: "box", layout: "vertical", spacing: "md",
-              contents: [
-                 { type: "text", text: "預約成功", weight: "bold", size: "xl", color: "#1bb57a", align: "center" },
-                 { type: "text", text: `已建立 ${list.length} 筆預約`, align: "center", color: "#555555" },
-                 { type: "text", text: `教練：${state.coach.name}`, align: "center", size: "sm", color: "#999999" }
-              ]
-           },
-           footer: {
-              type: "box", layout: "vertical",
-              contents: [{ 
-                  type: "button", style: "secondary", color: "#b23a2b", 
-                  action: { type: "uri", label: "❌ 管理/取消預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=history" } 
-              }]
-           }
-        }
-     };
-  }
-
-  // 2. 文字列表：詳細列出，絕對不會壞
-  function createTextListMsg(list){
-     const header = "📋 預約詳細清單：\n------------------";
-     const body = list.map(item => `📅 ${item.date} (${getWd(item.date)}) ${item.time}`).join('\n');
-     const footer = "\n------------------\n若需取消，請點擊上方卡片按鈕。";
-     return {
-        type: "text",
-        text: header + "\n" + body + footer
-     };
-  }
-
-  // ================= 紀錄與取消邏輯 =================
-
-  async function loadHistory(){
-     const listDiv = $('#historyList');
-     const loading = $('#historyLoading');
-     listDiv.innerHTML = '';
-     loading.classList.remove('hide');
-     
-     try {
-        const res = await fetch(MAKE_WEBHOOK_URL, {
-           method: 'POST', headers: {'Content-Type':'application/json'},
-           body: JSON.stringify({ action: 'get_history', userId: state.uid })
-        });
-        const data = await res.json();
-        const records = data.records || []; 
-
-        loading.classList.add('hide');
-        if(records.length === 0){
-           listDiv.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">目前沒有預約紀錄</div>';
-           return;
-        }
-
-        records.forEach(r => {
-           const el = document.createElement('div');
-           el.className = 'historyItem';
-           if(r.status === 'canceled') el.classList.add('cancelled');
-
-           const html = `
-             <div style="display:flex;flex-direction:column;">
-               <span style="font-size:15px;font-weight:900;color:#333;">${r.date} ${r.time}</span>
-               <span style="font-size:12px;color:#888;">${r.coach}｜${r.people}人</span>
-             </div>
-           `;
-           el.innerHTML = html;
-
-           // 只有未取消的才顯示取消按鈕
-           if(r.status !== 'canceled'){
-              const btn = document.createElement('div');
-              btn.className = 'btnCancel';
-              btn.textContent = '取消';
-              btn.onclick = () => handleCancel(r.id || `${r.date}_${r.time}`, r.date, r.time);
-              el.appendChild(btn);
-           } else {
-              el.innerHTML += '<div style="font-size:12px;color:#aaa;">已取消</div>';
-           }
-           listDiv.appendChild(el);
-        });
-
-     } catch(e) {
-        console.error(e);
-        loading.textContent = '載入失敗，請稍後再試';
-     }
-  }
-
-  async function handleCancel(id, date, time){
-     const result = await Swal.fire({
-        title: '確定取消?',
-        text: `取消預約：${date} ${time}`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#b23a2b',
-        confirmButtonText: '確定取消',
-        cancelButtonText: '返回'
-     });
-
-     if(result.isConfirmed){
-        try {
-           Swal.showLoading();
-           await fetch(MAKE_WEBHOOK_URL, {
-              method: 'POST', headers: {'Content-Type':'application/json'},
-              body: JSON.stringify({ action: 'cancel', userId: state.uid, bookingId: id, date: date, time: time })
-           });
-           await Swal.fire({ icon:'success', title:'已取消', timer:1500, showConfirmButton:false });
-           loadHistory();
-        } catch(e){
-           Swal.fire('錯誤', '取消失敗', 'error');
-        }
-     }
-  }
-
-  init();
-</script>
-</body>
-</html>
+        // ★★★ Step 3: 平均分配排版 + 深色字體 ★★★
+        div.innerHTML = `<span style="font-weight:900;">${item.date} (${getWd(item.date)})</span>
+                         <span style="font-weight:900;">${item.time}</span>
