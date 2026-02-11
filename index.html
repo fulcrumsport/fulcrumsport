@@ -85,10 +85,8 @@
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(27,181,122,.35); box-shadow:0 0 0 3px rgba(27,181,122,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
     
-    /* ★ 提示文字：深紅粗體 ★ */
     .slotTip{ grid-column:1/-1; padding:8px 2px; font-size:14px; font-weight:900; color:var(--danger); }
 
-    /* 購物車 */
     .cartSection { margin-top:8px; padding-top:8px; border-top:1px solid rgba(0,0,0,0.08); display:flex; flex-direction:column; gap:8px; flex:0 0 auto; max-height:160px; overflow-y:auto; padding-bottom:10px; }
     .cartItem { 
         display:flex; justify-content:space-between; align-items:center; 
@@ -167,10 +165,8 @@
                <div class="tab" data-tab="pm">下午</div>
                <div class="tab" data-tab="night">晚上</div>
             </div>
-            
             <div id="slotGrid2" class="slotGrid"></div>
           </div>
-          
           <div class="cartSection">
              <div id="cartList"></div>
           </div>
@@ -216,7 +212,6 @@
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
 
-  // ID 與 Name 統一為中文
   const COACHES = [
     { id:'偉銘', name:'偉銘', avatar:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80', tags:['肌力訓練','樂齡運動'] },
     { id:'教練 B', name:'教練 B', avatar:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&q=80', tags:['肌力訓練','姿勢調整'] },
@@ -244,7 +239,7 @@
     dt.setHours(hh,mm,0); return dt >= new Date(Date.now()+7200000); 
   }
 
-  // ★ 2. 狀態列文字邏輯：Step 2 只顯示購物車 ★
+  // ★ 修正狀態列文字邏輯：依照指示修改 ★
   function updateStatusText(){
      const coachStr = state.coach ? state.coach.name : '—';
      const pplStr = state.people ? `${state.people}人` : '—';
@@ -255,11 +250,43 @@
         else $('#status').textContent = `已選教練：${coachStr}｜人數：${pplStr}`;
      }
      else if(state.step === 2){
+        // ★ Step 2 只顯示購物車狀態，不再顯示教練人數 ★
         if(state.cart.length > 0) $('#status').textContent = `已選擇預約清單：${state.cart.length} 堂`;
         else $('#status').textContent = '已選擇預約清單：尚未選擇';
      }
      else { $('#status').textContent = ''; }
      $('#status').classList.remove('statusError');
+  }
+
+  // ★ 強力解析器：自動處理 Make 回傳的字串 JSON ★
+  function parseMakeOptions(rawOptions){
+     const map = {};
+     (rawOptions || []).forEach(o => {
+        let rawStr = '';
+        if (typeof o === 'string' && o.trim().startsWith('{')) {
+            try {
+                const parsed = JSON.parse(o);
+                rawStr = parsed.value || parsed.label || '';
+            } catch(e) { rawStr = o; }
+        }
+        else if (typeof o === 'object') {
+            rawStr = o.value || o.label || '';
+        }
+        else {
+            rawStr = String(o);
+        }
+        
+        // 統一格式 yyyy/mm/dd -> yyyy-mm-dd
+        rawStr = rawStr.replace(/\//g, '-');
+        
+        const m = rawStr.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/);
+        if(!m) return;
+        const key = `${m[1]}-${m[2]}-${m[3]}`;
+        const time = m[4];
+        if(!map[key]) map[key] = [];
+        if(!map[key].includes(time)) map[key].push(time);
+     });
+     return map;
   }
 
   async function init(){
@@ -382,22 +409,23 @@
 
   async function loadOptions(){
      state.loadingOptions = true; 
-     renderSlotsStep2(); // 先渲染「搜尋中」文字
+     renderSlotsStep2(); // 顯示搜尋中文字
      updateStatusText();
      renderCoachIntro();
      try {
-       // ★ 1. 只傳 coachName (完全移除 coachId) ★
+       // ★ 參數修正：只傳 coachName ★
        const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ 
               action: 'getOptions', 
-              coachName: state.coach.name, 
+              coachName: state.coach.name,
               date: state.dateKey 
           })
        });
        const data = await res.json();
        state.optionsRaw = data.options || []; 
-       state.availabilityMap = { [state.dateKey]: state.optionsRaw };
+       // 使用強力解析器
+       state.availabilityMap = parseMakeOptions(state.optionsRaw);
      } catch(e){ console.error(e); }
      state.loadingOptions = false; renderSlotsStep2(); updateStatusText();
   }
@@ -433,20 +461,17 @@
   function renderSlotsStep2(){
      const grid = $('#slotGrid2'); grid.innerHTML='';
      
-     // ★ 2. 提示文字優化：深紅粗體 ★
+     // ★ 文字修正：深紅粗體提示 ★
      if(state.loadingOptions) { 
-        grid.innerHTML='<div class="slotTip">正在搜尋可預約的日期及時段...</div>'; 
+        grid.innerHTML='<div class="slotTip" style="color:var(--danger);font-weight:900;">正在搜尋可預約的日期及時段...</div>'; 
         return; 
      }
      if(!state.dateKey) { 
-        grid.innerHTML='<div class="slotTip" style="color:var(--danger);">請選擇日期及時段</div>'; 
+        grid.innerHTML='<div class="slotTip" style="color:var(--danger);font-weight:900;">請選擇日期及時段</div>'; 
         return; 
      }
      
-     // ★ 3. 確保資料格式正確 (支援 label/value) ★
-     const timesRaw = state.availabilityMap[state.dateKey] || [];
-     const times = timesRaw.map(t => (typeof t === 'object' && t.label) ? t.label : t);
-
+     const times = state.availabilityMap[state.dateKey] || [];
      const displayTimes = times.filter(t => {
         const h = parseInt(t);
         if(state.tab==='am') return h<12;
