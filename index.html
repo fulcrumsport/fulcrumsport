@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    :root{ --bg:#f6f7f8; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); --selBg:#e3f9ef; --selText:#0d7a55; }
+    :root{ --bg:#f6f7f8; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); --selBg:#e3f9ef; --selText:#0d7a55; --darkBlue:#1976d2; }
     *{ box-sizing:border-box; }
     html, body{ height:100%; overflow:hidden; }
     body{ margin:0; font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); }
@@ -96,10 +96,10 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
     
-    /* [修改] Step 3 列表改為極簡白底風格，消除雜亂感 */
+    /* Step 3 列表風格 */
     .confirmItem { 
       background:#fff; 
-      border-bottom: 1px solid #eee; /* 改用底線分隔，視覺更輕盈 */
+      border-bottom: 1px solid #eee;
       padding:14px 4px; 
       font-size:15px; 
       font-weight:950; 
@@ -108,21 +108,22 @@
       justify-content:space-between; 
       align-items: center;
     }
-    /* 最後一項不畫底線 */
     .confirmItem:last-child { border-bottom: none; }
 
-    /* [修改] Step 3 溫馨提醒 */
-    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:#444; margin-top:16px; margin-bottom: 8px; }
+    /* [修改] Step 3 溫馨提醒：深紅色標題，無背景 */
+    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:16px; margin-bottom: 6px; } /* 深紅色 */
+    
+    /* [修改] Step 3 溫馨提醒內容：透明背景，細體黑字 */
     .remindBox{ 
         width:100%; 
-        border-radius:12px; 
-        background:#f9f9f9; 
-        padding:16px; 
+        border-radius:0; 
+        background:transparent; 
+        padding:0 8px; 
         font-size:13px; 
         line-height:1.7; 
-        font-weight:900; 
-        color:#666; 
-        border: 1px solid #eee;
+        font-weight:400; /* 細體 */
+        color:#333;      /* 黑色 */
+        border: none;
     }
     .remindBox ol { padding-left: 20px; margin: 0; }
     .remindBox li { margin-bottom: 4px; }
@@ -309,7 +310,8 @@
       btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       
-      let html = `<div style="margin-bottom:16px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
+      // [修改] Step 3: 教練名稱改深藍色 (#1976d2)
+      let html = `<div style="margin-bottom:16px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:#1976d2;">${state.coach.name}</span></div>`;
       html += `<div class="confirmList" style="border-top:1px solid #eee;">`;
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
@@ -320,7 +322,9 @@
         </div>`;
       });
       html += `</div>`;
-      html += `<div style="text-align:right; margin-top:16px; font-size:16px; font-weight:950; color:#333;">共 ${state.cart.length} 堂課</div>`;
+      
+      // [修改] Step 3: 共x堂 改為深藍色
+      html += `<div style="text-align:right; margin-top:16px; font-size:16px; font-weight:950; color:#1976d2;">共 ${state.cart.length} 堂</div>`;
       confirmInfo.innerHTML = html;
       
       const remindHtml = `
@@ -353,9 +357,10 @@
           if(el.querySelector('.repeatBtn')) {
               el.querySelector('.repeatBtn').onclick = (e) => {
                   e.stopPropagation();
+                  // [修改] Step 2 彈窗文案格式
                   Swal.fire({
                       title: '一鍵包月',
-                      text: `是否要加入 ${item.date} (${wd}) 後續 ${availableWeeks} 週 每週(${wd}) ${item.time} 的預約?`,
+                      text: `是否要加入 ${item.date} (${wd}) 後續 ${availableWeeks} 週 禮拜(${wd}) ${item.time} 的預約?`,
                       icon: 'question',
                       showCancelButton: true,
                       confirmButtonText: '加入',
@@ -499,43 +504,33 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
-  // [修改] 針對您的最新需求優化的 Flex Message
   function createSuccessFlexMessage(successCount) {
     return {
       type: "flex",
       altText: "私課預約成功通知",
       contents: {
         type: "bubble",
-        // Header: 圖3 風格 (純綠色背景 + 白字)
         header: {
           type: "box",
           layout: "vertical",
           contents: [
-            { type: "text", text: "預約成功", weight: "bold", size: "xl", color: "#ffffff" },
+            // [修改] 標題：私課預約成功
+            { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
           ],
-          backgroundColor: "#1bb57a", // 純綠色背景
+          backgroundColor: "#1bb57a", 
           paddingAll: "20px"
         },
         body: {
           type: "box",
           layout: "vertical",
           contents: [
-            // Hero Area: 
             {
               type: "box",
               layout: "vertical",
               contents: [
-                // 1.「您已成功預約」：粗體 + 純黑 (#000000)
-                {
-                  type: "text",
-                  text: "您已成功預約",
-                  color: "#000000", 
-                  size: "md",
-                  weight: "bold", 
-                  align: "center"
-                },
-                // 2. 數字 與「堂」字：Baseline 對齊
+                // [修改] 移除「您已成功預約」文字
+                // 數字 與「堂」字
                 {
                   type: "box",
                   layout: "baseline",
@@ -545,28 +540,26 @@
                        {
                           type: "text",
                           text: `${successCount}`, 
-                          color: "#1bb57a", // 綠色大數字
+                          color: "#1bb57a", 
                           size: "5xl",
                           weight: "bold",
                           align: "center"
                         },
                         {
                           type: "text",
-                          text: "堂", // 移到數字旁，變小
-                          color: "#1bb57a", // 用綠色呼應數字 (或您喜歡黑色也可改 #000000)
-                          size: "lg", 
+                          text: "堂",
+                          color: "#000000", // [修改] 「堂」字改黑色
+                          size: "md",       // 小字
                           weight: "bold",
                           margin: "sm",
                           flex: 0
                         }
                   ]
                 }
-                // 3. 已移除「私課」小字
               ],
               paddingBottom: "20px"
             },
             { type: "separator", margin: "lg", color: "#f0f0f0" },
-            // 提醒區塊
             {
               type: "box",
               layout: "vertical",
@@ -603,7 +596,6 @@
                 }
               ]
             },
-            // 按鈕區塊
             {
               type: "box",
               layout: "vertical",
@@ -616,7 +608,7 @@
                     label: "查看預約詳情",
                     uri: "https://liff.line.me/" + LIFF_ID 
                   },
-                  style: "primary", // 綠色實心按鈕，系統預設字體較粗
+                  style: "primary",
                   color: "#1bb57a",
                   height: "sm",
                   gravity: "center"
