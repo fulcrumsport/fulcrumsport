@@ -229,7 +229,7 @@
     <div id="cardRecord" class="card hide" style="flex:1; min-height:0;">
         <div class="recordHeader">
             <div class="h">預約清單</div>
-            <div id="myRecordCount" class="recordCount">0 堂</div>
+            <div id="myRecordCount" class="recordCount">共 0 堂</div>
         </div>
         <div id="recordList" class="confirmList" style="flex:1;">
             <div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>
@@ -237,8 +237,8 @@
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
             <ol>
-              <li>如需取消，請點擊右側紅色垃圾桶。</li>
-              <li>系統將自動更新您的預約狀態。</li>
+              <li>取消或改期，請於開課前 2 小時完成。</li>
+              <li>如有任何問題，請於官方 Line 聯繫我們。</li>
             </ol>
         </div>
     </div>
@@ -258,7 +258,6 @@
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
-  // [注意] 請記得填入您剛剛設定的查詢用 Webhook
   const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
 
   const COACHES = [
@@ -373,7 +372,6 @@
       
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
-        // [修改] 左側: "日期 時間 人數" 緊湊排列, 右側: 垃圾桶
         html += `
         <div class="confirmItem">
             <div style="display:flex; align-items:center; gap:8px;">
@@ -605,7 +603,8 @@
   }
 
   function renderRecordList(records) {
-      $('#myRecordCount').textContent = `${records.length} 堂`;
+      // [修改 1] 改為 "共 X 堂"
+      $('#myRecordCount').textContent = `共 ${records.length} 堂`;
       if(records.length === 0) {
           recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">目前沒有預約紀錄</div>';
           return;
@@ -613,12 +612,13 @@
 
       let html = '';
       records.forEach(r => {
-          const wd = weekdayZhFromDateKey(r.date);
+          // [修改 2] 直接使用 API 回傳的 weekday 變數，不自己計算
+          // [修改 3] 更新下方小字格式為 教練：xx 學生：x人
           html += `
           <div class="confirmItem">
               <div style="display:flex; flex-direction:column;">
-                  <span style="font-size:16px; color:#333; margin-bottom:4px;">${r.date} (${wd}) ${r.time}</span>
-                  <span style="font-size:13px; color:#666;">教練：${r.coach} / ${r.people}人</span>
+                  <span style="font-size:16px; color:#333; margin-bottom:4px;">${r.date} (${r.weekday}) ${r.time}</span>
+                  <span style="font-size:13px; color:#666;">教練：${r.coach} &nbsp; 學生：${r.people}人</span>
               </div>
               <div class="step3Del" onclick="cancelBooking('${r.date}', '${r.time}', '${r.coach}')">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -710,7 +710,6 @@
                           size: "md",       
                           weight: "bold",
                           flex: 0,
-                          // [修改] 大幅增加 Margin 至 xl
                           margin: "xl" 
                         }
                   ]
