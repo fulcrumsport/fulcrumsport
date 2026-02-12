@@ -95,14 +95,40 @@
 
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:8px; margin-top:6px; max-height:200px; overflow-y:auto; }
-    /* 確認項目：日期左邊，人數右邊 */
+    
+    /* [修改] Step 3 確認項目樣式優化：更乾淨、有層次感 */
     .confirmItem { 
-      background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:12px 14px; 
-      font-size:14px; font-weight:900; color:#333; display:flex; justify-content:space-between; align-items: center;
+      background:#fff; 
+      border:1px solid #eee; 
+      border-left: 4px solid var(--primary); /* 左側綠色強調線 */
+      border-radius:12px; 
+      padding:12px 16px; 
+      font-size:15px; 
+      font-weight:950; 
+      color:#333; 
+      display:flex; 
+      justify-content:space-between; 
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04); /*輕微陰影*/
     }
 
-    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:10px; margin-bottom: 4px; }
-    .remindBox{ width:100%; border-radius:16px; border:1px solid rgba(178, 58, 43, 0.2); background:#fff5f5; padding:12px; font-size:13px; line-height:1.6; font-weight:900; color:var(--danger); }
+    /* [修改] Step 3 溫馨提醒標題：改為深灰色，不那麼刺眼 */
+    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:#333; margin-top:16px; margin-bottom: 8px; }
+    
+    /* [修改] Step 3 溫馨提醒區塊：改為淺灰底、深灰字，更柔和 */
+    .remindBox{ 
+        width:100%; 
+        border-radius:16px; 
+        border:1px solid #eee; 
+        background:#fafafa; 
+        padding:16px; 
+        font-size:13px; 
+        line-height:1.7; 
+        font-weight:900; 
+        color:#666; 
+    }
+    .remindBox ol { padding-left: 20px; margin: 0; }
+    .remindBox li { margin-bottom: 4px; }
     
     .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); }
     .btnRow{ display:flex; gap:12px; }
@@ -291,24 +317,25 @@
       btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       
-      let html = `<div style="margin-bottom:8px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
+      let html = `<div style="margin-bottom:12px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950;">${state.coach.name}</span></div>`;
       html += `<div class="confirmList">`;
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
         html += `
         <div class="confirmItem">
-            <span style="font-size:17px; font-weight:950;">${item.date} (${wd}) &nbsp;&nbsp; ${item.time}</span>
-            <span style="font-size:16px; font-weight:950;">${state.people} 人</span>
+            <span style="font-size:16px;">${item.date} (${wd}) &nbsp; ${item.time}</span>
+            <span style="font-size:15px; color:#666;">${state.people} 人</span>
         </div>`;
       });
       html += `</div>`;
-      html += `<div style="text-align:right; margin-top:8px; font-size:16px; font-weight:950; color:#111;">共 ${state.cart.length} 堂課</div>`;
+      html += `<div style="text-align:right; margin-top:12px; font-size:16px; font-weight:950; color:#333;">共 ${state.cart.length} 堂課</div>`;
       confirmInfo.innerHTML = html;
       
+      // [修改] Step 3 溫馨提醒內容HTML結構優化，配合新的CSS
       const remindHtml = `
-        <ol style="margin: 0; padding-left: 22px; list-style-type: decimal;">
-          <li style="margin-bottom: 4px; padding-left: 4px;">預約及取消請在課堂開始前 1 小時執行。</li>
-          <li style="padding-left: 4px;">若某時段已被預約，將發出提醒並跳過該時段，僅預約可預約時段。</li>
+        <ol>
+          <li>預約及取消請在課堂開始前 1 小時執行。</li>
+          <li>若某時段已被預約，將發出提醒並跳過該時段，僅預約可預約時段。</li>
         </ol>
       `;
       document.querySelector('.remindBox').innerHTML = remindHtml;
@@ -484,60 +511,76 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
-  // 重新設計的 Flex Message 函數
+  // [修改] Flex Message 卡片樣式優化 (針對圖2、圖3需求)
   function createSuccessFlexMessage(successCount) {
     return {
       type: "flex",
       altText: "私課預約成功通知",
       contents: {
         type: "bubble",
+        // Header: 改為圖3風格的純綠色滿版 Header
         header: {
           type: "box",
           layout: "vertical",
           contents: [
-            { type: "text", text: "預約成功", weight: "bold", size: "lg", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xxs", color: "#ffffffcc", margin: "xs" } 
+            { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
+            { type: "text", text: "支點運動空間", size: "sm", color: "#ffffffcc", margin: "xs" } 
           ],
           backgroundColor: "#1bb57a",
-          paddingAll: "20px"
+          paddingAll: "20px",
+          paddingTop: "25px",
+          paddingBottom: "25px"
         },
         body: {
           type: "box",
           layout: "vertical",
           contents: [
+            // Hero Area: 數字與文字排版優化
             {
               type: "box",
               layout: "vertical",
               contents: [
+                // 1. 粗體黑字標題
                 {
                   type: "text",
                   text: "您已成功預約",
-                  color: "#aaaaaa",
-                  size: "xs",
+                  color: "#111111", // 黑字
+                  size: "md",
+                  weight: "bold",   // 粗體
                   align: "center"
                 },
+                // 2. 數字與「堂」字並排顯示
                 {
-                  type: "text",
-                  text: `${successCount}`, 
-                  color: "#1bb57a",
-                  size: "5xl",
-                  weight: "bold",
-                  align: "center",
-                  margin: "md"
-                },
-                {
-                  type: "text",
-                  text: "堂 私課",
-                  color: "#111111",
-                  size: "sm",
-                  weight: "bold",
-                  align: "center",
-                  margin: "sm"
+                  type: "box",
+                  layout: "baseline", // 使用 baseline 對齊
+                  justifyContent: "center",
+                  margin: "md",
+                  contents: [
+                       {
+                          type: "text",
+                          text: `${successCount}`, 
+                          color: "#1bb57a",
+                          size: "5xl",
+                          weight: "bold",
+                          align: "center"
+                        },
+                        {
+                          type: "text",
+                          text: "堂", // 「堂」字移到這裡
+                          color: "#1bb57a",
+                          size: "lg", // 較小的字體
+                          weight: "bold",
+                          margin: "sm",
+                          flex: 0
+                        }
+                  ]
                 }
+                // 3. 已移除原本的「私課」小字
               ],
               paddingBottom: "20px"
             },
             { type: "separator", margin: "lg", color: "#f0f0f0" },
+            // 提醒區塊 (保持不變)
             {
               type: "box",
               layout: "vertical",
@@ -574,6 +617,7 @@
                 }
               ]
             },
+            // 按鈕區塊
             {
               type: "box",
               layout: "vertical",
@@ -589,7 +633,8 @@
                   style: "primary",
                   color: "#1bb57a",
                   height: "sm",
-                  gravity: "center"
+                  gravity: "center",
+                  weight: "bold" // [修改] 按鈕文字加粗
                 }
               ]
             }
@@ -608,7 +653,6 @@
   async function init(){
     renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
     
-    // 綁定日曆切換事件
     prevWeek.onclick = () => { if(!prevWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, -7); renderWeekStrip(); } };
     nextWeek.onclick = () => { if(!nextWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, 7); renderWeekStrip(); } };
 
