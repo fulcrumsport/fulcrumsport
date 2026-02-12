@@ -16,6 +16,8 @@
     .wrap{ height:100dvh; display:flex; flex-direction:column; max-width:560px; margin:0 auto; }
     
     .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, #f6f7f8 75%, rgba(246,247,248,0)); flex:0 0 auto; }
+    
+    /* 預約步驟條 */
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; min-width:0; }
     .dot{ width:30px; height:30px; border-radius:999px; background:#e9f7f0; color:var(--primary); font-weight:900; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:14px; }
@@ -96,7 +98,9 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; max-height:300px; overflow-y:auto; }
     
-    /* Step 3 列表風格：按鈕式卡片 */
+    /* Step 3 & 我的預約 共用的卡片樣式 
+       樣式：白色圓角卡片，淺灰邊框，微陰影
+    */
     .confirmItem { 
       background:#fff; 
       border: 1px solid #ddd; 
@@ -111,7 +115,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
     
-    /* Step 3 刪除按鈕：紅色 */
+    /* 刪除按鈕：紅色 */
     .step3Del {
         color: #d32f2f; 
         font-size: 18px;
@@ -148,6 +152,11 @@
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
+    /* 我的預約頁面標題列樣式 */
+    .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .recordHeader .h { margin:0; }
+    .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:#e9f7f0; padding:4px 10px; border-radius:99px; }
+
     .swal2-html-container { text-align: center !important; font-weight: 900 !important; }
     .swal2-popup { font-family: system-ui, -apple-system, sans-serif !important; border-radius: 20px !important; }
   </style>
@@ -156,10 +165,14 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="steps">
+    <div id="stepBar" class="steps">
       <div class="step"> <div id="dot1" class="dot active">1</div> <div id="lab1" class="label active">選教練</div> </div>
       <div class="step"> <div id="dot2" class="dot">2</div> <div id="lab2" class="label">選日期</div> </div>
       <div class="step"> <div id="dot3" class="dot">3</div> <div id="lab3" class="label">確認</div> </div>
+    </div>
+    
+    <div id="recordBar" class="steps hide" style="justify-content:center; background:transparent; border:none; box-shadow:none;">
+        <div style="font-size:20px; font-weight:950; color:#111;">我的預約紀錄</div>
     </div>
   </div>
 
@@ -212,12 +225,30 @@
         <div class="remindBox"></div>
       </div>
     </div>
+
+    <div id="cardRecord" class="card hide" style="flex:1; min-height:0;">
+        <div class="recordHeader">
+            <div class="h">預約清單</div>
+            <div id="myRecordCount" class="recordCount">0 堂</div>
+        </div>
+        <div id="recordList" class="confirmList" style="flex:1;">
+            <div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>
+        </div>
+        <div class="remindTitle">溫馨提醒</div>
+        <div class="remindBox">
+            <ol>
+              <li>如需取消，請點擊右側紅色垃圾桶。</li>
+              <li>系統將自動更新您的預約狀態。</li>
+            </ol>
+        </div>
+    </div>
   </div>
 
   <div class="footer">
     <div class="btnRow">
       <button id="btnBack" class="btn btnGhost hide">上一步</button>
       <button id="btnNext" class="btn btnPrimary" disabled>下一步</button>
+      <button id="btnHome" class="btn btnPrimary hide">我要預約課程</button>
     </div>
     <div id="status" class="status">載入中…</div>
   </div>
@@ -225,8 +256,10 @@
 
 <script>
   const LIFF_ID = '2008631386-AEejMove'; 
-  const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
-  const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3';
+  const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
+  const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
+  // [注意] 請記得填入您剛剛設定的查詢用 Webhook
+  const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
 
   const COACHES = [
     { id:'coachA', name:'偉銘', avatar:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80', tags:['肌力訓練','樂齡運動','青少年體能'] },
@@ -237,19 +270,20 @@
     step: 1, uid: '', name: '', coach: null, people: null,
     weekStart: null, dateKey: null, tab: 'am',
     cart: [],
-    optionsRaw: [], availabilityMap: {}, loadingOptions: false
+    optionsRaw: [], availabilityMap: {}, loadingOptions: false,
+    mode: 'book' 
   };
 
   const $ = s => document.querySelector(s);
   const dot1=$('#dot1'), dot2=$('#dot2'), dot3=$('#dot3');
   const lab1=$('#lab1'), lab2=$('#lab2'), lab3=$('#lab3');
-  const card1=$('#card1'), card2=$('#card2'), card3=$('#card3');
+  const card1=$('#card1'), card2=$('#card2'), card3=$('#card3'), cardRecord=$('#cardRecord');
   const coachRow=$('#coachRow'), peopleRow=$('#peopleRow');
-  const btnBack=$('#btnBack'), btnNext=$('#btnNext'), status=$('#status');
+  const btnBack=$('#btnBack'), btnNext=$('#btnNext'), btnHome=$('#btnHome'), status=$('#status');
   const coachAvatar2=$('#coachAvatar2'), coachName2=$('#coachName2'), coachTags2=$('#coachTags2');
   const prevWeek=$('#prevWeek'), nextWeek=$('#nextWeek'), monthTitle=$('#monthTitle');
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
-  const cartList=$('#cartList'); 
+  const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'), recordBar=$('#recordBar'); 
 
   function pad2(n){ return String(n).padStart(2,'0'); }
   function ymd(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
@@ -301,22 +335,26 @@
     state.step = n;
     [dot1,dot2,dot3].forEach((d,i)=>d.classList.toggle('active', i+1===n));
     [lab1,lab2,lab3].forEach((l,i)=>l.classList.toggle('active', i+1===n));
-    card1.classList.toggle('hide', n!==1); card2.classList.toggle('hide', n!==2); card3.classList.toggle('hide', n!==3);
+    card1.classList.toggle('hide', n!==1); 
+    card2.classList.toggle('hide', n!==2); 
+    card3.classList.toggle('hide', n!==3);
+    cardRecord.classList.add('hide'); 
     status.classList.remove('statusError');
 
+    btnHome.classList.add('hide');
     if(n===1){
-      btnBack.classList.add('hide'); btnNext.textContent='下一步';
+      btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.people);
       setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數');
     }
     if(n===2){
-      btnBack.classList.remove('hide'); 
+      btnBack.classList.remove('hide'); btnNext.classList.remove('hide');
       btnNext.disabled = state.cart.length === 0;
       updateStatusInStep2();
       renderCart();
     }
     if(n===3){
-      btnBack.classList.remove('hide'); btnNext.textContent='確認送出';
+      btnBack.classList.remove('hide'); btnNext.classList.remove('hide'); btnNext.textContent='確認送出';
       btnNext.disabled = state.cart.length === 0;
       renderStep3Content(); 
     }
@@ -330,18 +368,17 @@
       }
       btnNext.disabled = false;
 
-      // 深藍色
       let html = `<div style="margin-bottom:16px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:#003366;">${state.coach.name}</span></div>`;
       html += `<div class="confirmList">`;
       
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
-        // [修改] Step 3 列表項目：左側包含日期時間與人數
+        // [修改] 左側: "日期 時間 人數" 緊湊排列, 右側: 垃圾桶
         html += `
         <div class="confirmItem">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-size:16px; color:#333;">${item.date} (${wd}) &nbsp; ${item.time}</span>
-                <span style="font-size:16px; color:#333;">${state.people} 人</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:16px; color:#333;">${item.date} (${wd}) ${item.time}</span>
+                <span style="font-size:16px; color:#333;">${state.people}人</span>
             </div>
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -540,6 +577,92 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
+  // 查詢我的預約紀錄
+  async function loadMyRecords() {
+      state.mode = 'record';
+      stepBar.classList.add('hide'); recordBar.classList.remove('hide');
+      card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
+      cardRecord.classList.remove('hide');
+      btnBack.classList.add('hide'); btnNext.classList.add('hide'); btnHome.classList.remove('hide');
+      
+      setStatus("讀取預約紀錄中...");
+      recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>';
+
+      try {
+          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
+              method: "POST", headers: {"Content-Type":"application/json"},
+              body: JSON.stringify({ action: "getRecords", userId: state.uid })
+          });
+          const data = await res.json();
+          const records = data.records || [];
+          renderRecordList(records);
+          setStatus("");
+      } catch(e) {
+          console.error(e);
+          recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>';
+          setStatus("讀取失敗", true);
+      }
+  }
+
+  function renderRecordList(records) {
+      $('#myRecordCount').textContent = `${records.length} 堂`;
+      if(records.length === 0) {
+          recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">目前沒有預約紀錄</div>';
+          return;
+      }
+
+      let html = '';
+      records.forEach(r => {
+          const wd = weekdayZhFromDateKey(r.date);
+          html += `
+          <div class="confirmItem">
+              <div style="display:flex; flex-direction:column;">
+                  <span style="font-size:16px; color:#333; margin-bottom:4px;">${r.date} (${wd}) ${r.time}</span>
+                  <span style="font-size:13px; color:#666;">教練：${r.coach} / ${r.people}人</span>
+              </div>
+              <div class="step3Del" onclick="cancelBooking('${r.date}', '${r.time}', '${r.coach}')">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </div>
+          </div>`;
+      });
+      recordList.innerHTML = html;
+  }
+
+  window.cancelBooking = function(date, time, coach) {
+      Swal.fire({
+          title: '取消預約',
+          text: `確定要取消 ${date} ${time} (${coach}) 的課程嗎？`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: '確定取消',
+          confirmButtonColor: '#d33',
+          cancelButtonText: '返回'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              doCancel(date, time, coach);
+          }
+      });
+  };
+
+  async function doCancel(date, time, coach) {
+      Swal.fire({ title: '處理中...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+      try {
+          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
+              method: "POST", headers: {"Content-Type":"application/json"},
+              body: JSON.stringify({ action: "cancel", userId: state.uid, date: date, time: time, coach: coach })
+          });
+          const result = await res.json();
+          if(result.status === 'success') {
+              await Swal.fire({ icon:'success', title:'已取消', timer:1500, showConfirmButton:false });
+              loadMyRecords(); 
+          } else {
+              throw new Error('Cancel failed');
+          }
+      } catch(e) {
+          Swal.fire({ icon:'error', title:'取消失敗', text:'請聯繫客服人員' });
+      }
+  }
+
   function createSuccessFlexMessage(successCount) {
     return {
       type: "flex",
@@ -587,7 +710,7 @@
                           size: "md",       
                           weight: "bold",
                           flex: 0,
-                          // [修改] Margin 加大至 xl，讓兩者分開
+                          // [修改] 大幅增加 Margin 至 xl
                           margin: "xl" 
                         }
                   ]
@@ -646,7 +769,7 @@
                   action: {
                     type: "uri",
                     label: "查看預約詳情",
-                    uri: "https://liff.line.me/" + LIFF_ID 
+                    uri: "https://liff.line.me/" + LIFF_ID + "?page=record" 
                   },
                   contents: [
                       {
@@ -674,8 +797,27 @@
   }
 
   async function init(){
-    renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
-    
+    const params = new URLSearchParams(window.location.search);
+    const isRecordMode = params.get('page') === 'record';
+
+    try { 
+        await liff.init({ liffId: LIFF_ID }); 
+        if(!liff.isLoggedIn()) liff.login(); 
+        const p = await liff.getProfile(); 
+        state.uid = p.userId; 
+        state.name = p.displayName; 
+
+        if (isRecordMode) {
+            loadMyRecords();
+        } else {
+            renderCoaches(); 
+            renderPeople(); 
+            state.weekStart = weekStartMonday(new Date()); 
+            renderWeekStrip();
+            setStep(1);
+        }
+    } catch(err) { console.error(err); }
+
     prevWeek.onclick = () => { if(!prevWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, -7); renderWeekStrip(); } };
     nextWeek.onclick = () => { if(!nextWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, 7); renderWeekStrip(); } };
 
@@ -683,7 +825,17 @@
        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
        state.tab=el.dataset.tab; renderSlotsStep2();
     });
+    
     btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
+    
+    btnHome.onclick = () => {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        stepBar.classList.remove('hide'); recordBar.classList.add('hide');
+        cardRecord.classList.add('hide');
+        renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
+        setStep(1);
+    };
+
     btnNext.onclick=async ()=>{
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
@@ -708,8 +860,6 @@
         }catch(e){ Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練。' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
-    setStep(1);
-    try { await liff.init({ liffId: LIFF_ID }); if(!liff.isLoggedIn()) liff.login(); const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; } catch(err) { console.error(err); }
   }
   init();
 </script>
