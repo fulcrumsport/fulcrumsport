@@ -17,7 +17,6 @@
     
     .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, #f6f7f8 75%, rgba(246,247,248,0)); flex:0 0 auto; }
     
-    /* 預約步驟條 */
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; min-width:0; }
     .dot{ width:30px; height:30px; border-radius:999px; background:#e9f7f0; color:var(--primary); font-weight:900; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:14px; }
@@ -67,8 +66,6 @@
     .slot{ padding:10px 0; border-radius:999px; background:#ededed; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; }
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(27,181,122,.35); box-shadow:0 0 0 3px rgba(27,181,122,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
-    .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); }
-    .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);
@@ -98,9 +95,7 @@
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; max-height:300px; overflow-y:auto; }
     
-    /* Step 3 & 我的預約 共用的卡片樣式 
-       樣式：白色圓角卡片，淺灰邊框，微陰影
-    */
+    /* 預約紀錄卡片 */
     .confirmItem { 
       background:#fff; 
       border: 1px solid #ddd; 
@@ -113,46 +108,50 @@
       justify-content: space-between; 
       align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
     }
     
-    /* 刪除按鈕：紅色 */
+    /* [新增] 標記刪除時的視覺效果 */
+    .confirmItem.marked-delete {
+      background-color: #fff5f5; /* 淺紅色背景 */
+      border-color: #ffcccc;
+    }
+    .confirmItem.marked-delete .record-text {
+      text-decoration: line-through; /* 刪除線 */
+      color: #999 !important; /* 文字變淡 */
+    }
+    
+    /* 刪除/還原按鈕 */
     .step3Del {
-        color: #d32f2f; 
         font-size: 18px;
-        margin-left: 10px;
+        margin-left: auto;
         cursor: pointer;
         padding: 4px;
         display: flex; align-items: center;
     }
-    .step3Del:hover { color: #b23a2b; }
+    .icon-trash { color: #d32f2f; }
+    .icon-undo { color: #1976d2; }
 
     .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:16px; margin-bottom: 6px; } 
     .remindBox{ 
-        width:100%; 
-        border-radius:0; 
-        background:transparent; 
-        padding:0 8px; 
-        font-size:13px; 
-        line-height:1.7; 
-        font-weight:400; 
-        color:#333;      
-        border: none;
+        width:100%; border-radius:0; background:transparent; padding:0 8px; 
+        font-size:13px; line-height:1.7; font-weight:400; color:#333; border: none;
     }
     .remindBox ol { padding-left: 20px; margin: 0; }
     .remindBox li { margin-bottom: 4px; }
     
     .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); }
     .btnRow{ display:flex; gap:12px; }
-    .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); }
+    .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); transition: all 0.2s; }
     .btnPrimary{ background:var(--primary); color:#fff; }
     .btnGhost{ background:#fff; color:#111; border:1px solid rgba(0,0,0,.10); }
+    .btnDanger{ background:var(--danger); color:#fff; }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
     
     .status{ margin-top:8px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:18px; white-space:pre-wrap; }
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
-    /* 我的預約頁面標題列樣式 */
     .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:#e9f7f0; padding:4px 10px; border-radius:99px; }
@@ -248,7 +247,11 @@
     <div class="btnRow">
       <button id="btnBack" class="btn btnGhost hide">上一步</button>
       <button id="btnNext" class="btn btnPrimary" disabled>下一步</button>
-      <button id="btnHome" class="btn btnPrimary hide">我要預約課程</button>
+      
+      <div id="recordBtns" class="btnRow hide" style="width:100%;">
+          <button id="btnHome" class="btn" style="background:#fff; color:var(--primary); border:2px solid var(--primary);">新增預約</button>
+          <button id="btnCancelBatch" class="btn btnDanger" disabled>刪除預約</button>
+      </div>
     </div>
     <div id="status" class="status">載入中…</div>
   </div>
@@ -270,7 +273,9 @@
     weekStart: null, dateKey: null, tab: 'am',
     cart: [],
     optionsRaw: [], availabilityMap: {}, loadingOptions: false,
-    mode: 'book' 
+    mode: 'book',
+    records: [], 
+    selectedRecords: new Set() // 追蹤被標記刪除的紀錄 index
   };
 
   const $ = s => document.querySelector(s);
@@ -278,7 +283,8 @@
   const lab1=$('#lab1'), lab2=$('#lab2'), lab3=$('#lab3');
   const card1=$('#card1'), card2=$('#card2'), card3=$('#card3'), cardRecord=$('#cardRecord');
   const coachRow=$('#coachRow'), peopleRow=$('#peopleRow');
-  const btnBack=$('#btnBack'), btnNext=$('#btnNext'), btnHome=$('#btnHome'), status=$('#status');
+  const btnBack=$('#btnBack'), btnNext=$('#btnNext'), status=$('#status');
+  const btnHome=$('#btnHome'), btnCancelBatch=$('#btnCancelBatch'), recordBtns=$('#recordBtns');
   const coachAvatar2=$('#coachAvatar2'), coachName2=$('#coachName2'), coachTags2=$('#coachTags2');
   const prevWeek=$('#prevWeek'), nextWeek=$('#nextWeek'), monthTitle=$('#monthTitle');
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
@@ -340,7 +346,8 @@
     cardRecord.classList.add('hide'); 
     status.classList.remove('statusError');
 
-    btnHome.classList.add('hide');
+    recordBtns.classList.add('hide'); 
+    
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.people);
@@ -374,12 +381,12 @@
         const wd = weekdayZhFromDateKey(item.date);
         html += `
         <div class="confirmItem">
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:16px; color:#333;">${item.date} (${wd}) ${item.time}</span>
                 <span style="font-size:16px; color:#333;">${state.people}人</span>
             </div>
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </div>
         </div>`;
       });
@@ -575,16 +582,24 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
-  // 查詢我的預約紀錄
+  // ==========================================
+  // 我的預約相關邏輯
+  // ==========================================
   async function loadMyRecords() {
       state.mode = 'record';
       stepBar.classList.add('hide'); recordBar.classList.remove('hide');
       card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
       cardRecord.classList.remove('hide');
-      btnBack.classList.add('hide'); btnNext.classList.add('hide'); btnHome.classList.remove('hide');
+      
+      btnBack.classList.add('hide'); btnNext.classList.add('hide');
+      recordBtns.classList.remove('hide'); 
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>';
+      
+      // 清空所有標記狀態
+      state.selectedRecords.clear();
+      updateRecordBtns();
 
       try {
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
@@ -592,8 +607,8 @@
               body: JSON.stringify({ action: "getRecords", userId: state.uid })
           });
           const data = await res.json();
-          const records = data.records || [];
-          renderRecordList(records);
+          state.records = data.records || [];
+          renderRecordList();
           setStatus("");
       } catch(e) {
           console.error(e);
@@ -602,8 +617,9 @@
       }
   }
 
-  function renderRecordList(records) {
-      // [修改 1] 改為 "共 X 堂"
+  // [修改] 繪製預約清單，加入標記刪除效果
+  function renderRecordList() {
+      const records = state.records;
       $('#myRecordCount').textContent = `共 ${records.length} 堂`;
       if(records.length === 0) {
           recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">目前沒有預約紀錄</div>';
@@ -611,27 +627,60 @@
       }
 
       let html = '';
-      records.forEach(r => {
-          // [修改 2] 直接使用 API 回傳的 weekday 變數，不自己計算
-          // [修改 3] 更新下方小字格式為 教練：xx 學生：x人
+      records.forEach((r, index) => {
+          const isMarked = state.selectedRecords.has(index);
+          
+          // 若被標記刪除，加上 marked-delete 樣式；圖示切換為 Undo
           html += `
-          <div class="confirmItem">
-              <div style="display:flex; flex-direction:column;">
-                  <span style="font-size:16px; color:#333; margin-bottom:4px;">${r.date} (${r.weekday}) ${r.time}</span>
-                  <span style="font-size:13px; color:#666;">教練：${r.coach} &nbsp; 學生：${r.people}人</span>
+          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}">
+              <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
+                      <span style="font-size:16px; color:#333;">${r.date} (${r.weekday}) ${r.time}</span>
+                      <span style="font-size:13px; color:#666;">教練：${r.coach} &nbsp; 學生：${r.people}人</span>
+                  </div>
               </div>
-              <div class="step3Del" onclick="cancelBooking('${r.date}', '${r.time}', '${r.coach}')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              <div class="step3Del" onclick="toggleDeleteMark(${index})">
+                  ${isMarked 
+                    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
+                    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
+                  }
               </div>
           </div>`;
       });
       recordList.innerHTML = html;
   }
 
-  window.cancelBooking = function(date, time, coach) {
+  // [修改] 切換刪除標記
+  window.toggleDeleteMark = function(index) {
+      if(state.selectedRecords.has(index)) {
+          state.selectedRecords.delete(index);
+      } else {
+          state.selectedRecords.add(index);
+      }
+      renderRecordList();
+      updateRecordBtns();
+  };
+
+  // 更新右下角刪除按鈕狀態
+  function updateRecordBtns() {
+      const count = state.selectedRecords.size;
+      if(count > 0) {
+          btnCancelBatch.textContent = `刪除預約 (${count})`;
+          btnCancelBatch.disabled = false;
+      } else {
+          btnCancelBatch.textContent = `刪除預約`;
+          btnCancelBatch.disabled = true;
+      }
+  }
+
+  // 點擊「刪除預約」
+  btnCancelBatch.onclick = function() {
+      const count = state.selectedRecords.size;
+      if(count === 0) return;
+
       Swal.fire({
-          title: '取消預約',
-          text: `確定要取消 ${date} ${time} (${coach}) 的課程嗎？`,
+          title: '確認刪除',
+          text: `確定要取消選取的 ${count} 筆預約嗎？`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: '確定取消',
@@ -639,22 +688,33 @@
           cancelButtonText: '返回'
       }).then((result) => {
           if (result.isConfirmed) {
-              doCancel(date, time, coach);
+              executeBatchCancel();
           }
       });
   };
 
-  async function doCancel(date, time, coach) {
-      Swal.fire({ title: '處理中...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+  // [修改] 執行刪除 (傳送 doCancel 陣列給 Make)
+  async function executeBatchCancel() {
+      Swal.fire({ title: '正在取消系統預約中...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+      
+      const bookingsToCancel = [];
+      state.selectedRecords.forEach(index => {
+          bookingsToCancel.push(state.records[index]);
+      });
+
       try {
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
               method: "POST", headers: {"Content-Type":"application/json"},
-              body: JSON.stringify({ action: "cancel", userId: state.uid, date: date, time: time, coach: coach })
+              body: JSON.stringify({ 
+                  action: "doCancel", 
+                  userId: state.uid, 
+                  bookings: bookingsToCancel 
+              })
           });
           const result = await res.json();
           if(result.status === 'success') {
-              await Swal.fire({ icon:'success', title:'已取消', timer:1500, showConfirmButton:false });
-              loadMyRecords(); 
+              await Swal.fire({ icon:'success', title:'已成功刪除', timer:1500, showConfirmButton:false });
+              loadMyRecords(); // 重新整理
           } else {
               throw new Error('Cancel failed');
           }
@@ -710,7 +770,7 @@
                           size: "md",       
                           weight: "bold",
                           flex: 0,
-                          margin: "xl" 
+                          margin: "xxl" 
                         }
                   ]
                 }
@@ -827,10 +887,18 @@
     
     btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
     
+    // [修改] 左下角新增預約：清空狀態回 Step 1
     btnHome.onclick = () => {
         window.history.replaceState({}, document.title, window.location.pathname);
+        state.cart = []; 
+        state.people = null; 
+        state.coach = null;  
+        renderCart(); 
+        
         stepBar.classList.remove('hide'); recordBar.classList.add('hide');
         cardRecord.classList.add('hide');
+        recordBtns.classList.add('hide'); // 隱藏紀錄頁按鈕
+        
         renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
         setStep(1);
     };
