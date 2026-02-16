@@ -9,13 +9,24 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    :root{ --bg:#f6f7f8; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); --selBg:#e3f9ef; --selText:#0d7a55; --darkBlue:#003366; }
+    /* [修改 5] 調整背景基底色，並加入微妙的漸層光暈背景 */
+    :root{ --bg:#f2f7f5; --card:#ffffff; --text:#111; --muted:#7a7a7a; --primary:#1bb57a; --border:rgba(0,0,0,.08); --shadow:0 10px 26px rgba(0,0,0,.08); --radius:18px; --danger:#b23a2b; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); --selBg:#e3f9ef; --selText:#0d7a55; --darkBlue:#003366; }
     *{ box-sizing:border-box; }
     html, body{ height:100%; overflow:hidden; }
-    body{ margin:0; font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); }
-    .wrap{ height:100dvh; display:flex; flex-direction:column; max-width:560px; margin:0 auto; }
+    body{ 
+        margin:0; font-family: system-ui, -apple-system, sans-serif; 
+        background-color:var(--bg); 
+        color:var(--text);
+        /* [修改 5] 新增微妙的背景光暈效果，增加設計感 */
+        background-image: 
+            radial-gradient(at 10% 10%, rgba(27, 181, 122, 0.08) 0px, transparent 50%),
+            radial-gradient(at 90% 90%, rgba(0, 51, 102, 0.05) 0px, transparent 50%);
+        background-attachment: fixed;
+    }
+    .wrap{ height:100dvh; display:flex; flex-direction:column; max-width:560px; margin:0 auto; position: relative; z-index: 1;}
     
-    .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, #f6f7f8 75%, rgba(246,247,248,0)); flex:0 0 auto; }
+    /* Top 區域背景透明度調整，讓背景光暈透出來 */
+    .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, var(--bg) 60%, rgba(242,247,245,0)); flex:0 0 auto; }
     
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; min-width:0; }
@@ -111,14 +122,27 @@
       transition: all 0.2s ease;
     }
     
-    /* [新增] 標記刪除時的視覺效果 */
+    /* 標記刪除時的視覺效果 */
     .confirmItem.marked-delete {
       background-color: #fff5f5; /* 淺紅色背景 */
       border-color: #ffcccc;
     }
+    
+    /* [修改 1] 強化刪除線效果：使用偽元素製作更粗、更深的紅線 */
     .confirmItem.marked-delete .record-text {
-      text-decoration: line-through; /* 刪除線 */
-      color: #999 !important; /* 文字變淡 */
+      position: relative;
+      opacity: 0.6; /* 讓文字稍微變淡 */
+    }
+    .confirmItem.marked-delete .record-text::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 2px; /* 線條變粗 */
+        background: #d32f2f; /* 深紅色 */
+        transform: translateY(-50%);
+        pointer-events: none;
     }
     
     /* 刪除/還原按鈕 */
@@ -140,7 +164,8 @@
     .remindBox ol { padding-left: 20px; margin: 0; }
     .remindBox li { margin-bottom: 4px; }
     
-    .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, #f6f7f8 72%, rgba(246,247,248,0)); }
+    /* Footer 樣式調整，配合新的背景 */
+    .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, var(--bg) 60%, rgba(242,247,245,0)); }
     .btnRow{ display:flex; gap:12px; }
     .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); transition: all 0.2s; }
     .btnPrimary{ background:var(--primary); color:#fff; }
@@ -156,8 +181,32 @@
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:#e9f7f0; padding:4px 10px; border-radius:99px; }
 
+    /* SweetAlert2 樣式微調 */
     .swal2-html-container { text-align: center !important; font-weight: 900 !important; }
     .swal2-popup { font-family: system-ui, -apple-system, sans-serif !important; border-radius: 20px !important; }
+    
+    /* [修改 2] 客製化 Loading Spinner 的 CSS */
+    .loader-spinner {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      margin-bottom: 16px;
+    }
+    .loader-spinner:after {
+      content: " ";
+      display: block;
+      width: 40px;
+      height: 40px;
+      margin: 4px;
+      border-radius: 50%;
+      border: 4px solid var(--primary); /* 使用品牌色 */
+      border-color: var(--primary) transparent var(--primary) transparent;
+      animation: loader-spinner-ring 1.2s linear infinite;
+    }
+    @keyframes loader-spinner-ring {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
@@ -171,7 +220,7 @@
     </div>
     
     <div id="recordBar" class="steps hide" style="justify-content:center; background:transparent; border:none; box-shadow:none;">
-        <div style="font-size:20px; font-weight:950; color:#111;">我的預約紀錄</div>
+        <div id="pageTitle" style="font-size:20px; font-weight:950; color:#111;">我的預約紀錄</div>
     </div>
   </div>
 
@@ -275,7 +324,7 @@
     optionsRaw: [], availabilityMap: {}, loadingOptions: false,
     mode: 'book',
     records: [], 
-    selectedRecords: new Set() // 追蹤被標記刪除的紀錄 index
+    selectedRecords: new Set() 
   };
 
   const $ = s => document.querySelector(s);
@@ -597,7 +646,6 @@
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>';
       
-      // 清空所有標記狀態
       state.selectedRecords.clear();
       updateRecordBtns();
 
@@ -617,7 +665,6 @@
       }
   }
 
-  // [修改] 繪製預約清單，加入標記刪除效果
   function renderRecordList() {
       const records = state.records;
       $('#myRecordCount').textContent = `共 ${records.length} 堂`;
@@ -630,7 +677,6 @@
       records.forEach((r, index) => {
           const isMarked = state.selectedRecords.has(index);
           
-          // 若被標記刪除，加上 marked-delete 樣式；圖示切換為 Undo
           html += `
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}">
               <div style="display:flex; align-items:center; gap:10px;">
@@ -650,7 +696,6 @@
       recordList.innerHTML = html;
   }
 
-  // [修改] 切換刪除標記
   window.toggleDeleteMark = function(index) {
       if(state.selectedRecords.has(index)) {
           state.selectedRecords.delete(index);
@@ -661,11 +706,11 @@
       updateRecordBtns();
   };
 
-  // 更新右下角刪除按鈕狀態
   function updateRecordBtns() {
       const count = state.selectedRecords.size;
       if(count > 0) {
-          btnCancelBatch.textContent = `刪除預約 (${count})`;
+          // [修改 3] 增加單位「堂」
+          btnCancelBatch.textContent = `刪除預約 (${count} 堂)`;
           btnCancelBatch.disabled = false;
       } else {
           btnCancelBatch.textContent = `刪除預約`;
@@ -673,14 +718,14 @@
       }
   }
 
-  // 點擊「刪除預約」
   btnCancelBatch.onclick = function() {
       const count = state.selectedRecords.size;
       if(count === 0) return;
 
       Swal.fire({
           title: '確認刪除',
-          text: `確定要取消選取的 ${count} 筆預約嗎？`,
+          // [修改 3] 增加單位「堂」
+          text: `確定要取消選取的 ${count} 堂預約嗎？`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: '確定取消',
@@ -693,9 +738,19 @@
       });
   };
 
-  // [修改] 執行刪除 (傳送 doCancel 陣列給 Make)
   async function executeBatchCancel() {
-      Swal.fire({ title: '正在取消系統預約中...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+      // [修改 2] 使用客製化的 Loading HTML
+      Swal.fire({
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 20px 0;">
+                <div class="loader-spinner"></div>
+                <div style="margin-top: 20px; font-size: 18px; font-weight: 950; color: #333;">正在取消系統預約中...</div>
+                <div style="margin-top: 8px; font-size: 14px; color: #888;">請稍候，系統處理中</div>
+            </div>
+          `,
+          allowOutsideClick: false, 
+          showConfirmButton: false
+      });
       
       const bookingsToCancel = [];
       state.selectedRecords.forEach(index => {
@@ -714,7 +769,7 @@
           const result = await res.json();
           if(result.status === 'success') {
               await Swal.fire({ icon:'success', title:'已成功刪除', timer:1500, showConfirmButton:false });
-              loadMyRecords(); // 重新整理
+              loadMyRecords(); 
           } else {
               throw new Error('Cancel failed');
           }
@@ -866,6 +921,9 @@
         state.uid = p.userId; 
         state.name = p.displayName; 
 
+        // [修改 4] 取得使用者名稱後，更新標題
+        $('#pageTitle').textContent = `${state.name} 的私課預約`;
+
         if (isRecordMode) {
             loadMyRecords();
         } else {
@@ -887,7 +945,6 @@
     
     btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
     
-    // [修改] 左下角新增預約：清空狀態回 Step 1
     btnHome.onclick = () => {
         window.history.replaceState({}, document.title, window.location.pathname);
         state.cart = []; 
@@ -897,7 +954,7 @@
         
         stepBar.classList.remove('hide'); recordBar.classList.add('hide');
         cardRecord.classList.add('hide');
-        recordBtns.classList.add('hide'); // 隱藏紀錄頁按鈕
+        recordBtns.classList.add('hide'); 
         
         renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
         setStep(1);
