@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* [修改 1] 風格回歸原本的綠色調 */
+    /* 風格回歸原本的綠色調 */
     :root{ 
       --bg:#f6f7f8; 
       --card:#ffffff; 
@@ -33,7 +33,7 @@
     
     .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, #f6f7f8 75%, rgba(246,247,248,0)); flex:0 0 auto; }
     
-    /* [修改 1] 保留喜歡的頂部文字標題樣式 */
+    /* 頂部文字標題樣式 */
     .brand-header { display: flex; justify-content: center; align-items: center; padding-bottom: 12px; }
     .brand-text { font-size: 20px; font-weight: 950; letter-spacing: 1px; color: var(--text); }
 
@@ -87,6 +87,10 @@
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(27,181,122,.35); box-shadow:0 0 0 3px rgba(27,181,122,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
 
+    /* [修正 1] 確保 slotTip important 樣式正確顯示 */
+    .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: center; }
+    .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
+
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);
       display: flex; flex-direction: column; gap: 6px; 
@@ -126,7 +130,7 @@
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
     .confirmItem.marked-delete .record-text { opacity: 0.5; }
 
-    /* [修改 2] 刪除線直接覆蓋在日期上方 */
+    /* 刪除線直接覆蓋在日期上方 */
     .confirmItem.marked-delete .record-date {
         position: relative;
         display: inline-block;
@@ -137,8 +141,8 @@
         left: 0;
         top: 50%;
         width: 100%;
-        height: 2px; /* 線條粗細 */
-        background: var(--danger); /* 深紅色 */
+        height: 2px;
+        background: var(--danger);
         transform: translateY(-50%);
         pointer-events: none;
     }
@@ -174,7 +178,7 @@
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #555 !important; background: #f0f0f0 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
-    /* [修改 3 & 4] 極簡設計感 Loading Spinner (綠色) */
+    /* 極簡設計感 Loading Spinner (綠色) */
     .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 12px; }
     .loader-spinner-green:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
@@ -186,7 +190,8 @@
     
     /* 自訂 Alert 文字樣式 */
     .custom-swal-title { font-size: 19px; font-weight: 950; color: #111; margin-bottom: 8px; }
-    .custom-swal-subtitle { font-size: 14px; color: #888; font-weight: 500; }
+    /* [修改 2] 加深灰色並放大字體，照顧年長使用者 */
+    .custom-swal-subtitle { font-size: 16px; color: #555; font-weight: 500; }
 
   </style>
 </head>
@@ -194,7 +199,7 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="brand-header">
+    <div id="brandHeader" class="brand-header">
         <div class="brand-text">支點運動空間</div>
     </div>
 
@@ -323,6 +328,7 @@
   const prevWeek=$('#prevWeek'), nextWeek=$('#nextWeek'), monthTitle=$('#monthTitle');
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'), recordBar=$('#recordBar'); 
+  const brandHeader=$('#brandHeader'); // [修改 3]
 
   function pad2(n){ return String(n).padStart(2,'0'); }
   function ymd(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
@@ -381,6 +387,7 @@
     status.classList.remove('statusError');
 
     recordBtns.classList.add('hide'); 
+    brandHeader.style.display = 'flex'; // [修改 3] 在預約模式顯示
     
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
@@ -581,7 +588,11 @@
 
   function renderSlotsStep2(){
     slotGrid2.innerHTML='';
-    if(state.loadingOptions){ slotGrid2.innerHTML='<div class="slotTip important">讀取可預約時段中…</div>'; return; }
+    if(state.loadingOptions){ 
+        // [修正 1] 確保樣式正確套用
+        slotGrid2.innerHTML='<div class="slotTip important">讀取可預約時段中…</div>'; 
+        return; 
+    }
     if(!hasAnySlots()){ slotGrid2.innerHTML='<div class="slotTip error">目前沒有可預約的時段</div>'; return; }
     if(!state.dateKey){ slotGrid2.innerHTML='<div class="slotTip important">請先選擇上方日期</div>'; return; }
     
@@ -627,6 +638,7 @@
       
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
+      brandHeader.style.display = 'none'; // [修改 3] 在紀錄模式隱藏頂部標題
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>';
@@ -706,7 +718,6 @@
       const count = state.selectedRecords.size;
       if(count === 0) return;
 
-      // [修改 4] 極簡設計的確認刪除視窗
       Swal.fire({
           html: `
             <div style="padding: 10px 0;">
@@ -728,7 +739,7 @@
   };
 
   async function executeBatchCancel() {
-      // [修改 3] 極簡設計的 Loading 視窗 (綠色版)
+      // [修改 3] 更新 Loading 畫面樣式，移除重複文字
       Swal.fire({
           html: `
             <div style="display: flex; flex-direction: column; align-items: center; padding: 20px 0;">
@@ -757,20 +768,23 @@
           });
           const result = await res.json();
           if(result.status === 'success') {
-              // 1. 顯示簡短成功訊息
-              await Swal.fire({ icon:'success', title:'已成功刪除', timer:1000, showConfirmButton:false });
               
-              // 2. [修改 5] 重新讀取資料以獲取最新餘額
-              await loadMyRecords();
-              const remainingCount = state.records.length;
+              // [修改 5] 刪除成功後，重新向 Make 請求最新資料以計算餘額
+              const checkRes = await fetch(MAKE_QUERY_WEBHOOK_URL, {
+                  method: "POST", headers: {"Content-Type":"application/json"},
+                  body: JSON.stringify({ action: "getRecords", userId: state.uid })
+              });
+              const checkData = await checkRes.json();
+              const remainingCount = (checkData.records || []).length;
 
-              // 3. [修改 5] 發送餘額通知 Flex Message
+              // 發送新的取消通知 Flex Message
               if(liff.isInClient()) {
                   await liff.sendMessages([createCancellationFlexMessage(remainingCount)]);
               }
 
-              // 4. [修改 5] 關閉視窗
-              liff.closeWindow();
+              await Swal.fire({ icon:'success', title:'已成功刪除', timer:1000, showConfirmButton:false });
+              // 關閉 LIFF 返回聊天室
+              liff.closeWindow(); 
           } else {
               throw new Error('Cancel failed');
           }
@@ -779,7 +793,7 @@
       }
   }
 
-  // [修改 5] 新增：私課取消通知的 Flex Message (顯示餘額)
+  // [修改 4] 全新設計的私課取消 Flex Message
   function createCancellationFlexMessage(remainingCount) {
     return {
       type: "flex",
@@ -793,7 +807,7 @@
             { type: "text", text: "私課已取消", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
           ],
-          backgroundColor: "#d32f2f", /* 使用紅色代表取消 */
+          backgroundColor: "#b23a2b", /* 使用偏深的紅色 */
           paddingAll: "20px"
         },
         body: {
@@ -806,20 +820,12 @@
               contents: [
                 {
                   type: "text",
-                  text: "您的預約已成功取消。",
-                  size: "sm",
-                  color: "#555555",
+                  text: "剩餘私課",
+                  size: "md", /* 放大字體 */
+                  color: "#333333", /* 加深顏色 */
+                  weight: "bold", /* 加粗 */
                   align: "center",
                   margin: "md"
-                },
-                { type: "separator", margin: "lg", color: "#f0f0f0" },
-                {
-                  type: "text",
-                  text: "目前剩餘私課",
-                  size: "sm",
-                  color: "#888888",
-                  align: "center",
-                  margin: "lg"
                 },
                 {
                   type: "box",
@@ -850,6 +856,72 @@
                 }
               ],
               paddingBottom: "10px"
+            },
+            { type: "separator", margin: "lg", color: "#f0f0f0" },
+            {
+              type: "box",
+              layout: "vertical",
+              spacing: "sm",
+              margin: "lg",
+              contents: [
+                {
+                  type: "text",
+                  text: "溫馨提醒",
+                  weight: "bold",
+                  size: "xs",
+                  color: "#b2682b"
+                },
+                {
+                  type: "box",
+                  layout: "vertical",
+                  spacing: "xs",
+                  contents: [
+                    {
+                      type: "text",
+                      text: "• 取消或改期，請於開課前 2 小時完成。",
+                      size: "xxs",
+                      color: "#999999",
+                      wrap: true
+                    },
+                    {
+                      type: "text",
+                      text: "• 如有問題，請於官方 Line 聯繫我們。",
+                      size: "xxs",
+                      color: "#999999",
+                      wrap: true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "box",
+              layout: "vertical",
+              margin: "xl",
+              contents: [
+                {
+                  type: "box",
+                  layout: "vertical",
+                  backgroundColor: "#1bb57a",
+                  cornerRadius: "10px",
+                  paddingAll: "10px",
+                  action: {
+                    type: "uri",
+                    label: "查看預約詳情",
+                    uri: "https://liff.line.me/" + LIFF_ID + "?page=record" 
+                  },
+                  contents: [
+                      {
+                          type: "text",
+                          text: "查看預約詳情",
+                          color: "#ffffff",
+                          weight: "bold", 
+                          size: "md",
+                          align: "center"
+                      }
+                  ]
+                }
+              ]
             }
           ],
           paddingAll: "24px"
