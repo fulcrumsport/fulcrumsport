@@ -9,11 +9,11 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* 風格改為千里江山圖的「青綠」色系，更具高級質感 */
+    /* 千里江山圖的「青綠」色系 */
     :root{ 
-      --bg: #f2f6f5;       /* 極淡的青灰背景 */
+      --bg: #f2f6f5;       
       --card: #ffffff; 
-      --text: #1a2321;     /* 帶有一點青黑色的深字 */
+      --text: #1a2321;     
       --muted: #7a8280; 
       --primary: #127a69;  /* 主色：石綠 / 青綠 */
       --border: rgba(18, 122, 105, 0.1); 
@@ -22,8 +22,8 @@
       --danger: #b23a2b; 
       --safeB: env(safe-area-inset-bottom, 0px); 
       --safeT: env(safe-area-inset-top, 0px); 
-      --selBg: #e5f2f0;    /* 選取時的淺青綠底色 */
-      --selText: #0d5c4f;  /* 選取時的深青綠字色 */
+      --selBg: #e5f2f0;    
+      --selText: #0d5c4f;  
       --darkBlue: #003366; 
     }
     *{ box-sizing:border-box; }
@@ -124,11 +124,8 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.2s ease;
     }
     
-    /* 標記刪除視覺效果 */
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
     .confirmItem.marked-delete .record-text { opacity: 0.6; }
-
-    /* 正確的刪除線邏輯：分別在兩行文字上劃線 */
     .confirmItem.marked-delete .record-text span {
         text-decoration: line-through;
         text-decoration-color: var(--danger);
@@ -160,14 +157,55 @@
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* SweetAlert2 樣式微調 */
-    .swal2-popup { border-radius: 20px !important; padding: 24px !important; }
-    .swal2-actions { margin-top: 16px !important; gap: 12px; }
+    /* ========================================================= */
+    /* [修改] 統一全面覆蓋 SweetAlert2 彈出視窗的所有字體樣式與顏色 */
+    /* ========================================================= */
+    .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
+    
+    /* 統一所有標題 (包含原生彈窗與 HTML 寫入) */
+    .swal2-title {
+        font-size: 19px !important;
+        font-weight: 950 !important;
+        color: #111 !important; /* 強制所有標題皆為純黑 */
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* 統一所有說明內文 (包含原生彈窗與 HTML 寫入) */
+    .swal2-html-container {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: #111 !important; /* 強制所有內文皆為純黑 */
+        margin: 10px 0 0 0 !important;
+        line-height: 1.5 !important;
+    }
+
+    /* 確保客製化的類別也絕對統一 */
+    .custom-swal-title { 
+        font-size: 19px; 
+        font-weight: 950; 
+        color: #111; 
+        margin-top: 12px;
+        margin-bottom: 0; 
+        text-align: center; 
+        line-height: 1.4;
+    }
+    .custom-swal-subtitle { 
+        font-size: 15px; 
+        font-weight: 600; 
+        color: #111; 
+        margin-top: 8px; 
+        text-align: center; 
+        line-height: 1.5;
+    }
+
+    .swal2-actions { margin-top: 20px !important; gap: 12px; }
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
-    .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #555 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
+    .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
     /* 極簡設計感 Loading Spinner (青綠版) */
-    .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 12px; }
+    .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
     .loader-spinner-green:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
       border: 3.5px solid var(--primary);
@@ -175,10 +213,6 @@
       animation: loader-spinner-ring 1s linear infinite;
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    .custom-swal-title { font-size: 19px; font-weight: 950; color: var(--text); margin-bottom: 8px; }
-    .custom-swal-subtitle { font-size: 16px; color: #555; font-weight: 500; }
-
   </style>
 </head>
 
@@ -480,7 +514,8 @@
                       showCancelButton: true,
                       confirmButtonText: '加入',
                       confirmButtonColor: '#127a69', 
-                      cancelButtonText: '取消'
+                      cancelButtonText: '取消',
+                      iconColor: '#127a69' /* [修改 2] 確認勾勾改為青綠色 */
                   }).then((res)=>{
                       if(res.isConfirmed){
                           const c = addBatchItems(item.date, item.time);
@@ -491,7 +526,7 @@
                               text:`成功加入後續 ${c} 堂課`, 
                               timer:1500, 
                               showConfirmButton:false,
-                              iconColor: '#127a69' /* [修改 2] 勾勾改色 */
+                              iconColor: '#127a69' /* [修改 2] 成功打勾改為青綠色 */
                           });
                       }
                   });
@@ -643,7 +678,7 @@
       brandHeader.style.display = 'none'; 
       
       setStatus("讀取預約紀錄中...");
-      recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>';
+      recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
       
       state.selectedRecords.clear();
       updateRecordBtns();
@@ -668,7 +703,7 @@
       const records = state.records;
       $('#myRecordCount').textContent = `共 ${records.length} 堂`;
       if(records.length === 0) {
-          recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-weight:900;">目前沒有預約紀錄</div>';
+          recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">目前沒有預約紀錄</div>';
           return;
       }
 
@@ -728,8 +763,8 @@
       Swal.fire({
           html: `
             <div style="padding: 10px 0;">
-                <div class="custom-swal-title" style="color: var(--danger);">確認刪除預約？</div>
-                <div class="custom-swal-subtitle" style="margin-top:12px;">取消 <span style="color:var(--danger); font-weight:bold;">${count} 堂</span> 私課？</div>
+                <div class="custom-swal-title">確認刪除預約？</div>
+                <div class="custom-swal-subtitle">取消 <span style="font-weight:950;">${count} 堂</span> 私課？</div>
             </div>
           `,
           showCancelButton: true,
@@ -748,10 +783,10 @@
   async function executeBatchCancel() {
       Swal.fire({
           html: `
-            <div style="display: flex; flex-direction: column; align-items: center; padding: 20px 0;">
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 10px 0;">
                 <div class="loader-spinner-green"></div>
                 <div class="custom-swal-title">正在取消預約...</div>
-                <div class="custom-swal-subtitle" style="margin-top:8px;">請稍候，系統處理中</div>
+                <div class="custom-swal-subtitle">請稍候，系統處理中</div>
             </div>
           `,
           allowOutsideClick: false, 
@@ -786,12 +821,13 @@
                   await liff.sendMessages([createCancellationFlexMessage(remainingCount)]);
               }
 
+              // [修改 2] 成功刪除彈出視窗：打勾圖示改為青綠色，並套用強制黑色字體
               await Swal.fire({ 
                   icon:'success', 
                   title:'已成功刪除', 
                   timer:1000, 
                   showConfirmButton:false,
-                  iconColor: '#127a69' /* [修改 2] 勾勾改色 */
+                  iconColor: '#127a69' 
               });
               liff.closeWindow(); 
           } else {
@@ -1081,7 +1117,7 @@
         state.uid = p.userId; 
         state.name = p.displayName; 
 
-        // [修改 1] 動態切換網頁標題
+        // [修改 1] 紀錄模式切換網頁標題
         if (isRecordMode) {
             document.title = "支點運動空間";
             $('#pageTitle').textContent = `${state.name} 的私課預約`;
@@ -1108,7 +1144,7 @@
     
     btnHome.onclick = () => {
         window.history.replaceState({}, document.title, window.location.pathname);
-        document.title = "私課預約"; // [修改 1] 返回預約模式時切換標題
+        document.title = "私課預約"; // [修改 1] 回到預約模式切換網頁標題
         
         state.cart = []; 
         state.people = null; 
@@ -1138,12 +1174,13 @@
            const results = result.results || [];
            const successList = results.filter(r => r.status === 'success');
            if (successList.length > 0 && results.filter(r => r.status !== 'success').length === 0) {
+             // [修改 2] 預約成功打勾動畫改色
              await Swal.fire({ 
                  icon:'success', 
                  title:'預約成功', 
-                 text:`已成功預約 ${successList.length} 堂私課！`, 
-                 confirmButtonColor: '#127a69', 
-                 iconColor: '#127a69' /* [修改 2] 預約成功打勾改色 */
+                 html:`已成功預約 <span style="font-weight:950;">${successList.length} 堂</span> 私課！`, 
+                 confirmButtonColor: '#127a69',
+                 iconColor: '#127a69'
              });
              if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length)]);
              liff.closeWindow();
