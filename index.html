@@ -87,8 +87,8 @@
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(27,181,122,.35); box-shadow:0 0 0 3px rgba(27,181,122,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
 
-    /* [修正 1] 確保 slotTip important 樣式正確顯示 */
-    .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: center; }
+    /* [修正 1] 確保 slotTip important 樣式正確顯示，並修改為左對齊 */
+    .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
     .cartSection {
@@ -130,12 +130,12 @@
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
     .confirmItem.marked-delete .record-text { opacity: 0.5; }
 
-    /* 刪除線直接覆蓋在日期上方 */
-    .confirmItem.marked-delete .record-date {
+    /* [修改 3] 刪除線直接覆蓋在整個文字區塊上方 */
+    .confirmItem.marked-delete .record-text {
         position: relative;
-        display: inline-block;
+        display: block;
     }
-    .confirmItem.marked-delete .record-date::after {
+    .confirmItem.marked-delete .record-text::after {
         content: '';
         position: absolute;
         left: 0;
@@ -190,7 +190,7 @@
     
     /* 自訂 Alert 文字樣式 */
     .custom-swal-title { font-size: 19px; font-weight: 950; color: #111; margin-bottom: 8px; }
-    /* [修改 2] 加深灰色並放大字體，照顧年長使用者 */
+    /* 加深灰色並放大字體，照顧年長使用者 */
     .custom-swal-subtitle { font-size: 16px; color: #555; font-weight: 500; }
 
   </style>
@@ -427,7 +427,12 @@
                 <span style="font-size:16px; color:#333;">${state.people}人</span>
             </div>
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
             </div>
         </div>`;
       });
@@ -678,14 +683,19 @@
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" onclick="toggleDeleteMark(${index})">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
-                      <span class="record-date" style="font-size:16px; color:#333;">${r.date} (${r.weekday}) ${r.time}</span>
+                      <span style="font-size:16px; color:#333;">${r.date} (${r.weekday}) ${r.time}</span>
                       <span style="font-size:13px; color:#666;">教練：${r.coach} &nbsp; 學生：${state.name} / ${r.people}人</span>
                   </div>
               </div>
               <div class="step3Del">
                   ${isMarked 
                     ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
-                    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
+                    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         <polyline points="3 6 5 6 21 6"></polyline>
+                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                         <line x1="10" y1="11" x2="10" y2="17"></line>
+                         <line x1="14" y1="11" x2="14" y2="17"></line>
+                       </svg>`
                   }
               </div>
           </div>`;
@@ -722,7 +732,7 @@
           html: `
             <div style="padding: 10px 0;">
                 <div class="custom-swal-title" style="color: var(--danger);">確認刪除預約？</div>
-                <div class="custom-swal-subtitle" style="margin-top:12px;">您即將取消選取的 <span style="color:var(--danger); font-weight:bold;">${count} 堂</span> 私課。</div>
+                <div class="custom-swal-subtitle" style="margin-top:12px;">取消 <span style="color:var(--danger); font-weight:bold;">${count} 堂</span> 私課？</div>
             </div>
           `,
           showCancelButton: true,
@@ -925,138 +935,6 @@
             }
           ],
           paddingAll: "24px"
-        }
-      }
-    };
-  }
-
-  function createSuccessFlexMessage(successCount) {
-    return {
-      type: "flex",
-      altText: "私課預約成功通知",
-      contents: {
-        type: "bubble",
-        header: {
-          type: "box",
-          layout: "vertical",
-          contents: [
-            { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
-          ],
-          backgroundColor: "#1bb57a", 
-          paddingAll: "20px"
-        },
-        body: {
-          type: "box",
-          layout: "vertical",
-          contents: [
-            {
-              type: "box",
-              layout: "vertical",
-              contents: [
-                {
-                  type: "box",
-                  layout: "baseline",
-                  justifyContent: "center",
-                  margin: "md",
-                  spacing: "none", 
-                  contents: [
-                       {
-                          type: "text",
-                          text: `${successCount}`, 
-                          color: "#1bb57a", 
-                          size: "5xl",
-                          weight: "bold",
-                          flex: 0,
-                          align: "center"
-                        },
-                        {
-                          type: "text",
-                          text: "堂",
-                          color: "#000000",
-                          size: "md",       
-                          weight: "bold",
-                          flex: 0,
-                          margin: "xxl" 
-                        }
-                  ]
-                }
-              ],
-              paddingBottom: "20px"
-            },
-            { type: "separator", margin: "lg", color: "#f0f0f0" },
-            {
-              type: "box",
-              layout: "vertical",
-              spacing: "sm",
-              margin: "lg",
-              contents: [
-                {
-                  type: "text",
-                  text: "溫馨提醒",
-                  weight: "bold",
-                  size: "xs",
-                  color: "#b2682b"
-                },
-                {
-                  type: "box",
-                  layout: "vertical",
-                  spacing: "xs",
-                  contents: [
-                    {
-                      type: "text",
-                      text: "• 取消或改期，請於開課前 2 小時完成。",
-                      size: "xxs",
-                      color: "#999999",
-                      wrap: true
-                    },
-                    {
-                      type: "text",
-                      text: "• 如有問題，請於官方 Line 聯繫我們。",
-                      size: "xxs",
-                      color: "#999999",
-                      wrap: true
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              type: "box",
-              layout: "vertical",
-              margin: "xl",
-              contents: [
-                {
-                  type: "box",
-                  layout: "vertical",
-                  backgroundColor: "#1bb57a",
-                  cornerRadius: "10px",
-                  paddingAll: "10px",
-                  action: {
-                    type: "uri",
-                    label: "查看預約詳情",
-                    uri: "https://liff.line.me/" + LIFF_ID + "?page=record" 
-                  },
-                  contents: [
-                      {
-                          type: "text",
-                          text: "查看預約詳情",
-                          color: "#ffffff",
-                          weight: "bold", 
-                          size: "md",
-                          align: "center"
-                      }
-                  ]
-                }
-              ]
-            }
-          ],
-          paddingAll: "24px"
-        },
-        styles: {
-          footer: {
-            separator: false
-          }
         }
       }
     };
