@@ -3,42 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>支點運動_私課預約</title>
+  <title>私課預約</title>
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* [修改 3] 風格改為千里江山圖的「青綠」色系，更具高級質感 */
+    /* [修改] 千里江山圖「青綠」質感配色 */
     :root{ 
-      --bg: #f2f6f5;       /* 極淡的青灰背景 */
+      --bg: #f0f4f5;       /* 帶有極淡青色的冷灰背景 */
       --card: #ffffff; 
-      --text: #1a2321;     /* 帶有一點青黑色的深字 */
-      --muted: #7a8280; 
-      --primary: #127a69;  /* 主色：石綠 / 青綠 */
-      --border: rgba(18, 122, 105, 0.1); 
-      --shadow: 0 10px 26px rgba(18, 122, 105, 0.06); 
+      --text: #172427;     /* 深青黑字體 */
+      --muted: #728285;    /* 青灰輔助字 */
+      --primary: #2b6a78;  /* 核心主色：高級青綠色 (似藍非藍) */
+      --border: rgba(43, 106, 120, 0.15); 
+      --shadow: 0 10px 26px rgba(43, 106, 120, 0.08); 
       --radius: 18px; 
-      --danger: #b23a2b; 
+      --danger: #b23a2b;   /* 保留危險紅，與青綠形成對比 */
       --safeB: env(safe-area-inset-bottom, 0px); 
       --safeT: env(safe-area-inset-top, 0px); 
-      --selBg: #e5f2f0;    /* 選取時的淺青綠底色 */
-      --selText: #0d5c4f;  /* 選取時的深青綠字色 */
-      --darkBlue: #003366; 
+      --selBg: #e9f0f1;    /* 選取時的淺青綠底色 */
+      --selText: #183e46;  /* 選取時的深青綠字色 */
     }
     *{ box-sizing:border-box; }
     html, body{ height:100%; overflow:hidden; }
     body{ margin:0; font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); }
     .wrap{ height:100dvh; display:flex; flex-direction:column; max-width:560px; margin:0 auto; position: relative; z-index: 1;}
     
-    .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, var(--bg) 75%, rgba(242,246,245,0)); flex:0 0 auto; }
+    .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, var(--bg) 75%, rgba(240,244,245,0)); flex:0 0 auto; }
     
     .brand-header { display: flex; justify-content: center; align-items: center; padding-bottom: 12px; }
     .brand-text { font-size: 20px; font-weight: 950; letter-spacing: 1px; color: var(--text); }
 
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; min-width:0; }
-    .dot{ width:30px; height:30px; border-radius:999px; background:#dcece9; color:var(--primary); font-weight:900; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:14px; transition: all 0.3s;}
+    .dot{ width:30px; height:30px; border-radius:999px; background:#dce4e6; color:var(--primary); font-weight:900; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:14px; transition: all 0.3s;}
     .dot.active{ background:var(--primary); color:#fff; }
     .label{ font-size:15px; font-weight:900; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition: all 0.3s;}
     .label.active{ color:var(--text); }
@@ -48,8 +47,8 @@
     .h{ margin:0 0 10px; font-weight:950; font-size:22px; color:var(--text); flex:0 0 auto; }
     .row{ display:flex; gap:12px; flex-wrap:wrap; }
     
-    .chip{ padding:14px 16px; border-radius:16px; background:#eef2f1; font-weight:950; font-size:18px; cursor:pointer; user-select:none; border:2px solid transparent; min-width:140px; text-align:center; flex:1 1 0; transition: all 0.2s;}
-    .chip.sel{ background:var(--selBg); border-color:rgba(18,122,105,.45); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; color:var(--selText);}
+    .chip{ padding:14px 16px; border-radius:16px; background:#e4ebeb; color:var(--muted); font-weight:950; font-size:18px; cursor:pointer; user-select:none; border:2px solid transparent; min-width:140px; text-align:center; flex:1 1 0; transition: all 0.2s;}
+    .chip.sel{ background:var(--selBg); border-color:rgba(43, 106, 120,.45); box-shadow:0 0 0 3px rgba(43, 106, 120,.14) inset; color:var(--selText);}
     .chip.peoplemp{ flex:1 1 0; min-width:140px; font-size:18px; }
 
     .subTitle{ margin:14px 0 10px; font-weight:950; font-size:15px; color:var(--text); }
@@ -69,10 +68,10 @@
     .calBtn.disabled{ opacity:0.3; pointer-events:none; background:#f0f0f0; color:#999; }
     .monthTitle{ text-align:center; font-weight:950; font-size:16px; }
     .weekStrip{ display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
-    .dayCell{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 0; border-radius:14px; border:1px solid var(--border); background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.05); cursor:pointer; min-height:64px; transition:all 0.2s; }
+    .dayCell{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 0; border-radius:14px; border:1px solid var(--border); background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.04); cursor:pointer; min-height:64px; transition:all 0.2s; }
     .dayCell.disabled{ opacity:.35; pointer-events:none; }
     .dayCell.hidden{ visibility:hidden; pointer-events:none; }
-    .dayCell.sel .dateDot{ background:var(--primary); color:#fff; box-shadow:0 0 0 5px rgba(18,122,105,.14); }
+    .dayCell.sel .dateDot{ background:var(--primary); color:#fff; box-shadow:0 0 0 5px rgba(43, 106, 120,.14); }
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
@@ -82,8 +81,8 @@
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:5px; background:var(--primary); border-radius:999px; }
     .slotGrid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; align-content:start; overflow:auto; padding-right:2px; }
-    .slot{ padding:10px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
-    .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(18,122,105,.35); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; }
+    .slot{ padding:10px 0; border-radius:999px; background:#e4ebeb; color:var(--muted); font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
+    .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(43, 106, 120,.35); box-shadow:0 0 0 3px rgba(43, 106, 120,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
 
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
@@ -93,7 +92,7 @@
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
       flex: 0 0 auto; max-height: 120px; overflow-y: auto;
-      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
+      background: rgba(255,255,255,0.6); border-radius: 12px; padding: 8px;
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; }
     .cartItem {
@@ -106,10 +105,10 @@
     
     .repeatBtn {
       font-size: 11px; padding: 3px 8px; border-radius: 6px;
-      background: #eef2f1; color: var(--primary); border: 1px solid #dcece9;
+      background: #e4ebeb; color: var(--primary); border: 1px solid #dce4e6;
       cursor: pointer; font-weight: 900; transition: all 0.2s;
     }
-    .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
+    .repeatBtn:active { transform: scale(0.95); background: #dce4e6; }
     
     .delBtn { width: 24px; height: 24px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #ccc; cursor: pointer; }
     .delBtn:hover { color: var(--danger); }
@@ -126,9 +125,9 @@
     
     /* 標記刪除視覺效果 */
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
-    .confirmItem.marked-delete .record-text { opacity: 0.6; }
+    .confirmItem.marked-delete .record-text { opacity: 0.5; }
 
-    /* [修改 1] 正確的刪除線邏輯：分別在兩行文字上劃線 */
+    /* 刪除線直接覆蓋在整段文字上方 */
     .confirmItem.marked-delete .record-text span {
         text-decoration: line-through;
         text-decoration-color: var(--danger);
@@ -166,9 +165,9 @@
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #555 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
-    /* 極簡設計感 Loading Spinner (青綠版) */
-    .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 12px; }
-    .loader-spinner-green:after {
+    /* 青綠色 Loading Spinner */
+    .loader-spinner-primary { display: inline-block; width: 46px; height: 46px; margin-bottom: 12px; }
+    .loader-spinner-primary:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
       border: 3.5px solid var(--primary);
       border-color: var(--primary) transparent var(--primary) transparent;
@@ -190,7 +189,7 @@
     </div>
 
     <div id="stepBar" class="steps">
-      <div class="step"> <div id="dot1" class="dot active">1</div> <div id="lab1" class="label active">選教練</div> </div>
+      <div class="step"> <div id="dot1" class="dot active">1</div> <div id="lab1" class="label active">選教教練</div> </div>
       <div class="step"> <div id="dot2" class="dot">2</div> <div id="lab2" class="label">選日期</div> </div>
       <div class="step"> <div id="dot3" class="dot">3</div> <div id="lab3" class="label">確認</div> </div>
     </div>
@@ -469,7 +468,6 @@
               el.querySelector('.repeatBtn').onclick = (e) => {
                   e.stopPropagation();
                   
-                  // [修改 2] 簡化一鍵包月視窗文字
                   const [yyyy, mm, dd] = item.date.split('-');
                   const month = parseInt(mm, 10);
                   const day = parseInt(dd, 10);
@@ -480,13 +478,20 @@
                       icon: 'question',
                       showCancelButton: true,
                       confirmButtonText: '加入',
-                      confirmButtonColor: '#127a69', /* 青綠色 */
+                      confirmButtonColor: '#2b6a78', /* [修改] 按鈕改為青綠色 */
                       cancelButtonText: '取消'
                   }).then((res)=>{
                       if(res.isConfirmed){
                           const c = addBatchItems(item.date, item.time);
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
-                          Swal.fire({ icon:'success', title:'已加入', text:`成功加入後續 ${c} 堂課`, timer:1500, showConfirmButton:false });
+                          Swal.fire({ 
+                              icon:'success', 
+                              title:'已加入', 
+                              text:`成功加入後續 ${c} 堂課`, 
+                              timer:1500, 
+                              showConfirmButton:false,
+                              iconColor: '#2b6a78' /* [修改] 打勾改為青綠色 */
+                          });
                       }
                   });
               };
@@ -674,7 +679,7 @@
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" onclick="toggleDeleteMark(${index})">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
-                      <span style="font-size:16px; color:var(--text);">${r.date} (${r.weekday}) ${r.time}</span>
+                      <span class="record-date" style="font-size:16px; color:var(--text);">${r.date} (${r.weekday}) ${r.time}</span>
                       <span style="font-size:13px; color:var(--muted);">教練：${r.coach} &nbsp; 學生：${state.name} / ${r.people}人</span>
                   </div>
               </div>
@@ -743,7 +748,7 @@
       Swal.fire({
           html: `
             <div style="display: flex; flex-direction: column; align-items: center; padding: 20px 0;">
-                <div class="loader-spinner-green"></div>
+                <div class="loader-spinner-primary"></div>
                 <div class="custom-swal-title">正在取消預約...</div>
                 <div class="custom-swal-subtitle" style="margin-top:8px;">請稍候，系統處理中</div>
             </div>
@@ -780,7 +785,14 @@
                   await liff.sendMessages([createCancellationFlexMessage(remainingCount)]);
               }
 
-              await Swal.fire({ icon:'success', title:'已成功刪除', timer:1000, showConfirmButton:false });
+              // [修改] 刪除成功打勾動畫改為青綠色
+              await Swal.fire({ 
+                  icon:'success', 
+                  title:'已成功刪除', 
+                  timer:1000, 
+                  showConfirmButton:false,
+                  iconColor: '#2b6a78'
+              });
               liff.closeWindow(); 
           } else {
               throw new Error('Cancel failed');
@@ -833,7 +845,7 @@
                        {
                           type: "text",
                           text: `${remainingCount}`, 
-                          color: "#127a69", /* 青綠色 */
+                          color: "#2b6a78", /* [修改] Flex Message 青綠色 */
                           size: "5xl",
                           weight: "bold",
                           flex: 0,
@@ -876,14 +888,14 @@
                       type: "text",
                       text: "• 取消或改期，請於開課前 2 小時完成。",
                       size: "xxs",
-                      color: "#7a8280",
+                      color: "#728285",
                       wrap: true
                     },
                     {
                       type: "text",
                       text: "• 如有問題，請於官方 Line 聯繫我們。",
                       size: "xxs",
-                      color: "#7a8280",
+                      color: "#728285",
                       wrap: true
                     }
                   ]
@@ -898,7 +910,7 @@
                 {
                   type: "box",
                   layout: "vertical",
-                  backgroundColor: "#127a69", /* 青綠色 */
+                  backgroundColor: "#2b6a78", /* [修改] Flex Message 青綠色 */
                   cornerRadius: "10px",
                   paddingAll: "10px",
                   action: {
@@ -939,7 +951,7 @@
             { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
           ],
-          backgroundColor: "#127a69", /* 青綠色 */
+          backgroundColor: "#2b6a78", /* [修改] Flex Message 青綠色 */
           paddingAll: "20px"
         },
         body: {
@@ -960,7 +972,7 @@
                        {
                           type: "text",
                           text: `${successCount}`, 
-                          color: "#127a69", /* 青綠色 */
+                          color: "#2b6a78", /* [修改] Flex Message 青綠色 */
                           size: "5xl",
                           weight: "bold",
                           flex: 0,
@@ -1003,14 +1015,14 @@
                       type: "text",
                       text: "• 取消或改期，請於開課前 2 小時完成。",
                       size: "xxs",
-                      color: "#7a8280",
+                      color: "#728285",
                       wrap: true
                     },
                     {
                       type: "text",
                       text: "• 如有問題，請於官方 Line 聯繫我們。",
                       size: "xxs",
-                      color: "#7a8280",
+                      color: "#728285",
                       wrap: true
                     }
                   ]
@@ -1025,7 +1037,7 @@
                 {
                   type: "box",
                   layout: "vertical",
-                  backgroundColor: "#127a69", /* 青綠色 */
+                  backgroundColor: "#2b6a78", /* [修改] Flex Message 青綠色 */
                   cornerRadius: "10px",
                   paddingAll: "10px",
                   action: {
@@ -1069,11 +1081,13 @@
         state.uid = p.userId; 
         state.name = p.displayName; 
 
-        $('#pageTitle').textContent = `${state.name} 的私課預約`;
-
+        // [修改] 標題動態切換，依據模式決定標題
         if (isRecordMode) {
+            document.title = "私課預約清單";
+            $('#pageTitle').textContent = `${state.name} 的私課預約`;
             loadMyRecords();
         } else {
+            document.title = "私課預約";
             renderCoaches(); 
             renderPeople(); 
             state.weekStart = weekStartMonday(new Date()); 
@@ -1094,6 +1108,8 @@
     
     btnHome.onclick = () => {
         window.history.replaceState({}, document.title, window.location.pathname);
+        document.title = "私課預約"; // [修改] 返回預約時，切換標題
+        
         state.cart = []; 
         state.people = null; 
         state.coach = null;  
@@ -1122,7 +1138,14 @@
            const results = result.results || [];
            const successList = results.filter(r => r.status === 'success');
            if (successList.length > 0 && results.filter(r => r.status !== 'success').length === 0) {
-             await Swal.fire({ icon:'success', title:'預約成功', text:`已成功預約 ${successList.length} 堂私課！`, confirmButtonColor: '#127a69' });
+             // [修改] 預約成功打勾動畫改為青綠色
+             await Swal.fire({ 
+                 icon:'success', 
+                 title:'預約成功', 
+                 text:`已成功預約 ${successList.length} 堂私課！`, 
+                 confirmButtonColor: '#2b6a78',
+                 iconColor: '#2b6a78' 
+             });
              if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length)]);
              liff.closeWindow();
            } else {
