@@ -118,7 +118,7 @@
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; max-height:300px; overflow-y:auto; }
     
     .confirmItem { 
-      background:#fff; border: 1px solid var(--border); border-radius: 14px;    
+      background:#fff; border: 1px solid var(--border); border-radius: 14px;   
       padding: 14px 16px; font-size: 16px; font-weight: 950; color: var(--text); 
       display: flex; justify-content: space-between; align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.2s ease;
@@ -524,7 +524,6 @@
                           const c = addBatchItems(item.date, item.time);
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
                           
-                          // [修改 1] 確保包月成功的打勾顏色也是青綠色，且文字格式統一
                           Swal.fire({ 
                               icon:'success', 
                               title:'已加入', 
@@ -660,7 +659,7 @@
     try{
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
-         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, coachId:state.coach.id, people:state.people, userId:state.uid })
+         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, people:state.people, userId:state.uid })
       });
       const data = await res.json();
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
@@ -682,8 +681,8 @@
       recordBtns.classList.remove('hide'); 
       brandHeader.style.display = 'none'; 
       
-      // [修改 3] 將預約清單的標題改為：[姓名] 的私課預約
-      $('#recordListTitle').textContent = `${state.name} 的私課預約;
+      // 修正：補上反引號
+      $('#recordListTitle').textContent = `${state.name} 的私課預約`;
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
@@ -900,7 +899,7 @@
                           type: "text",
                           text: "堂",
                           color: "#1a2321",
-                          size: "md",       
+                          size: "md",        
                           weight: "bold",
                           flex: 0,
                           margin: "xxl" 
@@ -1027,7 +1026,7 @@
                           type: "text",
                           text: "堂",
                           color: "#1a2321",
-                          size: "md",       
+                          size: "md",        
                           weight: "bold",
                           flex: 0,
                           margin: "xxl" 
@@ -1121,7 +1120,13 @@
 
     try { 
         await liff.init({ liffId: LIFF_ID }); 
-        if(!liff.isLoggedIn()) liff.login(); 
+        
+        // 修正：加入未登入就跳轉並終止執行的防護邏輯
+        if(!liff.isLoggedIn()) {
+            liff.login(); 
+            return;
+        }
+
         const p = await liff.getProfile(); 
         state.uid = p.userId; 
         state.name = p.displayName; 
@@ -1137,7 +1142,15 @@
             renderWeekStrip();
             setStep(1);
         }
-    } catch(err) { console.error(err); }
+        
+        // 成功載入後清除狀態文字
+        setStatus('');
+        
+    } catch(err) { 
+        console.error(err);
+        setStatus('載入失敗，請重新整理', true);
+        alert('LIFF 載入失敗：' + err.message);
+    }
 
     prevWeek.onclick = () => { if(!prevWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, -7); renderWeekStrip(); } };
     nextWeek.onclick = () => { if(!nextWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, 7); renderWeekStrip(); } };
