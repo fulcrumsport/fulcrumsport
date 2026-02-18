@@ -157,26 +157,31 @@
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* SweetAlert2 樣式微調 */
+    /* ========================================================= */
+    /* 全面強制覆蓋 SweetAlert2 彈出視窗的所有字體樣式與顏色 */
+    /* ========================================================= */
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
     
+    /* 統一所有標題 (包含原生彈窗與 HTML 寫入) */
     .swal2-title {
         font-size: 19px !important;
         font-weight: 950 !important;
-        color: #111 !important; 
+        color: #111 !important; /* 強制純黑 */
         margin: 0 !important;
         padding: 0 !important;
         line-height: 1.4 !important;
     }
     
+    /* 統一所有說明內文 (包含原生彈窗與 HTML 寫入) */
     .swal2-html-container {
         font-size: 15px !important;
         font-weight: 600 !important;
-        color: #111 !important; 
+        color: #111 !important; /* 強制純黑 */
         margin: 10px 0 0 0 !important;
         line-height: 1.5 !important;
     }
 
+    /* 確保客製化的類別也絕對統一 */
     .custom-swal-title { 
         font-size: 19px; 
         font-weight: 950; 
@@ -199,6 +204,7 @@
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
+    /* 極簡設計感 Loading Spinner (青綠版) */
     .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
     .loader-spinner-green:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
@@ -221,10 +227,6 @@
       <div class="step"> <div id="dot1" class="dot active">1</div> <div id="lab1" class="label active">選教練</div> </div>
       <div class="step"> <div id="dot2" class="dot">2</div> <div id="lab2" class="label">選日期</div> </div>
       <div class="step"> <div id="dot3" class="dot">3</div> <div id="lab3" class="label">確認</div> </div>
-    </div>
-    
-    <div id="recordBar" class="steps hide" style="justify-content:center; background:transparent; border:none; box-shadow:none;">
-        <div id="pageTitle" style="font-size:20px; font-weight:950; color:var(--text);">我的預約紀錄</div>
     </div>
   </div>
 
@@ -280,11 +282,11 @@
 
     <div id="cardRecord" class="card hide" style="flex:1; min-height:0;">
         <div class="recordHeader">
-            <div class="h">預約清單</div>
+            <div class="h" id="recordListTitle">預約清單</div>
             <div id="myRecordCount" class="recordCount">共 0 堂</div>
         </div>
         <div id="recordList" class="confirmList" style="flex:1;">
-            <div style="text-align:center; padding:40px; color:#999; font-weight:900;">讀取中...</div>
+            <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
         </div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
@@ -341,7 +343,7 @@
   const coachAvatar2=$('#coachAvatar2'), coachName2=$('#coachName2'), coachTags2=$('#coachTags2');
   const prevWeek=$('#prevWeek'), nextWeek=$('#nextWeek'), monthTitle=$('#monthTitle');
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
-  const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'), recordBar=$('#recordBar'); 
+  const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
   const brandHeader=$('#brandHeader'); 
 
   function pad2(n){ return String(n).padStart(2,'0'); }
@@ -471,7 +473,14 @@
           state.cart.splice(idx, 1);
           renderStep3Content(); 
           if (state.cart.length === 0) {
-             Swal.fire({ icon:'info', title:'清單已空', text:'請重新選擇時段', timer:1500, showConfirmButton:false });
+             Swal.fire({ 
+                 icon:'info', 
+                 title:'清單已空', 
+                 html:'請重新選擇時段', 
+                 timer:1500, 
+                 showConfirmButton:false,
+                 iconColor: '#127a69'
+             });
              setStep(2);
           }
       }
@@ -501,7 +510,6 @@
                   const month = parseInt(mm, 10);
                   const day = parseInt(dd, 10);
                   
-                  // [修改] 套用強制斷行 html 格式
                   Swal.fire({
                       title: '一鍵包月',
                       html: `是否加入 ${month}月${day}日 起，後續 ${availableWeeks} 週<br>(每週${wd} ${item.time}) 的預約？`,
@@ -515,7 +523,16 @@
                       if(res.isConfirmed){
                           const c = addBatchItems(item.date, item.time);
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
-                          Swal.fire({ icon:'success', title:'已加入', text:`成功加入後續 ${c} 堂課`, timer:1500, showConfirmButton:false });
+                          
+                          // [修改 1] 確保包月成功的打勾顏色也是青綠色，且文字格式統一
+                          Swal.fire({ 
+                              icon:'success', 
+                              title:'已加入', 
+                              html:`成功加入後續 <span style="font-weight:950;">${c} 堂</span> 課`, 
+                              timer:1500, 
+                              showConfirmButton:false,
+                              iconColor: '#127a69' 
+                          });
                       }
                   });
               };
@@ -657,13 +674,16 @@
   // ==========================================
   async function loadMyRecords() {
       state.mode = 'record';
-      stepBar.classList.add('hide'); recordBar.classList.remove('hide');
+      stepBar.classList.add('hide'); 
       card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
       cardRecord.classList.remove('hide');
       
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       brandHeader.style.display = 'none'; 
+      
+      // [修改 3] 將預約清單的標題改為：[姓名] 的預約清單
+      $('#recordListTitle').textContent = `${state.name} 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
@@ -704,7 +724,7 @@
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
                       <span class="record-date" style="font-size:16px; color:var(--text);">${r.date} (${r.weekday}) ${r.time}</span>
-                      <span style="font-size:13px; color:var(--muted);">教練：${r.coach} &nbsp; 學生：${state.name} / ${r.people}人</span>
+                      <span style="font-size:13px; color:var(--muted);">教練：${r.coach} &nbsp; 學生：${r.people}人</span>
                   </div>
               </div>
               <div class="step3Del">
@@ -809,9 +829,11 @@
                   await liff.sendMessages([createCancellationFlexMessage(remainingCount)]);
               }
 
+              // 套用強制純黑樣式與青綠色打勾
               await Swal.fire({ 
                   icon:'success', 
                   title:'已成功刪除', 
+                  html: '您選取的課程已刪除',
                   timer:1000, 
                   showConfirmButton:false,
                   iconColor: '#127a69' 
@@ -821,7 +843,7 @@
               throw new Error('Cancel failed');
           }
       } catch(e) {
-          Swal.fire({ icon:'error', title:'取消失敗', text:'請聯繫客服人員' });
+          Swal.fire({ icon:'error', title:'取消失敗', html:'請聯繫客服人員', iconColor: '#d32f2f' });
       }
   }
 
@@ -868,7 +890,6 @@
                        {
                           type: "text",
                           text: `${remainingCount}`, 
-                          /* [修改 2] 取消通知 Flex 內的顏色改為暗紅 */
                           color: "#b23a2b", 
                           size: "5xl",
                           weight: "bold",
@@ -934,7 +955,6 @@
                 {
                   type: "box",
                   layout: "vertical",
-                  /* [修改 2] 取消通知的按鈕改為暗紅 */
                   backgroundColor: "#b23a2b", 
                   cornerRadius: "10px",
                   paddingAll: "10px",
@@ -1108,7 +1128,6 @@
 
         if (isRecordMode) {
             document.title = "支點運動空間";
-            $('#pageTitle').textContent = `${state.name} 的私課預約`;
             loadMyRecords();
         } else {
             document.title = "私課預約";
@@ -1139,7 +1158,7 @@
         state.coach = null;  
         renderCart(); 
         
-        stepBar.classList.remove('hide'); recordBar.classList.add('hide');
+        stepBar.classList.remove('hide'); 
         cardRecord.classList.add('hide');
         recordBtns.classList.add('hide'); 
         brandHeader.style.display = 'flex';
@@ -1172,10 +1191,10 @@
              if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length)]);
              liff.closeWindow();
            } else {
-             await Swal.fire({ icon:'warning', title:'預約結果', text:'部分或全部時段預約失敗，請確認。' });
+             await Swal.fire({ icon:'warning', title:'預約結果', html:'部分或全部時段預約失敗，請確認。' });
              liff.closeWindow();
            }
-        }catch(e){ Swal.fire({ icon:'error', title:'系統異常', text:'請聯繫教練。' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
+        }catch(e){ Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
   }
