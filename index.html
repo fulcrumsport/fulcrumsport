@@ -682,8 +682,8 @@
       recordBtns.classList.remove('hide'); 
       brandHeader.style.display = 'none'; 
       
-      // [修改 3] 將預約清單的標題改為：[姓名] 的預約清單
-      $('#recordListTitle').textContent = `${state.name} 的預約清單`;
+      // [修改 3] 將預約清單的標題改為：[姓名] 的私課預約
+      $('#recordListTitle').textContent = `${state.name} 的私課預約;
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
