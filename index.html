@@ -76,7 +76,8 @@
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
-    .slotsArea{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+    /* ★★★ 修改 1：給定 slotsArea 正確的 flex 與最小高度，防止被擠壓 ★★★ */
+    .slotsArea{ flex:1 1 0; min-height:120px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -89,10 +90,11 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
+    /* ★★★ 修改 1：稍微放大購物車區域並限制最大高度 ★★★ */
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 0 0 auto; max-height: 120px; overflow-y: auto;
+      flex: 0 0 auto; max-height: 160px; overflow-y: auto;
       background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; }
@@ -111,8 +113,17 @@
     }
     .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
     
-    .delBtn { width: 24px; height: 24px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #ccc; cursor: pointer; }
-    .delBtn:hover { color: var(--danger); }
+    /* ★★★ 修改 2：刪除按鈕常駐紅色與背景色 ★★★ */
+    .delBtn { 
+      width: 24px; height: 24px; font-size: 18px; 
+      display: flex; align-items: center; justify-content: center; 
+      color: var(--danger); 
+      cursor: pointer; 
+      background: #fff5f5; 
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .delBtn:active { transform: scale(0.9); }
 
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; max-height:300px; overflow-y:auto; }
@@ -335,7 +346,7 @@
     mode: 'book',
     records: [], 
     selectedRecords: new Set(),
-    remainingCredits: 0 // 新增：記錄從 Make 抓回來的總剩餘堂數
+    remainingCredits: 0 
   };
 
   const $ = s => document.querySelector(s);
@@ -492,13 +503,11 @@
   };
 
   function renderCart() {
-      // ★★★ 新增：即時計算剩餘堂數，並呈現在右上角 ★★★
       if (state.remainingCredits !== undefined) {
           const currentLeft = state.remainingCredits - state.cart.length;
           const displayEl = document.getElementById('displayCredits');
           if (displayEl) {
               displayEl.textContent = currentLeft;
-              // 額度不足0時顯示紅色
               displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)';
           }
       }
@@ -513,8 +522,15 @@
           const el = document.createElement('div');
           el.className = 'cartItem';
           const wd = weekdayZhFromDateKey(item.date);
+          
+          // ★★★ 修改 3：防止重複包月的判斷邏輯 ★★★
           const availableWeeks = getAvailableRecurringWeeks(item.date, item.time);
-          let btnHtml = availableWeeks > 0 ? `<div class="repeatBtn">+包月</div>` : '';
+          const nextWeekDate = ymd(addDays(item.date, 7));
+          const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time);
+          
+          let btnHtml = (availableWeeks > 0 && !isNextWeekInCart) 
+                        ? `<div class="repeatBtn">+包月</div>` 
+                        : '';
 
           el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions">${btnHtml}<div class="delBtn">×</div></div>`;
           
@@ -559,7 +575,6 @@
       if (idx >= 0) {
           state.cart.splice(idx, 1);
       } else { 
-          // ★★★ 新增：點擊時段時，檢查剩餘堂數是否足夠 ★★★
           if (state.cart.length >= state.remainingCredits) {
               Swal.fire({
                   icon: 'warning', 
@@ -587,7 +602,6 @@
           const slotsForDay = state.availabilityMap[dKey];
           const isAvailable = slotsForDay && slotsForDay.includes(timeStr);
           if (!exists && isAvailable && canBookNow(dKey, timeStr)) {
-             // ★★★ 新增：一鍵包月時，檢查剩餘堂數是否足夠 ★★★
              if (state.cart.length >= state.remainingCredits) {
                  Swal.fire({
                      icon: 'info', title: '已達上限', 
@@ -688,23 +702,21 @@
       slotGrid2.appendChild(div);
     });
   }
-  
+
   async function loadOptionsForCoach(){
     state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; 
     setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart();
     try{
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
-         // ★★★ 只傳送 coachName ★★★
          body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, people:state.people, userId:state.uid })
       });
       const data = await res.json();
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
       
-      // ★★★ 接收並記錄剩餘堂數 ★★★
       state.remainingCredits = data.remainingCredits !== undefined ? parseInt(data.remainingCredits, 10) : 0;
-      renderCart(); // 觸發畫面更新
+      renderCart(); 
       
     }catch(e){ console.error(e); }
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
@@ -723,7 +735,6 @@
       recordBtns.classList.remove('hide'); 
       brandHeader.style.display = 'none'; 
       
-      // ★★★ 修正反引號 ★★★
       $('#recordListTitle').textContent = `${state.name} 的私課預約`;
       
       setStatus("讀取預約紀錄中...");
@@ -865,7 +876,6 @@
               });
               const checkData = await checkRes.json();
               
-              // 取得剩餘堂數並準備發送 Flex Message
               const remaining = checkData.remainingCredits !== undefined ? checkData.remainingCredits : (checkData.records || []).length;
               const canceledCount = bookingsToCancel.length;
 
@@ -890,7 +900,6 @@
       }
   }
 
-  // ★★★ 雙數字面板：取消成功的 Flex Message ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -971,7 +980,6 @@
     };
   }
 
-  // ★★★ 雙數字面板：預約成功的 Flex Message ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -1059,7 +1067,6 @@
     try { 
         await liff.init({ liffId: LIFF_ID }); 
         
-        // ★★★ 外部瀏覽器防卡死：未登入即跳轉 ★★★
         if(!liff.isLoggedIn()) {
             liff.login(); 
             return;
@@ -1131,7 +1138,6 @@
            const results = result.results || [];
            const successList = results.filter(r => r.status === 'success');
            
-           // ★★★ 取得最新的剩餘堂數，並回傳卡片 ★★★
            const remaining = result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - successList.length;
 
            if (successList.length > 0 && results.filter(r => r.status !== 'success').length === 0) {
