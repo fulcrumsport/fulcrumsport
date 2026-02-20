@@ -76,8 +76,8 @@
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
-    /* ★★★ 修改 1：給定 slotsArea 正確的 flex 與最小高度，防止被擠壓 ★★★ */
-    .slotsArea{ flex:1 1 0; min-height:120px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+    /* ★ 修正：將 slotsArea 的 min-height 設為 0，避免推擠下方購物車導致無法捲動 */
+    .slotsArea{ flex:1 1 0; min-height:0; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -90,11 +90,11 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★★★ 修改 1：稍微放大購物車區域並限制最大高度 ★★★ */
+    /* ★ 修正：調整 flex 設定與 min-height，確保加入多筆時能順利產生獨立捲動條 */
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 0 0 auto; max-height: 160px; overflow-y: auto;
+      flex: 0 1 auto; max-height: 180px; min-height: 0; overflow-y: auto;
       background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; }
@@ -104,35 +104,39 @@
       border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 950; color: var(--text);
       box-shadow: 0 2px 4px rgba(0,0,0,0.03);
     }
-    .cartActions { display: flex; align-items: center; gap: 8px; }
+    
+    /* ★ 修正：將 gap 拉大到 16px，拉開按鈕距離 */
+    .cartActions { display: flex; align-items: center; gap: 16px; }
     
     .repeatBtn {
-      font-size: 11px; padding: 3px 8px; border-radius: 6px;
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
       background: #eef2f1; color: var(--primary); border: 1px solid #dcece9;
       cursor: pointer; font-weight: 900; transition: all 0.2s;
     }
     .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
     
-    /* ★★★ 修改 2：刪除按鈕常駐紅色與背景色 ★★★ */
+    /* ★ 修正：稍微放大刪除按鈕範圍，並設定常駐紅色與底色 */
     .delBtn { 
-      width: 24px; height: 24px; font-size: 18px; 
+      width: 28px; height: 28px; font-size: 18px; 
       display: flex; align-items: center; justify-content: center; 
       color: var(--danger); 
+      background: #fff5f5;
       cursor: pointer; 
-      background: #fff5f5; 
       border-radius: 6px;
       transition: all 0.2s;
     }
     .delBtn:active { transform: scale(0.9); }
 
-    .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; min-height:0; }
-    .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; max-height:300px; overflow-y:auto; }
+    /* ★ 修正：調整 confirmWrap 和 confirmList 佈局，防止溫馨提醒被截斷 */
+    .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; height: 100%; min-height:0; }
+    .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; flex: 1 1 auto; overflow-y:auto; min-height:0; max-height:none; padding-bottom: 12px; }
     
     .confirmItem { 
       background:#fff; border: 1px solid var(--border); border-radius: 14px;   
       padding: 14px 16px; font-size: 16px; font-weight: 950; color: var(--text); 
       display: flex; justify-content: space-between; align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.2s ease;
+      flex: 0 0 auto;
     }
     
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
@@ -147,8 +151,8 @@
     .icon-trash { color: #d32f2f; }
     .icon-undo { color: var(--primary); }
 
-    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:16px; margin-bottom: 6px; } 
-    .remindBox{ width:100%; border-radius:0; background:transparent; padding:0 8px; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; }
+    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:16px; margin-bottom: 6px; flex: 0 0 auto; } 
+    .remindBox{ width:100%; border-radius:0; background:transparent; padding:0 8px; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
     .remindBox ol { padding-left: 20px; margin: 0; }
     .remindBox li { margin-bottom: 4px; }
     
@@ -289,7 +293,7 @@
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
         <div class="h">Step 3｜確認預約內容</div>
-        <div class="infoBox" id="confirmInfo"></div>
+        <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox"></div>
       </div>
@@ -447,7 +451,7 @@
       }
       btnNext.disabled = false;
 
-      let html = `<div style="margin-bottom:16px;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>`;
+      let html = `<div style="margin-bottom:16px; flex: 0 0 auto;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>`;
       html += `<div class="confirmList">`;
       
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
@@ -470,7 +474,7 @@
       });
       html += `</div>`;
       
-      html += `<div style="text-align:right; margin-top:16px; font-size:16px; font-weight:950; color:var(--text);">共 ${state.cart.length} 堂</div>`;
+      html += `<div style="text-align:right; margin-top:16px; font-size:16px; font-weight:950; color:var(--text); flex: 0 0 auto;">共 ${state.cart.length} 堂</div>`;
       confirmInfo.innerHTML = html;
       
       const remindHtml = `
@@ -523,7 +527,6 @@
           el.className = 'cartItem';
           const wd = weekdayZhFromDateKey(item.date);
           
-          // ★★★ 修改 3：防止重複包月的判斷邏輯 ★★★
           const availableWeeks = getAvailableRecurringWeeks(item.date, item.time);
           const nextWeekDate = ymd(addDays(item.date, 7));
           const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time);
@@ -928,7 +931,8 @@
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "4xl", weight: "bold", align: "center", margin: "sm" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -937,11 +941,12 @@
                 {
                   type: "box", layout: "vertical",
                   contents: [
-                    { type: "text", text: "剩餘私課", size: "md", color: "#7a8280", weight: "bold", align: "center" },
+                    { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center", margin: "sm" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -1008,7 +1013,8 @@
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "4xl", weight: "bold", align: "center", margin: "sm" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -1017,11 +1023,12 @@
                 {
                   type: "box", layout: "vertical",
                   contents: [
-                    { type: "text", text: "剩餘私課", size: "md", color: "#7a8280", weight: "bold", align: "center" },
+                    { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center", margin: "sm" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
