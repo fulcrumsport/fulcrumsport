@@ -77,7 +77,7 @@
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
     .slotsArea{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
-    .tabs{ display:flex; gap:22px; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
+    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:5px; background:var(--primary); border-radius:999px; }
@@ -162,26 +162,23 @@
     /* ========================================================= */
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
     
-    /* 統一所有標題 (包含原生彈窗與 HTML 寫入) */
     .swal2-title {
         font-size: 19px !important;
         font-weight: 950 !important;
-        color: #111 !important; /* 強制純黑 */
+        color: #111 !important;
         margin: 0 !important;
         padding: 0 !important;
         line-height: 1.4 !important;
     }
     
-    /* 統一所有說明內文 (包含原生彈窗與 HTML 寫入) */
     .swal2-html-container {
         font-size: 15px !important;
         font-weight: 600 !important;
-        color: #111 !important; /* 強制純黑 */
+        color: #111 !important;
         margin: 10px 0 0 0 !important;
         line-height: 1.5 !important;
     }
 
-    /* 確保客製化的類別也絕對統一 */
     .custom-swal-title { 
         font-size: 19px; 
         font-weight: 950; 
@@ -257,11 +254,18 @@
           <div id="weekStrip" class="weekStrip"></div>
         </div>
         <div class="slotsArea">
-          <div class="tabs">
-            <div class="tab active" data-tab="am">上午</div>
-            <div class="tab" data-tab="pm">下午</div>
-            <div class="tab" data-tab="night">晚上</div>
+          
+          <div class="tabs" style="justify-content: space-between; align-items: flex-end;">
+            <div style="display:flex; gap:22px;">
+              <div class="tab active" data-tab="am">上午</div>
+              <div class="tab" data-tab="pm">下午</div>
+              <div class="tab" data-tab="night">晚上</div>
+            </div>
+            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
+              可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂
+            </div>
           </div>
+
           <div id="slotGrid2" class="slotGrid"></div>
         </div>
         <div class="cartSection">
@@ -330,7 +334,8 @@
     optionsRaw: [], availabilityMap: {}, loadingOptions: false,
     mode: 'book',
     records: [], 
-    selectedRecords: new Set() 
+    selectedRecords: new Set(),
+    remainingCredits: 0 // 新增：記錄從 Make 抓回來的總剩餘堂數
   };
 
   const $ = s => document.querySelector(s);
@@ -487,6 +492,17 @@
   };
 
   function renderCart() {
+      // ★★★ 新增：即時計算剩餘堂數，並呈現在右上角 ★★★
+      if (state.remainingCredits !== undefined) {
+          const currentLeft = state.remainingCredits - state.cart.length;
+          const displayEl = document.getElementById('displayCredits');
+          if (displayEl) {
+              displayEl.textContent = currentLeft;
+              // 額度不足0時顯示紅色
+              displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)';
+          }
+      }
+
       cartList.innerHTML = '';
       if (state.cart.length === 0) {
           cartList.innerHTML = '<div style="font-size:12px; color:#aaa; text-align:center; padding:10px;">尚未選擇時段</div>';
@@ -523,15 +539,12 @@
                       if(res.isConfirmed){
                           const c = addBatchItems(item.date, item.time);
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
-                          
-                          Swal.fire({ 
-                              icon:'success', 
-                              title:'已加入', 
-                              html:`成功加入後續 <span style="font-weight:950;">${c} 堂</span> 課`, 
-                              timer:1500, 
-                              showConfirmButton:false,
-                              iconColor: '#127a69' 
-                          });
+                          if(c > 0) {
+                            Swal.fire({ 
+                                icon:'success', title:'已加入', html:`成功加入後續 <span style="font-weight:950;">${c} 堂</span> 課`, 
+                                timer:1500, showConfirmButton:false, iconColor: '#127a69' 
+                            });
+                          }
                       }
                   });
               };
@@ -543,8 +556,22 @@
 
   function toggleCartItem(date, time) {
       const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) state.cart.splice(idx, 1);
-      else { const d = new Date(date + 'T' + time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
+      if (idx >= 0) {
+          state.cart.splice(idx, 1);
+      } else { 
+          // ★★★ 新增：點擊時段時，檢查剩餘堂數是否足夠 ★★★
+          if (state.cart.length >= state.remainingCredits) {
+              Swal.fire({
+                  icon: 'warning', 
+                  title: '堂數不足', 
+                  html: `您目前僅剩 <span style="font-weight:950;">${state.remainingCredits} 堂</span> 可預約`, 
+                  confirmButtonColor: '#127a69', iconColor: '#b2682b'
+              });
+              return; 
+          }
+          const d = new Date(date + 'T' + time); 
+          state.cart.push({ date: date, time: time, ts: d.getTime() }); 
+      }
       renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
   }
 
@@ -560,6 +587,15 @@
           const slotsForDay = state.availabilityMap[dKey];
           const isAvailable = slotsForDay && slotsForDay.includes(timeStr);
           if (!exists && isAvailable && canBookNow(dKey, timeStr)) {
+             // ★★★ 新增：一鍵包月時，檢查剩餘堂數是否足夠 ★★★
+             if (state.cart.length >= state.remainingCredits) {
+                 Swal.fire({
+                     icon: 'info', title: '已達上限', 
+                     html: `已幫您排入 <span style="font-weight:950;">${addedCount} 堂</span>，剩餘堂數已用完`, 
+                     confirmButtonColor: '#127a69', iconColor: '#127a69'
+                 });
+                 break; 
+             }
              state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 });
              addedCount++;
           }
@@ -659,11 +695,17 @@
     try{
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
+         // ★★★ 只傳送 coachName ★★★
          body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, people:state.people, userId:state.uid })
       });
       const data = await res.json();
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
+      
+      // ★★★ 接收並記錄剩餘堂數 ★★★
+      state.remainingCredits = data.remainingCredits !== undefined ? parseInt(data.remainingCredits, 10) : 0;
+      renderCart(); // 觸發畫面更新
+      
     }catch(e){ console.error(e); }
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
@@ -681,7 +723,7 @@
       recordBtns.classList.remove('hide'); 
       brandHeader.style.display = 'none'; 
       
-      // 修正：補上反引號
+      // ★★★ 修正反引號 ★★★
       $('#recordListTitle').textContent = `${state.name} 的私課預約`;
       
       setStatus("讀取預約紀錄中...");
@@ -822,13 +864,15 @@
                   body: JSON.stringify({ action: "getRecords", userId: state.uid })
               });
               const checkData = await checkRes.json();
-              const remainingCount = (checkData.records || []).length;
+              
+              // 取得剩餘堂數並準備發送 Flex Message
+              const remaining = checkData.remainingCredits !== undefined ? checkData.remainingCredits : (checkData.records || []).length;
+              const canceledCount = bookingsToCancel.length;
 
               if(liff.isInClient()) {
-                  await liff.sendMessages([createCancellationFlexMessage(remainingCount)]);
+                  await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining)]);
               }
 
-              // 套用強制純黑樣式與青綠色打勾
               await Swal.fire({ 
                   icon:'success', 
                   title:'已成功刪除', 
@@ -846,270 +890,164 @@
       }
   }
 
-  function createCancellationFlexMessage(remainingCount) {
+  // ★★★ 雙數字面板：取消成功的 Flex Message ★★★
+  function createCancellationFlexMessage(cancelCount, remainingCount) {
+    const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
       type: "flex",
       altText: "私課取消通知",
       contents: {
         type: "bubble",
         header: {
-          type: "box",
-          layout: "vertical",
+          type: "box", layout: "vertical",
           contents: [
             { type: "text", text: "私課已取消", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
           ],
-          backgroundColor: "#b23a2b", 
-          paddingAll: "20px"
+          backgroundColor: "#b23a2b", paddingAll: "20px"
         },
         body: {
-          type: "box",
-          layout: "vertical",
+          type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
             {
-              type: "box",
-              layout: "vertical",
+              type: "box", layout: "horizontal", margin: "md",
               contents: [
                 {
-                  type: "text",
-                  text: "剩餘私課",
-                  size: "md", 
-                  color: "#333333", 
-                  weight: "bold", 
-                  align: "center",
-                  margin: "md"
-                },
-                {
-                  type: "box",
-                  layout: "baseline",
-                  justifyContent: "center",
-                  margin: "sm",
-                  spacing: "none", 
+                  type: "box", layout: "vertical",
                   contents: [
-                       {
-                          type: "text",
-                          text: `${remainingCount}`, 
-                          color: "#b23a2b", 
-                          size: "5xl",
-                          weight: "bold",
-                          flex: 0,
-                          align: "center"
-                        },
-                        {
-                          type: "text",
-                          text: "堂",
-                          color: "#1a2321",
-                          size: "md",        
-                          weight: "bold",
-                          flex: 0,
-                          margin: "xxl" 
-                        }
+                    { type: "text", text: "本次取消", size: "md", color: "#7a8280", weight: "bold", align: "center" },
+                    {
+                      type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
+                      contents: [
+                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
+                      ]
+                    }
                   ]
-                }
-              ],
-              paddingBottom: "10px"
-            },
-            { type: "separator", margin: "lg", color: "#f0f0f0" },
-            {
-              type: "box",
-              layout: "vertical",
-              spacing: "sm",
-              margin: "lg",
-              contents: [
-                {
-                  type: "text",
-                  text: "溫馨提醒",
-                  weight: "bold",
-                  size: "xs",
-                  color: "#b2682b"
                 },
                 {
-                  type: "box",
-                  layout: "vertical",
-                  spacing: "xs",
+                  type: "box", layout: "vertical",
                   contents: [
+                    { type: "text", text: "剩餘私課", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
-                      type: "text",
-                      text: "• 取消或改期，請於開課前 2 小時完成。",
-                      size: "xxs",
-                      color: "#7a8280",
-                      wrap: true
-                    },
-                    {
-                      type: "text",
-                      text: "• 如有問題，請於官方 Line 聯繫我們。",
-                      size: "xxs",
-                      color: "#7a8280",
-                      wrap: true
+                      type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
+                      contents: [
+                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
+                      ]
                     }
                   ]
                 }
               ]
             },
+            { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
-              type: "box",
-              layout: "vertical",
-              margin: "xl",
+              type: "box", layout: "vertical", spacing: "sm", margin: "xl",
               contents: [
+                { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b" },
                 {
-                  type: "box",
-                  layout: "vertical",
-                  backgroundColor: "#b23a2b", 
-                  cornerRadius: "10px",
-                  paddingAll: "10px",
-                  action: {
-                    type: "uri",
-                    label: "查看預約詳情",
-                    uri: "https://liff.line.me/" + LIFF_ID + "?page=record" 
-                  },
+                  type: "box", layout: "vertical", spacing: "xs",
                   contents: [
-                      {
-                          type: "text",
-                          text: "查看預約詳情",
-                          color: "#ffffff",
-                          weight: "bold", 
-                          size: "md",
-                          align: "center"
-                      }
+                    { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
+                    { type: "text", text: "• 如有問題，請於官方 Line 聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
                   ]
                 }
               ]
+            },
+            {
+              type: "box", layout: "vertical", margin: "xl",
+              contents: [
+                {
+                  type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "10px", paddingAll: "10px",
+                  action: { type: "uri", label: "查看預約詳情", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
+                  contents: [ { type: "text", text: "查看預約詳情", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
+                }
+              ]
             }
-          ],
-          paddingAll: "24px"
-        }
+          ]
+        },
+        styles: { footer: { separator: false } }
       }
     };
   }
 
-  function createSuccessFlexMessage(successCount) {
+  // ★★★ 雙數字面板：預約成功的 Flex Message ★★★
+  function createSuccessFlexMessage(successCount, remainingCount) {
+    const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
       type: "flex",
       altText: "私課預約成功通知",
       contents: {
         type: "bubble",
         header: {
-          type: "box",
-          layout: "vertical",
+          type: "box", layout: "vertical",
           contents: [
             { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
           ],
-          backgroundColor: "#127a69", 
-          paddingAll: "20px"
+          backgroundColor: "#127a69", paddingAll: "20px"
         },
         body: {
-          type: "box",
-          layout: "vertical",
+          type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
             {
-              type: "box",
-              layout: "vertical",
+              type: "box", layout: "horizontal", margin: "md",
               contents: [
                 {
-                  type: "box",
-                  layout: "baseline",
-                  justifyContent: "center",
-                  margin: "md",
-                  spacing: "none", 
+                  type: "box", layout: "vertical",
                   contents: [
-                       {
-                          type: "text",
-                          text: `${successCount}`, 
-                          color: "#127a69", 
-                          size: "5xl",
-                          weight: "bold",
-                          flex: 0,
-                          align: "center"
-                        },
-                        {
-                          type: "text",
-                          text: "堂",
-                          color: "#1a2321",
-                          size: "md",        
-                          weight: "bold",
-                          flex: 0,
-                          margin: "xxl" 
-                        }
+                    { type: "text", text: "本次預約", size: "md", color: "#7a8280", weight: "bold", align: "center" },
+                    {
+                      type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
+                      contents: [
+                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
+                      ]
+                    }
                   ]
-                }
-              ],
-              paddingBottom: "20px"
-            },
-            { type: "separator", margin: "lg", color: "#f0f0f0" },
-            {
-              type: "box",
-              layout: "vertical",
-              spacing: "sm",
-              margin: "lg",
-              contents: [
-                {
-                  type: "text",
-                  text: "溫馨提醒",
-                  weight: "bold",
-                  size: "xs",
-                  color: "#b2682b"
                 },
                 {
-                  type: "box",
-                  layout: "vertical",
-                  spacing: "xs",
+                  type: "box", layout: "vertical",
                   contents: [
+                    { type: "text", text: "剩餘私課", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
-                      type: "text",
-                      text: "• 取消或改期，請於開課前 2 小時完成。",
-                      size: "xxs",
-                      color: "#7a8280",
-                      wrap: true
-                    },
-                    {
-                      type: "text",
-                      text: "• 如有問題，請於官方 Line 聯繫我們。",
-                      size: "xxs",
-                      color: "#7a8280",
-                      wrap: true
+                      type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
+                      contents: [
+                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center" },
+                        { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
+                      ]
                     }
                   ]
                 }
               ]
             },
+            { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
-              type: "box",
-              layout: "vertical",
-              margin: "xl",
+              type: "box", layout: "vertical", spacing: "sm", margin: "xl",
               contents: [
+                { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b" },
                 {
-                  type: "box",
-                  layout: "vertical",
-                  backgroundColor: "#127a69", 
-                  cornerRadius: "10px",
-                  paddingAll: "10px",
-                  action: {
-                    type: "uri",
-                    label: "查看預約詳情",
-                    uri: "https://liff.line.me/" + LIFF_ID + "?page=record" 
-                  },
+                  type: "box", layout: "vertical", spacing: "xs",
                   contents: [
-                      {
-                          type: "text",
-                          text: "查看預約詳情",
-                          color: "#ffffff",
-                          weight: "bold", 
-                          size: "md",
-                          align: "center"
-                      }
+                    { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
+                    { type: "text", text: "• 如有問題，請於官方 Line 聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
                   ]
                 }
               ]
+            },
+            {
+              type: "box", layout: "vertical", margin: "xl",
+              contents: [
+                {
+                  type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "10px", paddingAll: "10px",
+                  action: { type: "uri", label: "查看預約詳情", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
+                  contents: [ { type: "text", text: "查看預約詳情", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
+                }
+              ]
             }
-          ],
-          paddingAll: "24px"
+          ]
         },
-        styles: {
-          footer: {
-            separator: false
-          }
-        }
+        styles: { footer: { separator: false } }
       }
     };
   }
@@ -1121,7 +1059,7 @@
     try { 
         await liff.init({ liffId: LIFF_ID }); 
         
-        // 修正：加入未登入就跳轉並終止執行的防護邏輯
+        // ★★★ 外部瀏覽器防卡死：未登入即跳轉 ★★★
         if(!liff.isLoggedIn()) {
             liff.login(); 
             return;
@@ -1143,7 +1081,6 @@
             setStep(1);
         }
         
-        // 成功載入後清除狀態文字
         setStatus('');
         
     } catch(err) { 
@@ -1193,6 +1130,10 @@
            const result = await res.json();
            const results = result.results || [];
            const successList = results.filter(r => r.status === 'success');
+           
+           // ★★★ 取得最新的剩餘堂數，並回傳卡片 ★★★
+           const remaining = result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - successList.length;
+
            if (successList.length > 0 && results.filter(r => r.status !== 'success').length === 0) {
              await Swal.fire({ 
                  icon:'success', 
@@ -1201,7 +1142,7 @@
                  confirmButtonColor: '#127a69',
                  iconColor: '#127a69'
              });
-             if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length)]);
+             if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length, remaining)]);
              liff.closeWindow();
            } else {
              await Swal.fire({ icon:'warning', title:'預約結果', html:'部分或全部時段預約失敗，請確認。' });
