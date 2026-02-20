@@ -76,8 +76,8 @@
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
-    /* ★ 修正：將 slotsArea 的 min-height 設為 0，避免推擠下方購物車導致無法捲動 */
-    .slotsArea{ flex:1 1 0; min-height:0; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+    /* ★★★ 修正佈局：設定 min-height 防護線，確保時段區永遠不會被購物車擠扁 ★★★ */
+    .slotsArea{ flex:1 1 auto; min-height:140px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -90,22 +90,23 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★ 修正：調整 flex 設定與 min-height，確保加入多筆時能順利產生獨立捲動條 */
+    /* ★★★ 修正佈局：控制購物車最大高度，超過時自身捲動 ★★★ */
     .cartSection {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 0 1 auto; max-height: 180px; min-height: 0; overflow-y: auto;
+      flex: 0 1 auto; max-height: 140px; min-height: 0; overflow-y: auto;
       background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
     }
-    .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; }
+    .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
     .cartItem {
       display: flex; align-items: center; justify-content: space-between;
       background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary);
       border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 950; color: var(--text);
       box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      flex: 0 0 auto;
     }
     
-    /* ★ 修正：將 gap 拉大到 16px，拉開按鈕距離 */
+    /* ★★★ 修正：將 gap 拉大到 16px，拉開包月與刪除按鈕距離 ★★★ */
     .cartActions { display: flex; align-items: center; gap: 16px; }
     
     .repeatBtn {
@@ -115,7 +116,7 @@
     }
     .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
     
-    /* ★ 修正：稍微放大刪除按鈕範圍，並設定常駐紅色與底色 */
+    /* ★★★ 修正：稍微放大刪除按鈕範圍，並設定常駐紅色與底色 ★★★ */
     .delBtn { 
       width: 28px; height: 28px; font-size: 18px; 
       display: flex; align-items: center; justify-content: center; 
@@ -127,7 +128,7 @@
     }
     .delBtn:active { transform: scale(0.9); }
 
-    /* ★ 修正：調整 confirmWrap 和 confirmList 佈局，防止溫馨提醒被截斷 */
+    /* ★★★ 修正：確保 Step 3 溫馨提醒被固定在底部不被截斷 ★★★ */
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; height: 100%; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; flex: 1 1 auto; overflow-y:auto; min-height:0; max-height:none; padding-bottom: 12px; }
     
@@ -292,7 +293,7 @@
 
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
-        <div class="h">Step 3｜確認預約內容</div>
+        <div class="h" style="flex: 0 0 auto;">Step 3｜確認預約內容</div>
         <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox"></div>
@@ -474,7 +475,14 @@
       });
       html += `</div>`;
       
-      html += `<div style="text-align:right; margin-top:16px; font-size:16px; font-weight:950; color:var(--text); flex: 0 0 auto;">共 ${state.cart.length} 堂</div>`;
+      // ★★★ 修正：在右下方顯示本次預約總堂數，並動態顯示剩餘1對1堂數 ★★★
+      let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
+      html += `
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:16px; flex:0 0 auto; padding-right:4px;">
+            <div style="font-size:16px; font-weight:950; color:var(--text);">本次預約共 ${state.cart.length} 堂</div>
+            <div style="font-size:15px; font-weight:950; color:var(--primary);">剩餘 1對1：${currentLeft} 堂</div>
+        </div>
+      `;
       confirmInfo.innerHTML = html;
       
       const remindHtml = `
@@ -903,6 +911,7 @@
       }
   }
 
+  // ★★★ 修正卡片：調整字體大小為 3xl，避免被截斷成 ...，並確保數字完美置中 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -932,7 +941,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "4xl", weight: "bold", align: "center", margin: "sm" },
+                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -946,7 +955,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center", margin: "sm" },
+                        { type: "text", text: remainText, color: "#1a2321", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -985,6 +994,7 @@
     };
   }
 
+  // ★★★ 修正卡片：調整字體大小為 3xl，避免被截斷成 ...，並確保數字完美置中 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -1014,7 +1024,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "4xl", weight: "bold", align: "center", margin: "sm" },
+                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -1028,7 +1038,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: remainText, color: "#1a2321", size: "4xl", weight: "bold", align: "center", margin: "sm" },
+                        { type: "text", text: remainText, color: "#1a2321", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
