@@ -73,7 +73,8 @@
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
-    .slotsArea{ flex:1 1 0; min-height:140px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+    /* ★★★ 修改：將時段區的比例縮小，釋放空間給購物車 ★★★ */
+    .slotsArea{ flex:1 1 35%; min-height:100px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -86,12 +87,12 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★★★ 修正：購物車外框與內部滾動分離，標題常駐不消失 ★★★ */
+    /* ★★★ 修改：大幅放寬購物車的高度與彈性比例 ★★★ */
     .cartWrap {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 0 1 260px; /* 放寬彈性高度，吃掉上面釋放出來的空間 */
-      min-height: 0;
+      flex: 1 1 65%; /* 讓它佔據多數的剩餘空間 */
+      min-height: 160px; /* 確保至少能顯示兩三筆 */
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
     .cartScrollArea {
@@ -171,51 +172,15 @@
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* ========================================================= */
-    /* 全面強制覆蓋 SweetAlert2 彈出視窗的所有字體樣式與顏色 */
-    /* ========================================================= */
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
-    
-    .swal2-title {
-        font-size: 19px !important;
-        font-weight: 950 !important;
-        color: #111 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 1.4 !important;
-    }
-    
-    .swal2-html-container {
-        font-size: 15px !important;
-        font-weight: 600 !important;
-        color: #111 !important;
-        margin: 10px 0 0 0 !important;
-        line-height: 1.5 !important;
-    }
-
-    .custom-swal-title { 
-        font-size: 19px; 
-        font-weight: 950; 
-        color: #111; 
-        margin-top: 12px;
-        margin-bottom: 0; 
-        text-align: center; 
-        line-height: 1.4;
-    }
-    .custom-swal-subtitle { 
-        font-size: 15px; 
-        font-weight: 600; 
-        color: #111; 
-        margin-top: 8px; 
-        text-align: center; 
-        line-height: 1.5;
-    }
-
+    .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; padding: 0 !important; line-height: 1.4 !important; }
+    .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #111 !important; margin: 10px 0 0 0 !important; line-height: 1.5 !important; }
+    .custom-swal-title { font-size: 19px; font-weight: 950; color: #111; margin-top: 12px; margin-bottom: 0; text-align: center; line-height: 1.4; }
+    .custom-swal-subtitle { font-size: 15px; font-weight: 600; color: #111; margin-top: 8px; text-align: center; line-height: 1.5; }
     .swal2-actions { margin-top: 20px !important; gap: 12px; }
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
-    /* 極簡設計感 Loading Spinner (青綠版) */
     .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
     .loader-spinner-green:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
@@ -280,7 +245,7 @@
         </div>
         
         <div class="cartWrap">
-            <div class="cartTitle">已選擇預約清單</div>
+            <div class="cartTitle">已選擇預約時段</div>
             <div id="cartList" class="cartScrollArea"></div>
         </div>
       </div>
@@ -468,12 +433,12 @@
       });
       html += `</div>`;
       
-      // ★★★ 修正：Step 3 右下方顯示「共 X 堂」及「剩餘1對1」，顏色格式統一 ★★★
+      // ★★★ 修改：Step 3 右下方顯示格式，字體顏色依照需求客製 ★★★
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       html += `
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:16px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">共 ${state.cart.length} 堂</div>
-            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">共 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${state.cart.length}</span> 堂</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="color:var(--text); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
       `;
       confirmInfo.innerHTML = html;
@@ -903,7 +868,7 @@
       }
   }
 
-  // ★★★ 修正卡片：調整字體大小為 5xl 並且保留 shrink-to-fit ★★★
+  // ★★★ 修正卡片：數字放大至 5xl，中間加上一條非常淺的實線區隔增加層次感 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -923,30 +888,31 @@
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
             {
-              type: "box", layout: "horizontal", margin: "md",
+              type: "box", layout: "horizontal", margin: "md", alignItems: "center",
               contents: [
                 {
-                  type: "box", layout: "vertical",
+                  type: "box", layout: "vertical", flex: 1,
                   contents: [
                     { type: "text", text: "本次取消", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, 
                         { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
                   ]
                 },
+                { type: "separator", color: "#eef2f1" }, // 中間加入分隔實線
                 {
-                  type: "box", layout: "vertical",
+                  type: "box", layout: "vertical", flex: 1,
                   contents: [
                     { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, 
                         { type: "text", text: remainText, color: "#1a2321", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
@@ -986,6 +952,7 @@
     };
   }
 
+  // ★★★ 修正卡片：數字放大至 5xl，中間加上一條非常淺的實線區隔增加層次感 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -1005,30 +972,31 @@
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
             {
-              type: "box", layout: "horizontal", margin: "md",
+              type: "box", layout: "horizontal", margin: "md", alignItems: "center",
               contents: [
                 {
-                  type: "box", layout: "vertical",
+                  type: "box", layout: "vertical", flex: 1,
                   contents: [
                     { type: "text", text: "本次預約", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" },
                         { type: "text", text: `+${successCount}`, color: "#127a69", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
                   ]
                 },
+                { type: "separator", color: "#eef2f1" }, // 中間加入分隔實線
                 {
-                  type: "box", layout: "vertical",
+                  type: "box", layout: "vertical", flex: 1,
                   contents: [
                     { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold", align: "center" },
                     {
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
-                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
+                        { type: "text", text: "堂", size: "md", color: "#ffffff00" },
                         { type: "text", text: remainText, color: "#1a2321", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
@@ -1131,15 +1099,22 @@
         setStep(1);
     };
 
+    // ★★★ 修正：將「本次預約堂數」與「預期剩餘堂數」當作變數回傳給 Make ★★★
     btnNext.onclick=async ()=>{
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
+        
+        // 事先計算好期望的剩餘堂數
+        const expectedRemaining = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : 0;
+        
         try{
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
               action: "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, people: state.people,
-              bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
+              bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
+              bookedCount: state.cart.length,             // 傳給 Make：本次預約的總堂數
+              expectedRemainingCredits: expectedRemaining // 傳給 Make：預期的剩餘堂數
            })});
            const result = await res.json();
            const results = result.results || [];
