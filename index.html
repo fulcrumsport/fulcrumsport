@@ -31,7 +31,8 @@
     body{ margin:0; font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); }
     .wrap{ height:100dvh; display:flex; flex-direction:column; max-width:560px; margin:0 auto; position: relative; z-index: 1;}
     
-    .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, var(--bg) 75%, rgba(242,246,245,0)); flex:0 0 auto; }
+    /* 調整頂部空間，稍微縮小 padding */
+    .top{ padding:8px 14px 6px; padding-top:calc(8px + var(--safeT)); background:linear-gradient(180deg, var(--bg) 75%, rgba(242,246,245,0)); flex:0 0 auto; }
     
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; min-width:0; }
@@ -40,18 +41,19 @@
     .label{ font-size:15px; font-weight:900; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition: all 0.3s;}
     .label.active{ color:var(--text); }
 
-    .main{ flex:1 1 auto; overflow:hidden; padding:0 14px; display:flex; flex-direction:column; gap:12px; min-height:0; }
-    .card{ background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:14px; overflow:hidden; display:flex; flex-direction:column; }
-    .h{ margin:0 0 10px; font-weight:950; font-size:22px; color:var(--text); flex:0 0 auto; }
+    /* 稍微縮小主內容區的 padding，擠出更多版面 */
+    .main{ flex:1 1 auto; overflow:hidden; padding:0 14px 4px; display:flex; flex-direction:column; gap:10px; min-height:0; }
+    .card{ background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); padding:12px 14px; overflow:hidden; display:flex; flex-direction:column; }
+    .h{ margin:0 0 10px; font-weight:950; font-size:20px; color:var(--text); flex:0 0 auto; }
     .row{ display:flex; gap:12px; flex-wrap:wrap; }
     
     .chip{ padding:14px 16px; border-radius:16px; background:#eef2f1; font-weight:950; font-size:18px; cursor:pointer; user-select:none; border:2px solid transparent; min-width:140px; text-align:center; flex:1 1 0; transition: all 0.2s;}
     .chip.sel{ background:var(--selBg); border-color:rgba(18,122,105,.45); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; color:var(--selText);}
     .chip.peoplemp{ flex:1 1 0; min-width:140px; font-size:18px; }
 
-    .subTitle{ margin:14px 0 10px; font-weight:950; font-size:15px; color:var(--text); }
+    .subTitle{ margin:12px 0 8px; font-weight:950; font-size:15px; color:var(--text); }
 
-    .step2Box{ display:flex; flex-direction:column; gap:10px; height:100%; min-height:0; }
+    .step2Box{ display:flex; flex-direction:column; gap:8px; height:100%; min-height:0; }
     .coachIntro{ display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:10px; background:#fff; flex:0 0 auto; }
     .avatar{ width:48px; height:48px; border-radius:999px; overflow:hidden; background:#ddd; flex:0 0 auto; }
     .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -73,38 +75,45 @@
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
-    /* ★★★ 修改：將時段區的比例縮小，釋放空間給購物車 ★★★ */
-    .slotsArea{ flex:1 1 35%; min-height:100px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
-    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
-    .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
+    /* ★★★ 自訂捲動條樣式：常駐顯示讓使用者知道可以滑動 ★★★ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(18, 122, 105, 0.25); border-radius: 4px; }
+
+    /* ★ 修正佈局：動態分配時段區與購物車空間 */
+    .slotsArea{ flex:1 1 40%; min-height:110px; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:6px; flex:0 0 auto; }
+    .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:8px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
-    .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:5px; background:var(--primary); border-radius:999px; }
-    .slotGrid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; align-content:start; overflow:auto; padding-right:2px; }
-    .slot{ padding:10px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
+    .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
+    .slotGrid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; align-content:start; overflow-y:auto; padding-right:4px; padding-bottom: 4px;}
+    
+    /* ★ 縮小按鈕：稍微調小 padding，避免第二行被擠出畫面 */
+    .slot{ padding:8px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(18,122,105,.35); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
 
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★★★ 修改：大幅放寬購物車的高度與彈性比例 ★★★ */
+    /* ★ 購物車區域放大 */
     .cartWrap {
-      margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+      margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 1 1 65%; /* 讓它佔據多數的剩餘空間 */
-      min-height: 160px; /* 確保至少能顯示兩三筆 */
+      flex: 1 1 60%; 
+      min-height: 140px; 
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
     .cartScrollArea {
       flex: 1 1 auto; overflow-y: auto; min-height: 0;
-      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
+      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px;
       display: flex; flex-direction: column; gap: 6px;
     }
     
     .cartItem {
       display: flex; align-items: center; justify-content: space-between;
       background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary);
-      border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 950; color: var(--text);
+      border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text);
       box-shadow: 0 2px 4px rgba(0,0,0,0.03);
       flex: 0 0 auto;
     }
@@ -128,8 +137,9 @@
     }
     .delBtn:active { transform: scale(0.9); }
 
-    .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; height: 100%; min-height:0; }
-    .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; flex: 1 1 auto; overflow-y:auto; min-height:0; max-height:none; padding-bottom: 12px; }
+    /* ★ 確保 Step 3 清單區塊最大化 */
+    .confirmWrap{ display:flex; flex-direction:column; gap:8px; padding:0; height: 100%; min-height:0; }
+    .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:4px; flex: 1 1 auto; overflow-y:auto; min-height:0; max-height:none; padding-bottom: 8px; }
     
     .confirmItem { 
       background:#fff; border: 1px solid var(--border); border-radius: 14px;   
@@ -151,12 +161,14 @@
     .icon-trash { color: #d32f2f; }
     .icon-undo { color: var(--primary); }
 
-    .remindTitle{ width:100%; font-weight:950; font-size:16px; color:var(--danger); margin-top:16px; margin-bottom: 6px; flex: 0 0 auto; } 
-    .remindBox{ width:100%; border-radius:0; background:transparent; padding:0 8px; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
+    /* 溫馨提醒壓縮，騰出版面 */
+    .remindTitle{ width:100%; font-weight:950; font-size:14px; color:var(--danger); margin-top:8px; margin-bottom: 2px; flex: 0 0 auto; } 
+    .remindBox{ width:100%; border-radius:0; background:transparent; padding:0 8px; font-size:12px; line-height:1.5; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
     .remindBox ol { padding-left: 20px; margin: 0; }
-    .remindBox li { margin-bottom: 4px; }
+    .remindBox li { margin-bottom: 2px; }
     
-    .footer{ flex:0 0 auto; padding:10px 14px calc(12px + var(--safeB)); background:linear-gradient(0deg, var(--bg) 75%, rgba(246,247,248,0)); }
+    /* ★ 下拉按鈕區，減少下方空白，極致擴張上方畫面 */
+    .footer{ flex:0 0 auto; padding:6px 14px calc(8px + var(--safeB)); background:linear-gradient(0deg, var(--bg) 75%, rgba(246,247,248,0)); }
     .btnRow{ display:flex; gap:12px; }
     .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); transition: all 0.2s; }
     .btnPrimary{ background:var(--primary); color:#fff; }
@@ -164,7 +176,7 @@
     .btnDanger{ background:var(--danger); color:#fff; }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
     
-    .status{ margin-top:8px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:18px; white-space:pre-wrap; }
+    .status{ margin-top:6px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:18px; white-space:pre-wrap; }
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
@@ -245,7 +257,7 @@
         </div>
         
         <div class="cartWrap">
-            <div class="cartTitle">已選擇預約時段</div>
+            <div class="cartTitle">已選擇時段</div>
             <div id="cartList" class="cartScrollArea"></div>
         </div>
       </div>
@@ -410,7 +422,13 @@
       }
       btnNext.disabled = false;
 
-      let html = `<div style="margin-bottom:16px; flex: 0 0 auto;"><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>`;
+      // ★★★ 修正：將「共 X 堂」移至教練名稱右側，並標註青綠色數字 ★★★
+      let html = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex:0 0 auto;">
+          <div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>
+          <div style="font-size:16px; font-weight:950; color:var(--text);">共 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${state.cart.length}</span> 堂</div>
+      </div>`;
+      
       html += `<div class="confirmList">`;
       
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
@@ -433,12 +451,11 @@
       });
       html += `</div>`;
       
-      // ★★★ 修改：Step 3 右下方顯示格式，字體顏色依照需求客製 ★★★
+      // ★★★ 修正：右下方僅保留「剩餘1對1」，數字改為純黑色 ★★★
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       html += `
-        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:16px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">共 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${state.cart.length}</span> 堂</div>
-            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="color:var(--text); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
+        <div style="display:flex; justify-content:flex-end; margin-top:8px; flex:0 0 auto; padding-right:4px;">
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
       `;
       confirmInfo.innerHTML = html;
@@ -868,7 +885,7 @@
       }
   }
 
-  // ★★★ 修正卡片：數字放大至 5xl，中間加上一條非常淺的實線區隔增加層次感 ★★★
+  // ★★★ 修正卡片：加入實體分隔線 #cccccc，並將數字加大為 5xl 增加視覺衝擊力 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -904,7 +921,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#eef2f1" }, // 中間加入分隔實線
+                { type: "separator", color: "#cccccc" }, // 深色實線
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -952,7 +969,7 @@
     };
   }
 
-  // ★★★ 修正卡片：數字放大至 5xl，中間加上一條非常淺的實線區隔增加層次感 ★★★
+  // ★★★ 修正卡片：加入實體分隔線 #cccccc，並將數字加大為 5xl 增加視覺衝擊力 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -988,7 +1005,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#eef2f1" }, // 中間加入分隔實線
+                { type: "separator", color: "#cccccc" }, // 深色實線
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -1099,22 +1116,21 @@
         setStep(1);
     };
 
-    // ★★★ 修正：將「本次預約堂數」與「預期剩餘堂數」當作變數回傳給 Make ★★★
+    // ★★★ 傳送給 Make 時，加入 bookedCount 與 expectedRemainingCredits ★★★
     btnNext.onclick=async ()=>{
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
-        // 事先計算好期望的剩餘堂數
         const expectedRemaining = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : 0;
         
         try{
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
               action: "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, people: state.people,
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
-              bookedCount: state.cart.length,             // 傳給 Make：本次預約的總堂數
-              expectedRemainingCredits: expectedRemaining // 傳給 Make：預期的剩餘堂數
+              bookedCount: state.cart.length,             
+              expectedRemainingCredits: expectedRemaining 
            })});
            const result = await res.json();
            const results = result.results || [];
