@@ -51,53 +51,62 @@
 
     .subTitle{ margin:12px 0 8px; font-weight:950; font-size:15px; color:var(--text); }
 
-    .step2Box{ display:flex; flex-direction:column; gap:8px; height:100%; min-height:0; }
-    .coachIntro{ display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:10px; background:#fff; flex:0 0 auto; }
+    /* ★ 修正：將間距從 8px 壓扁為 6px，全局騰出空間 ★ */
+    .step2Box{ display:flex; flex-direction:column; gap:6px; height:100%; min-height:0; }
+    
+    /* 稍微縮小教練區塊的 padding */
+    .coachIntro{ display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:8px 10px; background:#fff; flex:0 0 auto; }
     .avatar{ width:48px; height:48px; border-radius:999px; overflow:hidden; background:#ddd; flex:0 0 auto; }
     .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
     .coachMeta{ flex:1; min-width:0; }
-    .coachName{ font-weight:950; font-size:18px; margin:0 0 6px; }
+    .coachName{ font-weight:950; font-size:18px; margin:0 0 4px; }
     .tags{ display:flex; gap:6px; flex-wrap:wrap; }
-    .tag{ padding:6px 9px; border-radius:999px; background:var(--selBg); color:var(--selText); font-weight:900; font-size:11px; }
+    .tag{ padding:4px 8px; border-radius:999px; background:var(--selBg); color:var(--selText); font-weight:900; font-size:11px; }
 
-    .cal{ border-radius:18px; border:1px solid var(--border); padding:10px; background:#fff; flex:0 0 auto; }
-    .calHead{ display:grid; grid-template-columns:42px 1fr 42px; gap:10px; align-items:center; margin-bottom:6px; }
+    .cal{ border-radius:18px; border:1px solid var(--border); padding:8px 10px; background:#fff; flex:0 0 auto; }
+    .calHead{ display:grid; grid-template-columns:42px 1fr 42px; gap:10px; align-items:center; margin-bottom:4px; }
     .calBtn{ width:42px; height:42px; border-radius:14px; background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:22px; font-weight:950; color:var(--primary); border:1px solid var(--border); }
     .calBtn.disabled{ opacity:0.3; pointer-events:none; background:#f0f0f0; color:#999; }
     .monthTitle{ text-align:center; font-weight:950; font-size:16px; }
     .weekStrip{ display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
-    .dayCell{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 0; border-radius:14px; border:1px solid var(--border); background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.05); cursor:pointer; min-height:64px; transition:all 0.2s; }
+    .dayCell{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; border-radius:14px; border:1px solid var(--border); background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.05); cursor:pointer; min-height:60px; transition:all 0.2s; }
     .dayCell.disabled{ opacity:.35; pointer-events:none; }
     .dayCell.hidden{ visibility:hidden; pointer-events:none; }
     .dayCell.sel .dateDot{ background:var(--primary); color:#fff; box-shadow:0 0 0 5px rgba(18,122,105,.14); }
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
-    .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
+    .dateDot{ width:32px; height:32px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(18, 122, 105, 0.25); border-radius: 4px; }
 
-    .slotsArea{ flex:1 1 40%; min-height:110px; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
-    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:6px; flex:0 0 auto; }
-    .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:8px; position:relative; transition:color 0.2s;}
+    /* ★ 修正：讓時段區擁有更高的 flex 彈性，並設定最小高度保障兩行顯示 */
+    .slotsArea{ flex:1 1 50%; min-height:100px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
+    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:4px; flex:0 0 auto; }
+    .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:6px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
+    
     .slotGrid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; align-content:start; overflow-y:auto; padding-right:4px; padding-bottom: 4px;}
     
-    .slot{ padding:8px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
+    /* ★ 修正：按鈕 padding 壓扁為 6px，讓上下兩行靠得更近 */
+    .slot{ padding:6px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(18,122,105,.35); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
 
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
+    /* ★ 修正：購物車外框間距壓扁，標題區縮小，爭取極致版面 */
     .cartWrap {
-      margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 6px; 
-      flex: 1 1 60%; 
-      min-height: 140px; 
+      margin-top: 2px; padding-top: 4px; border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 4px; 
+      flex: 1 1 50%; 
+      min-height: 110px; 
     }
-    .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
+    /* 標題 margin 壓到 0 */
+    .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 0; padding-left: 4px; flex: 0 0 auto;}
+    
     .cartScrollArea {
       flex: 1 1 auto; overflow-y: auto; min-height: 0;
       background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px;
@@ -131,11 +140,8 @@
     }
     .delBtn:active { transform: scale(0.9); }
 
-    /* ★ 修正 Step 3 的配置：讓 confirmList 能夠包含清單和下方的剩餘堂數 */
     .confirmWrap{ display:flex; flex-direction:column; gap:8px; padding:0; height: 100%; min-height:0; }
-    /* ★ infoBox 改回預設，讓內部的 confirmList 處理捲動 */
     .infoBox { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-    /* ★ confirmList 現在負責包含項目與底部統計文字，並處理捲動 */
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:4px; flex: 1 1 auto; overflow-y:auto; min-height:0; padding-bottom: 8px; padding-right: 4px;}
     
     .confirmItem { 
@@ -163,7 +169,6 @@
     .remindBox ol { padding-left: 20px; margin: 0; }
     .remindBox li { margin-bottom: 2px; }
     
-    /* ★ 修正底部區域：極致壓縮 padding，讓上方區域最大化 */
     .footer{ flex:0 0 auto; padding:4px 14px calc(4px + var(--safeB)); background:linear-gradient(0deg, var(--bg) 75%, rgba(246,247,248,0)); }
     .btnRow{ display:flex; gap:12px; }
     .btn{ flex:1; border:0; border-radius:16px; padding:14px 12px; font-size:16px; font-weight:950; cursor:pointer; box-shadow:var(--shadow); transition: all 0.2s; }
@@ -172,7 +177,6 @@
     .btnDanger{ background:var(--danger); color:#fff; }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
     
-    /* ★ 壓縮狀態文字間距 */
     .status{ margin-top:4px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:16px; white-space:pre-wrap; line-height:1.2;}
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
@@ -245,7 +249,7 @@
               <div class="tab" data-tab="pm">下午</div>
               <div class="tab" data-tab="night">晚上</div>
             </div>
-            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
+            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 6px;">
               可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂
             </div>
           </div>
@@ -263,7 +267,7 @@
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
         <div class="h" style="flex: 0 0 auto;">Step 3｜確認預約內容</div>
-        <div class="infoBox" id="confirmInfo"></div>
+        <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox"></div>
       </div>
@@ -419,7 +423,6 @@
       }
       btnNext.disabled = false;
 
-      // ★ 修正：將清單、項目與最後的剩餘堂數包在同一個可捲動的 div 中
       let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;">
           <div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>
@@ -447,13 +450,12 @@
         </div>`;
       });
       
-      // ★ 修正：讓剩餘堂數緊接在最後一筆項目的下方，確保視覺連貫
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
             <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
-      </div>`; // confirmList 結束
+      </div>`; 
       
       confirmInfo.innerHTML = html;
       
@@ -614,7 +616,7 @@
     peopleRow.innerHTML='';
     [1,2].forEach(n=>{
       const div=document.createElement('div');
-      div.className = 'chip peoplemp' + (state.people===n ? ' sel' : ''); div.textContent = `${n} 人`;
+      div.className = 'chip peoplemp' + (state.people===n ? ' sel' : ''); div.textContent = `${n} 解析`;
       div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數'); };
       peopleRow.appendChild(div);
     });
@@ -882,7 +884,7 @@
       }
   }
 
-  // ★★★ 修正卡片：虛線加深為 #999999 ★★★
+  // ★★★ 修正卡片：將中間水平線加深為 #999999 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -918,7 +920,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#999999" }, // 深色實線
+                { type: "separator", color: "#999999" }, // ★ 深灰色分隔線 ★
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -935,7 +937,7 @@
                 }
               ]
             },
-            { type: "separator", margin: "xl", color: "#f0f0f0" },
+            { type: "separator", margin: "xl", color: "#999999" }, // ★ 下方橫線也加深 ★
             {
               type: "box", layout: "vertical", spacing: "sm", margin: "xl",
               contents: [
@@ -966,7 +968,7 @@
     };
   }
 
-  // ★★★ 修正卡片：虛線加深為 #999999 ★★★
+  // ★★★ 修正卡片：將中間水平線加深為 #999999 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -1002,7 +1004,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#999999" }, // 深色實線
+                { type: "separator", color: "#999999" }, // ★ 深灰色分隔線 ★
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -1019,7 +1021,7 @@
                 }
               ]
             },
-            { type: "separator", margin: "xl", color: "#f0f0f0" },
+            { type: "separator", margin: "xl", color: "#999999" }, // ★ 下方橫線也加深 ★
             {
               type: "box", layout: "vertical", spacing: "sm", margin: "xl",
               contents: [
