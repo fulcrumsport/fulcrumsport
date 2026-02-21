@@ -33,9 +33,6 @@
     
     .top{ padding:10px 14px 8px; padding-top:calc(10px + var(--safeT)); background:linear-gradient(180deg, var(--bg) 75%, rgba(242,246,245,0)); flex:0 0 auto; }
     
-    .brand-header { display: flex; justify-content: center; align-items: center; padding-bottom: 12px; }
-    .brand-text { font-size: 20px; font-weight: 950; letter-spacing: 1px; color: var(--text); }
-
     .steps{ display:flex; gap:10px; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow); }
     .step{ display:flex; align-items:center; gap:8px; flex:1; justify-content:center; min-width:0; }
     .dot{ width:30px; height:30px; border-radius:999px; background:#dcece9; color:var(--primary); font-weight:900; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:14px; transition: all 0.3s;}
@@ -76,8 +73,7 @@
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
     .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
-    /* ★★★ 修正佈局：設定 min-height 防護線，確保時段區永遠不會被購物車擠扁 ★★★ */
-    .slotsArea{ flex:1 1 auto; min-height:140px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+    .slotsArea{ flex:1 1 0; min-height:140px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:8px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:16px; color:var(--muted); cursor:pointer; padding-bottom:10px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -90,14 +86,20 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★★★ 修正佈局：控制購物車最大高度，超過時自身捲動 ★★★ */
-    .cartSection {
+    /* ★★★ 修正：購物車外框與內部滾動分離，標題常駐不消失 ★★★ */
+    .cartWrap {
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 0 1 auto; max-height: 140px; min-height: 0; overflow-y: auto;
-      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
+      flex: 0 1 260px; /* 放寬彈性高度，吃掉上面釋放出來的空間 */
+      min-height: 0;
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
+    .cartScrollArea {
+      flex: 1 1 auto; overflow-y: auto; min-height: 0;
+      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 8px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    
     .cartItem {
       display: flex; align-items: center; justify-content: space-between;
       background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary);
@@ -105,8 +107,6 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.03);
       flex: 0 0 auto;
     }
-    
-    /* ★★★ 修正：將 gap 拉大到 16px，拉開包月與刪除按鈕距離 ★★★ */
     .cartActions { display: flex; align-items: center; gap: 16px; }
     
     .repeatBtn {
@@ -116,7 +116,6 @@
     }
     .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
     
-    /* ★★★ 修正：稍微放大刪除按鈕範圍，並設定常駐紅色與底色 ★★★ */
     .delBtn { 
       width: 28px; height: 28px; font-size: 18px; 
       display: flex; align-items: center; justify-content: center; 
@@ -128,7 +127,6 @@
     }
     .delBtn:active { transform: scale(0.9); }
 
-    /* ★★★ 修正：確保 Step 3 溫馨提醒被固定在底部不被截斷 ★★★ */
     .confirmWrap{ display:flex; flex-direction:column; gap:12px; padding:4px 0 2px; height: 100%; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:6px; flex: 1 1 auto; overflow-y:auto; min-height:0; max-height:none; padding-bottom: 12px; }
     
@@ -232,10 +230,6 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div id="brandHeader" class="brand-header">
-        <div class="brand-text">支點運動空間</div>
-    </div>
-
     <div id="stepBar" class="steps">
       <div class="step"> <div id="dot1" class="dot active">1</div> <div id="lab1" class="label active">選教練</div> </div>
       <div class="step"> <div id="dot2" class="dot">2</div> <div id="lab2" class="label">選日期</div> </div>
@@ -284,9 +278,10 @@
 
           <div id="slotGrid2" class="slotGrid"></div>
         </div>
-        <div class="cartSection">
+        
+        <div class="cartWrap">
             <div class="cartTitle">已選擇預約清單</div>
-            <div id="cartList"></div>
+            <div id="cartList" class="cartScrollArea"></div>
         </div>
       </div>
     </div>
@@ -365,7 +360,6 @@
   const prevWeek=$('#prevWeek'), nextWeek=$('#nextWeek'), monthTitle=$('#monthTitle');
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
-  const brandHeader=$('#brandHeader'); 
 
   function pad2(n){ return String(n).padStart(2,'0'); }
   function ymd(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
@@ -424,7 +418,6 @@
     status.classList.remove('statusError');
 
     recordBtns.classList.add('hide'); 
-    brandHeader.style.display = 'flex'; 
     
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
@@ -475,12 +468,12 @@
       });
       html += `</div>`;
       
-      // ★★★ 修正：在右下方顯示本次預約總堂數，並動態顯示剩餘1對1堂數 ★★★
+      // ★★★ 修正：Step 3 右下方顯示「共 X 堂」及「剩餘1對1」，顏色格式統一 ★★★
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       html += `
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:16px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">本次預約共 ${state.cart.length} 堂</div>
-            <div style="font-size:15px; font-weight:950; color:var(--primary);">剩餘 1對1：${currentLeft} 堂</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">共 ${state.cart.length} 堂</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
       `;
       confirmInfo.innerHTML = html;
@@ -744,7 +737,6 @@
       
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
-      brandHeader.style.display = 'none'; 
       
       $('#recordListTitle').textContent = `${state.name} 的私課預約`;
       
@@ -911,7 +903,7 @@
       }
   }
 
-  // ★★★ 修正卡片：調整字體大小為 3xl，避免被截斷成 ...，並確保數字完美置中 ★★★
+  // ★★★ 修正卡片：調整字體大小為 5xl 並且保留 shrink-to-fit ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -941,7 +933,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
+                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -955,7 +947,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: remainText, color: "#1a2321", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
+                        { type: "text", text: remainText, color: "#1a2321", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -994,7 +986,6 @@
     };
   }
 
-  // ★★★ 修正卡片：調整字體大小為 3xl，避免被截斷成 ...，並確保數字完美置中 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     return {
@@ -1024,7 +1015,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
+                        { type: "text", text: `+${successCount}`, color: "#127a69", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -1038,7 +1029,7 @@
                       type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
                       contents: [
                         { type: "text", text: "堂", size: "md", color: "#ffffff00" }, /* 隱形字平衡對齊用 */
-                        { type: "text", text: remainText, color: "#1a2321", size: "3xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
+                        { type: "text", text: remainText, color: "#1a2321", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
                         { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
                       ]
                     }
@@ -1135,7 +1126,6 @@
         stepBar.classList.remove('hide'); 
         cardRecord.classList.add('hide');
         recordBtns.classList.add('hide'); 
-        brandHeader.style.display = 'flex';
         
         renderCoaches(); renderPeople(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
         setStep(1);
