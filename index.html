@@ -78,8 +78,8 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(18, 122, 105, 0.25); border-radius: 4px; }
 
-    /* ★★★ 修正佈局：將 slotsArea 固定為 115px 高度，確保永遠保留兩行空間，不忽大忽小 ★★★ */
-    .slotsArea{ flex:0 0 115px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
+    /* ★★★ 修正佈局：將 slotsArea 高度微調至 125px，確保第二行時間不會被切到 ★★★ */
+    .slotsArea{ flex:0 0 125px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:4px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:6px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -262,7 +262,7 @@
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
         <div class="h" style="flex: 0 0 auto;">Step 3｜確認預約內容</div>
-        <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
+        <div class="infoBox" id="confirmInfo"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox"></div>
       </div>
@@ -880,6 +880,7 @@
       }
   }
 
+  // ★★★ 修正卡片：緊縮 Header padding 讓背景更貼合文字 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const today = new Date();
@@ -897,7 +898,7 @@
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
             { type: "text", text: dateStr, size: "xxs", color: "#ffffff99", margin: "sm" }
           ],
-          backgroundColor: "#b23a2b", paddingAll: "20px"
+          backgroundColor: "#b23a2b", paddingAll: "12px" // 縮小 padding，讓背景更貼合
         },
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
@@ -967,6 +968,7 @@
     };
   }
 
+  // ★★★ 修正卡片：緊縮 Header padding 讓背景更貼合文字 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const today = new Date();
@@ -984,7 +986,7 @@
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
             { type: "text", text: dateStr, size: "xxs", color: "#ffffff99", margin: "sm" }
           ],
-          backgroundColor: "#127a69", paddingAll: "20px"
+          backgroundColor: "#127a69", paddingAll: "12px" // 縮小 padding，讓背景更貼合
         },
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
