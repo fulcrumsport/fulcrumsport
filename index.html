@@ -78,8 +78,8 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(18, 122, 105, 0.25); border-radius: 4px; }
 
-    /* ★★★ 修正佈局：讓時段區縮骨功 (flex: 0 1 auto)，只佔用必要空間，把剩下的全給購物車 ★★★ */
-    .slotsArea{ flex:0 1 auto; max-height:150px; min-height:70px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
+    /* ★★★ 修正佈局：將 slotsArea 固定為 115px 高度，確保永遠保留兩行空間，不忽大忽小 ★★★ */
+    .slotsArea{ flex:0 0 115px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:4px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:6px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
@@ -94,7 +94,6 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    /* ★★★ 修正：購物車擁有 1 1 auto 的全額彈性，自動吃掉所有剩下的空間 ★★★ */
     .cartWrap {
       margin-top: 2px; padding-top: 4px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 4px; 
@@ -245,7 +244,7 @@
               <div class="tab" data-tab="pm">下午</div>
               <div class="tab" data-tab="night">晚上</div>
             </div>
-            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 6px;">
+            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
               可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂
             </div>
           </div>
@@ -263,7 +262,7 @@
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
         <div class="h" style="flex: 0 0 auto;">Step 3｜確認預約內容</div>
-        <div class="infoBox" id="confirmInfo"></div>
+        <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox"></div>
       </div>
@@ -419,7 +418,6 @@
       }
       btnNext.disabled = false;
 
-      // ★★★ 修正：交換位置，將「剩餘1對1」放右上，「共 X 堂」放右下 ★★★
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
       let html = `
@@ -610,7 +608,6 @@
     });
   }
   
-  // ★★★ 修正錯字：改回「人」 ★★★
   function renderPeople(){
     peopleRow.innerHTML='';
     [1,2].forEach(n=>{
@@ -883,7 +880,6 @@
       }
   }
 
-  // ★★★ 修正卡片：加入當日操作日期 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const today = new Date();
@@ -898,17 +894,14 @@
           type: "box", layout: "vertical",
           contents: [
             { type: "text", text: "私課已取消", weight: "bold", size: "xl", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
+            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
+            { type: "text", text: dateStr, size: "xxs", color: "#ffffff99", margin: "sm" }
           ],
           backgroundColor: "#b23a2b", paddingAll: "20px"
         },
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
-            // 加入日期顯示
-            {
-              type: "text", text: `取消日期：${dateStr}`, size: "xs", color: "#7a8280", align: "end", weight: "bold", margin: "none"
-            },
             {
               type: "box", layout: "horizontal", margin: "md", alignItems: "center",
               contents: [
@@ -974,7 +967,6 @@
     };
   }
 
-  // ★★★ 修正卡片：加入當日操作日期 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const today = new Date();
@@ -989,17 +981,14 @@
           type: "box", layout: "vertical",
           contents: [
             { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } 
+            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
+            { type: "text", text: dateStr, size: "xxs", color: "#ffffff99", margin: "sm" }
           ],
           backgroundColor: "#127a69", paddingAll: "20px"
         },
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
-            // 加入日期顯示
-            {
-              type: "text", text: `預約日期：${dateStr}`, size: "xs", color: "#7a8280", align: "end", weight: "bold", margin: "none"
-            },
             {
               type: "box", layout: "horizontal", margin: "md", alignItems: "center",
               contents: [
