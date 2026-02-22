@@ -51,57 +51,55 @@
 
     .subTitle{ margin:12px 0 8px; font-weight:950; font-size:15px; color:var(--text); }
 
-    .step2Box{ display:flex; flex-direction:column; gap:6px; height:100%; min-height:0; }
-    
-    .coachIntro{ display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:8px 10px; background:#fff; flex:0 0 auto; }
+    .step2Box{ display:flex; flex-direction:column; gap:8px; height:100%; min-height:0; }
+    .coachIntro{ display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:10px; background:#fff; flex:0 0 auto; }
     .avatar{ width:48px; height:48px; border-radius:999px; overflow:hidden; background:#ddd; flex:0 0 auto; }
     .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
     .coachMeta{ flex:1; min-width:0; }
-    .coachName{ font-weight:950; font-size:18px; margin:0 0 4px; }
+    .coachName{ font-weight:950; font-size:18px; margin:0 0 6px; }
     .tags{ display:flex; gap:6px; flex-wrap:wrap; }
-    .tag{ padding:4px 8px; border-radius:999px; background:var(--selBg); color:var(--selText); font-weight:900; font-size:11px; }
+    .tag{ padding:6px 9px; border-radius:999px; background:var(--selBg); color:var(--selText); font-weight:900; font-size:11px; }
 
-    .cal{ border-radius:18px; border:1px solid var(--border); padding:8px 10px; background:#fff; flex:0 0 auto; }
-    .calHead{ display:grid; grid-template-columns:42px 1fr 42px; gap:10px; align-items:center; margin-bottom:4px; }
+    .cal{ border-radius:18px; border:1px solid var(--border); padding:10px; background:#fff; flex:0 0 auto; }
+    .calHead{ display:grid; grid-template-columns:42px 1fr 42px; gap:10px; align-items:center; margin-bottom:6px; }
     .calBtn{ width:42px; height:42px; border-radius:14px; background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:22px; font-weight:950; color:var(--primary); border:1px solid var(--border); }
     .calBtn.disabled{ opacity:0.3; pointer-events:none; background:#f0f0f0; color:#999; }
     .monthTitle{ text-align:center; font-weight:950; font-size:16px; }
     .weekStrip{ display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
-    .dayCell{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; border-radius:14px; border:1px solid var(--border); background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.05); cursor:pointer; min-height:60px; transition:all 0.2s; }
+    .dayCell{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 0; border-radius:14px; border:1px solid var(--border); background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.05); cursor:pointer; min-height:64px; transition:all 0.2s; }
     .dayCell.disabled{ opacity:.35; pointer-events:none; }
     .dayCell.hidden{ visibility:hidden; pointer-events:none; }
     .dayCell.sel .dateDot{ background:var(--primary); color:#fff; box-shadow:0 0 0 5px rgba(18,122,105,.14); }
     .dowTxt{ font-size:11px; font-weight:900; color:var(--muted); }
-    .dateDot{ width:32px; height:32px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
+    .dateDot{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:950; color:var(--text); transition:all 0.2s;}
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(18, 122, 105, 0.25); border-radius: 4px; }
 
-    /* ★★★ 修正佈局：將 slotsArea 高度微調至 125px，確保第二行時間不會被切到 ★★★ */
-    .slotsArea{ flex:0 0 125px; display:flex; flex-direction:column; gap:6px; overflow:hidden; }
-    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:4px; flex:0 0 auto; }
-    .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:6px; position:relative; transition:color 0.2s;}
+    /* ★★★ 修正：移除 min-height，並將 flex 設為自動貼合內容高度 ★★★ */
+    .slotsArea{ flex:0 1 auto; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+    .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:6px; flex:0 0 auto; }
+    .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:8px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
-    
     .slotGrid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; align-content:start; overflow-y:auto; padding-right:4px; padding-bottom: 4px;}
     
-    .slot{ padding:6px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
+    .slot{ padding:8px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(18,122,105,.35); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
 
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
+    /* 讓購物車自動填滿剩餘的全部空間 */
     .cartWrap {
-      margin-top: 2px; padding-top: 4px; border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 4px; 
+      margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 6px; 
       flex: 1 1 auto; 
-      min-height: 120px; 
+      min-height: 0; 
     }
-    .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 0; padding-left: 4px; flex: 0 0 auto;}
-    
+    .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
     .cartScrollArea {
       flex: 1 1 auto; overflow-y: auto; min-height: 0;
       background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px;
@@ -336,6 +334,9 @@
 
   function pad2(n){ return String(n).padStart(2,'0'); }
   function ymd(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+  // 取得今天的 yyyy/mm/dd 格式，用於 Flex Message 卡片顯示
+  function getTodaySlash() { const d = new Date(); return `${d.getFullYear()}/${pad2(d.getMonth()+1)}/${pad2(d.getDate())}`; }
+  
   function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
   function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
   function weekStartMonday(d){ const x = startOfDay(d); const day = x.getDay(); return addDays(x, day === 0 ? -6 : 1 - day); }
@@ -418,12 +419,10 @@
       }
       btnNext.disabled = false;
 
-      let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
-      
       let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;">
           <div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>
-          <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
+          <div style="font-size:16px; font-weight:950; color:var(--text);">共 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${state.cart.length}</span> 堂</div>
       </div>`;
       
       html += `<div class="confirmList">`;
@@ -447,9 +446,10 @@
         </div>`;
       });
       
+      let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">共 <span style="color:var(--primary); font-size:18px; margin:0 2px;">${state.cart.length}</span> 堂</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
       </div>`; 
       
@@ -880,12 +880,10 @@
       }
   }
 
-  // ★★★ 修正卡片：緊縮 Header padding 讓背景更貼合文字 ★★★
+  // ★★★ 加入操作日期，放置於頂部有顏色的區塊內 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}/${pad2(today.getMonth()+1)}/${pad2(today.getDate())}`;
-
+    const todayStr = getTodaySlash(); // 取得今天日期
     return {
       type: "flex",
       altText: "私課取消通知",
@@ -896,9 +894,9 @@
           contents: [
             { type: "text", text: "私課已取消", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
-            { type: "text", text: dateStr, size: "xxs", color: "#ffffff99", margin: "sm" }
+            { type: "text", text: todayStr, size: "xs", color: "#ffffffcc", margin: "xs" } /* 加入日期 */
           ],
-          backgroundColor: "#b23a2b", paddingAll: "12px" // 縮小 padding，讓背景更貼合
+          backgroundColor: "#b23a2b", paddingAll: "20px"
         },
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
@@ -920,7 +918,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#cccccc" },
+                { type: "separator", color: "#999999" }, // 深色實線
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -937,7 +935,7 @@
                 }
               ]
             },
-            { type: "separator", margin: "xl", color: "#cccccc" },
+            { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
               type: "box", layout: "vertical", spacing: "sm", margin: "xl",
               contents: [
@@ -968,12 +966,10 @@
     };
   }
 
-  // ★★★ 修正卡片：緊縮 Header padding 讓背景更貼合文字 ★★★
+  // ★★★ 加入操作日期，放置於頂部有顏色的區塊內 ★★★
   function createSuccessFlexMessage(successCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}/${pad2(today.getMonth()+1)}/${pad2(today.getDate())}`;
-
+    const todayStr = getTodaySlash(); // 取得今天日期
     return {
       type: "flex",
       altText: "私課預約成功通知",
@@ -984,9 +980,9 @@
           contents: [
             { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
-            { type: "text", text: dateStr, size: "xxs", color: "#ffffff99", margin: "sm" }
+            { type: "text", text: todayStr, size: "xs", color: "#ffffffcc", margin: "xs" } /* 加入日期 */
           ],
-          backgroundColor: "#127a69", paddingAll: "12px" // 縮小 padding，讓背景更貼合
+          backgroundColor: "#127a69", paddingAll: "20px"
         },
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
@@ -1008,7 +1004,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#cccccc" },
+                { type: "separator", color: "#999999" }, // 深色實線
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -1025,7 +1021,7 @@
                 }
               ]
             },
-            { type: "separator", margin: "xl", color: "#cccccc" },
+            { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
               type: "box", layout: "vertical", spacing: "sm", margin: "xl",
               contents: [
