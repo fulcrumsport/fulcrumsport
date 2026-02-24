@@ -435,7 +435,8 @@
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                   <line x1="10" y1="11" x2="10" y2="17"></line>
                   <line x1="14" y1="11" x2="14" y2="17"></line>
                 </svg>
@@ -454,7 +455,7 @@
       
       const remindHtml = `
         <ol>
-          <li>預約及取消請在課堂開始前 1 小時執行。</li>
+          <li>取消或改期，請於開課前 2 小時完成。</li>
           <li>若某時段已被預約，將發出提醒並跳過該時段，僅預約可預約時段。</li>
         </ol>
       `;
@@ -748,7 +749,6 @@
       records.forEach((r, index) => {
           const isMarked = state.selectedRecords.has(index);
           
-          // ★ 防呆機制：計算距離開課是否還有 2 小時以上
           const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
           const now = new Date();
           const diffHours = (classTime - now) / (1000 * 60 * 60);
@@ -767,9 +767,11 @@
                     ? `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>` 
                     : isMarked 
                       ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
+                      // ★ 修正 1 (取消清單的垃圾桶)：同樣換成標準 SVG
                       : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                            <polyline points="3 6 5 6 21 6"></polyline>
-                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path>
+                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                            <line x1="10" y1="11" x2="10" y2="17"></line>
                            <line x1="14" y1="11" x2="14" y2="17"></line>
                          </svg>`
@@ -805,13 +807,11 @@
       const count = state.selectedRecords.size;
       if(count === 0) return;
 
-      // ★ 防呆一進階版：按下按鈕瞬間的「最終雙重確認」
       const now = new Date();
       let isTimeout = false;
 
       state.selectedRecords.forEach(index => {
           const r = state.records[index];
-          // 重新計算當下距離開課還有多久
           const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
           const diffHours = (classTime - now) / (1000 * 60 * 60);
           
@@ -820,7 +820,6 @@
           }
       });
 
-      // 如果發現有超時的課程，直接擋下並警告
       if (isTimeout) {
           Swal.fire({
               icon: 'error',
@@ -829,11 +828,10 @@
               confirmButtonColor: '#b23a2b'
           });
           
-          // 自動幫他清空剛剛的勾選，並重新整理畫面狀態
           state.selectedRecords.clear();
           renderRecordList();
           updateRecordBtns();
-          return; // 中斷執行
+          return; 
       }
 
       Swal.fire({
@@ -1163,21 +1161,23 @@
            })});
            
            const result = await res.json();
-           
-           // ★ 兼容大小寫的狀態判斷
            const isSuccess = result.Status === 'completed' || result.status === 'success';
            
-           // ★ 抓取 Make Array Aggregator 打包好的陣列 (相容 Result 或 result)
-           const resultsArray = result.Results || result.results || [];
+           // ★ 修正 3：嚴格拿取後端的陣列，完全信任 Make 後端的 Filter 判斷
+           let resultsArray = result.Results || result.results;
+           let actualSuccessCount = 0;
            
-           // ★ 實際成功的堂數 (以 Make 後端打包數量為準)
-           const actualSuccessCount = resultsArray.length > 0 ? resultsArray.length : (isSuccess ? state.cart.length : 0);
+           if (Array.isArray(resultsArray)) {
+               // 如果有拿到陣列，直接算裡面有幾個成功的包裹
+               actualSuccessCount = resultsArray.length;
+           } else {
+               // 如果 Make 沒吐出這個欄位 (防錯機制)
+               actualSuccessCount = isSuccess ? state.cart.length : 0;
+           }
            
-           // ★ 直接使用 Make 後端算出來的最精準餘額 remainingCredits
            const remaining = result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - actualSuccessCount;
 
-           if (isSuccess) {
-             // 判斷是否全部成功，或者被搶走了部分時段
+           if (isSuccess && actualSuccessCount > 0) {
              if (actualSuccessCount === state.cart.length) {
                  await Swal.fire({ 
                      icon:'success', 
@@ -1196,12 +1196,23 @@
                  });
              }
              
-             // 傳送 LINE Flex Message 時，直接帶入後端給的準確數字
              if(liff.isInClient()) {
                  await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining)]);
              }
              liff.closeWindow();
              
+           } else if (isSuccess && actualSuccessCount === 0) {
+             // ★ 修正 3 (重頭戲)：如果 Filter 把所有時段都擋掉了 (Array=0)
+             await Swal.fire({ 
+                 icon:'error', 
+                 title:'預約失敗', 
+                 html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
+                 confirmButtonColor: '#b23a2b' 
+             });
+             // 把學員退回「選日期」的畫面，讓他重選
+             setStep(2);
+             btnNext.disabled = false;
+             btnNext.textContent = "確認送出";
            } else {
              await Swal.fire({ icon:'warning', title:'預約結果', html:'預約未能完全成功，請聯繫教練確認。' });
              liff.closeWindow();
