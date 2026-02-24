@@ -77,13 +77,11 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(18, 122, 105, 0.25); border-radius: 4px; }
 
-    /* ★★★ 修正 3：時段區的終極解法，完全根據內容撐開，絕不產生滾動條 ★★★ */
     .slotsArea{ flex:0 0 auto; display:flex; flex-direction:column; gap:8px; overflow:visible; padding-bottom: 4px; }
     .tabs{ display:flex; border-bottom:2px solid var(--border); padding-bottom:6px; flex:0 0 auto; }
     .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:8px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
-    /* 取消 slotGrid 的 overflow，讓它自然長高 */
     .slotGrid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; align-content:start;}
     
     .slot{ padding:8px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
@@ -96,7 +94,7 @@
     .cartWrap {
       margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
       display: flex; flex-direction: column; gap: 6px; 
-      flex: 1 1 auto; /* 購物車吃掉所有剩餘空間 */
+      flex: 1 1 auto; 
       min-height: 0; 
     }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
@@ -157,7 +155,6 @@
     .icon-trash { color: #d32f2f; }
     .icon-undo { color: var(--primary); }
 
-    /* ★★★ 修正 2：統一溫馨提醒的行距與留白 ★★★ */
     .remindTitle{ width:100%; font-weight:950; font-size:14px; color:var(--danger); margin-top:8px; margin-bottom: 4px; flex: 0 0 auto; } 
     .remindBox{ width:100%; border-radius:0; background:transparent; padding:0 8px; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
     .remindBox ol { padding-left: 20px; margin: 0; }
@@ -177,7 +174,6 @@
 
     .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
     .recordHeader .h { margin:0; }
-    /* ★ 定義與圖 1 相同的共 X 堂樣式 */
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
@@ -300,6 +296,7 @@
 </div>
 
 <script>
+  // 請確認這裡的 URL 都正確無誤
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
@@ -419,7 +416,6 @@
       }
       btnNext.disabled = false;
 
-      // ★★★ 修正 1：將 Step 3 的「共 X 堂」樣式改為與圖 1 (recordCount) 一致 ★★★
       let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;">
           <div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div>
@@ -752,8 +748,14 @@
       records.forEach((r, index) => {
           const isMarked = state.selectedRecords.has(index);
           
+          // ★ 防呆機制：計算距離開課是否還有 2 小時以上
+          const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
+          const now = new Date();
+          const diffHours = (classTime - now) / (1000 * 60 * 60);
+          const canCancel = diffHours >= 2;
+          
           html += `
-          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" onclick="toggleDeleteMark(${index})">
+          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${index})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
                       <span class="record-date" style="font-size:16px; color:var(--text);">${r.date} (${r.weekday}) ${r.time}</span>
@@ -761,14 +763,16 @@
                   </div>
               </div>
               <div class="step3Del">
-                  ${isMarked 
-                    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
-                    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                         <polyline points="3 6 5 6 21 6"></polyline>
-                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path>
-                         <line x1="10" y1="11" x2="10" y2="17"></line>
-                         <line x1="14" y1="11" x2="14" y2="17"></line>
-                       </svg>`
+                  ${!canCancel 
+                    ? `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>` 
+                    : isMarked 
+                      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
+                      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                           <polyline points="3 6 5 6 21 6"></polyline>
+                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path>
+                           <line x1="10" y1="11" x2="10" y2="17"></line>
+                           <line x1="14" y1="11" x2="14" y2="17"></line>
+                         </svg>`
                   }
               </div>
           </div>`;
@@ -800,6 +804,37 @@
   btnCancelBatch.onclick = function() {
       const count = state.selectedRecords.size;
       if(count === 0) return;
+
+      // ★ 防呆一進階版：按下按鈕瞬間的「最終雙重確認」
+      const now = new Date();
+      let isTimeout = false;
+
+      state.selectedRecords.forEach(index => {
+          const r = state.records[index];
+          // 重新計算當下距離開課還有多久
+          const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
+          const diffHours = (classTime - now) / (1000 * 60 * 60);
+          
+          if (diffHours < 2) {
+              isTimeout = true;
+          }
+      });
+
+      // 如果發現有超時的課程，直接擋下並警告
+      if (isTimeout) {
+          Swal.fire({
+              icon: 'error',
+              title: '操作逾時',
+              html: '您勾選的清單中，有距離開課已<b>不足 2 小時</b>的時段。<br><br>系統已自動鎖定，請重新確認您的預約清單。',
+              confirmButtonColor: '#b23a2b'
+          });
+          
+          // 自動幫他清空剛剛的勾選，並重新整理畫面狀態
+          state.selectedRecords.clear();
+          renderRecordList();
+          updateRecordBtns();
+          return; // 中斷執行
+      }
 
       Swal.fire({
           html: `
@@ -849,7 +884,7 @@
               })
           });
           const result = await res.json();
-          if(result.status === 'success') {
+          if(result.status === 'success' || result.Status === 'completed') {
               
               const checkRes = await fetch(MAKE_QUERY_WEBHOOK_URL, {
                   method: "POST", headers: {"Content-Type":"application/json"},
@@ -881,7 +916,6 @@
       }
   }
 
-  // ★★★ 修正卡片：調整中間實線顏色更深 #999999 ★★★
   function createCancellationFlexMessage(cancelCount, remainingCount) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -919,7 +953,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#999999" }, // 深色實線
+                { type: "separator", color: "#999999" },
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -1004,7 +1038,7 @@
                     }
                   ]
                 },
-                { type: "separator", color: "#999999" }, // 深色實線
+                { type: "separator", color: "#999999" },
                 {
                   type: "box", layout: "vertical", flex: 1,
                   contents: [
@@ -1121,36 +1155,63 @@
       if(state.step===3){
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
-        const expectedRemaining = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : 0;
-        
         try{
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
               action: "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, people: state.people,
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
-              bookedCount: state.cart.length,             
-              expectedRemainingCredits: expectedRemaining 
+              bookedCount: state.cart.length 
            })});
-           const result = await res.json();
-           const results = result.results || [];
-           const successList = results.filter(r => r.status === 'success');
            
-           const remaining = result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - successList.length;
+           const result = await res.json();
+           
+           // ★ 兼容大小寫的狀態判斷
+           const isSuccess = result.Status === 'completed' || result.status === 'success';
+           
+           // ★ 抓取 Make Array Aggregator 打包好的陣列 (相容 Result 或 result)
+           const resultsArray = result.Results || result.results || [];
+           
+           // ★ 實際成功的堂數 (以 Make 後端打包數量為準)
+           const actualSuccessCount = resultsArray.length > 0 ? resultsArray.length : (isSuccess ? state.cart.length : 0);
+           
+           // ★ 直接使用 Make 後端算出來的最精準餘額 remainingCredits
+           const remaining = result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - actualSuccessCount;
 
-           if (successList.length > 0 && results.filter(r => r.status !== 'success').length === 0) {
-             await Swal.fire({ 
-                 icon:'success', 
-                 title:'預約成功', 
-                 html:`已成功預約 <span style="font-weight:950;">${successList.length} 堂</span> 私課！`, 
-                 confirmButtonColor: '#127a69',
-                 iconColor: '#127a69'
-             });
-             if(liff.isInClient()) await liff.sendMessages([createSuccessFlexMessage(successList.length, remaining)]);
+           if (isSuccess) {
+             // 判斷是否全部成功，或者被搶走了部分時段
+             if (actualSuccessCount === state.cart.length) {
+                 await Swal.fire({ 
+                     icon:'success', 
+                     title:'預約成功', 
+                     html:`已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
+                     confirmButtonColor: '#127a69',
+                     iconColor: '#127a69'
+                 });
+             } else {
+                 await Swal.fire({ 
+                     icon:'warning', 
+                     title:'部分時段已被預約', 
+                     html:`您選擇了 ${state.cart.length} 堂課，但部分時段剛好被搶先預約了。<br><br>系統已為您成功保留剩餘的 <span style="font-weight:950; color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span> 課！`, 
+                     confirmButtonColor: '#127a69',
+                     iconColor: '#b2682b'
+                 });
+             }
+             
+             // 傳送 LINE Flex Message 時，直接帶入後端給的準確數字
+             if(liff.isInClient()) {
+                 await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining)]);
+             }
              liff.closeWindow();
+             
            } else {
-             await Swal.fire({ icon:'warning', title:'預約結果', html:'部分或全部時段預約失敗，請確認。' });
+             await Swal.fire({ icon:'warning', title:'預約結果', html:'預約未能完全成功，請聯繫教練確認。' });
              liff.closeWindow();
            }
-        }catch(e){ Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
+           
+        }catch(e){ 
+           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); 
+           btnNext.disabled=false; 
+           btnNext.textContent="確認送出"; 
+        }
       }
     };
   }
