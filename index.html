@@ -392,7 +392,6 @@
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.people);
-      /* 修改：Step 1 狀態文字改為教練：XXX 學員：X人 */
       setStatus(state.coach && state.people ? `教練：${state.coach.name} 學員：${state.people}人` : '請選擇教練與上課人數');
     }
     if(n===2){
@@ -445,7 +444,6 @@
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
-      /* 修改：移除 Step 3 的教練與學員標籤，僅靠右顯示剩餘堂數 */
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
             <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
@@ -602,7 +600,6 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      /* 修改：Step 1 點擊教練時更新狀態文字 */
       div.onclick=()=>{ state.coach=c; renderCoaches(); renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `教練：${state.coach.name} 學員：${state.people}人` : '請選擇教練與上課人數'); };
       coachRow.appendChild(div);
     });
@@ -613,7 +610,6 @@
     [1,2].forEach(n=>{
       const div=document.createElement('div');
       div.className = 'chip peoplemp' + (state.people===n ? ' sel' : ''); div.textContent = `${n} 人`;
-      /* 修改：Step 1 點擊人數時更新狀態文字 */
       div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `教練：${state.coach.name} 學員：${state.people}人` : '請選擇教練與上課人數'); };
       peopleRow.appendChild(div);
     });
@@ -704,9 +700,6 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
-  // ==========================================
-  // 我的預約相關邏輯
-  // ==========================================
   async function loadMyRecords() {
       state.mode = 'record';
       stepBar.classList.add('hide'); 
@@ -899,7 +892,6 @@
                   html: '您選取的課程已刪除並退還堂數',
                   timer:1500, 
                   showConfirmButton:false,
-                  /* 修改：將取消成功的打勾動畫設定為深紅色 */
                   iconColor: '#b23a2b' 
               });
               liff.closeWindow(); 
@@ -1164,7 +1156,8 @@
            let actualSuccessCount = 0;
            
            if (Array.isArray(resultsArray)) {
-               actualSuccessCount = resultsArray.length;
+               // 精確比對：過濾出狀態為 success 的預約紀錄，避免 Make 雖然跑完但部分執行失敗
+               actualSuccessCount = resultsArray.filter(r => r.status === 'success' || !r.status).length;
            } else {
                actualSuccessCount = isSuccess ? state.cart.length : 0;
            }
@@ -1174,17 +1167,30 @@
            if (isSuccess && actualSuccessCount > 0) {
              if (actualSuccessCount === state.cart.length) {
                  await Swal.fire({ 
-                     icon:'success', 
-                     title:'預約成功', 
-                     html:`已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
-                     confirmButtonColor: '#127a69',
-                     iconColor: '#127a69'
+                     icon:'success', title:'預約成功', html:`已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
+                     confirmButtonColor: '#127a69', iconColor: '#127a69'
                  });
              } else {
+                 // 修改：精確計算哪些時段失敗，並顯示具體內容與返還堂數
+                 const failedBookings = state.cart.filter(item => 
+                    !resultsArray.some(res => (res.date === item.date || res.Date === item.date) && (res.time === item.time || res.Time === item.time))
+                 );
+                 const failedCount = state.cart.length - actualSuccessCount;
+                 let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px;">• ${b.date} ${b.time}</div>`).join('');
+
                  await Swal.fire({ 
                      icon:'warning', 
                      title:'部分時段已被預約', 
-                     html:`您選擇了 ${state.cart.length} 堂課，但部分時段剛好被搶先預約了。<br><br>系統已為您成功保留剩餘的 <span style="font-weight:950; color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span> 課！`, 
+                     html: `
+                        <div style="text-align:left; font-size:14px; margin-bottom:10px;">
+                          您選擇了 ${state.cart.length} 堂課，但下列時段剛好被搶先預約了：
+                          ${failedListHtml}
+                        </div>
+                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:10px; border-radius:10px; font-size:14px; color:#111;">
+                          系統為您取消已被預約的課堂，<br>並<b>返還 ${failedCount} 堂</b> 1v1 私課給您。
+                        </div>
+                        <div style="margin-top:12px; font-weight:bold;">成功保留：<span style="color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span></div>
+                     `, 
                      confirmButtonColor: '#127a69',
                      iconColor: '#b2682b'
                  });
@@ -1197,9 +1203,7 @@
              
            } else if (isSuccess && actualSuccessCount === 0) {
              await Swal.fire({ 
-                 icon:'error', 
-                 title:'預約失敗', 
-                 html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
+                 icon:'error', title:'預約失敗', html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
                  confirmButtonColor: '#b23a2b' 
              });
              setStep(2);
@@ -1212,8 +1216,7 @@
            
         }catch(e){ 
            Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); 
-           btnNext.disabled=false; 
-           btnNext.textContent="確認送出"; 
+           btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
       }
     };
