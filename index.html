@@ -341,6 +341,11 @@
   function weekdayZhFromDateKey(dateKey){ return ['日','一','二','三','四','五','六'][new Date(dateKey+'T00:00:00').getDay()]||''; }
   function getLimitDate(){ const d = new Date(); d.setMonth(d.getMonth()+2,0); d.setHours(23,59,59,999); return d; }
   
+  function normalizeDate(d) {
+      if (!d) return '';
+      return String(d).replace(/\//g, '-');
+  }
+  
   function canBookNow(dateKey, timeStr){
     if(!dateKey || !timeStr) return false;
     const dt = new Date(dateKey+'T00:00:00'); const [hh,mm]=timeStr.split(':');
@@ -1172,7 +1177,6 @@
            
            const result = await res.json();
            
-           // 判斷 Make 狀態
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result === 'Accepted';
            const resultsArray = result.Results || result.results || (Array.isArray(result) ? result : []);
            
@@ -1181,9 +1185,17 @@
            
            if (isSuccess) {
                if (Array.isArray(resultsArray) && resultsArray.length > 0) {
-                   // 由於 Make 已格式化，我們可以直接精準比對 (使用 state.cart 原始的 YYYY-MM-DD 與 HH:mm)
+                   
+                   // ★ 智慧解碼器：自動把含有字串的陣列轉合物件比對
                    successBookings = state.cart.filter(item => {
-                       return resultsArray.some(res => res.date === item.date && res.time === item.time);
+                       return resultsArray.some(rawRes => {
+                           let resObj = rawRes;
+                           // 如果 Make 傳來的是字串 (被 Array Aggregator 字串化的雷)，試著把它轉成正常物件
+                           if (typeof rawRes === 'string') {
+                               try { resObj = JSON.parse(rawRes); } catch(e) {}
+                           }
+                           return resObj && resObj.date === item.date && resObj.time === item.time;
+                       });
                    });
                    failedBookings = state.cart.filter(item => !successBookings.includes(item));
                } else {
@@ -1234,7 +1246,6 @@
              liff.closeWindow();
              
            } else if (actualSuccessCount === 0) {
-             // 完全失敗時的文字更改
              await Swal.fire({ 
                  icon:'error', 
                  title:'糟糕！預約失敗！', 
