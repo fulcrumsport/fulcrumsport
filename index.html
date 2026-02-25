@@ -352,7 +352,6 @@
     dt.setHours(hh,mm,0); return dt >= new Date(Date.now()+3600000);
   }
   
-  // 修改：改用 innerHTML 讓狀態文字可以支援 &nbsp; 這種間距標籤
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
   function updateStatusInStep2() {
@@ -398,7 +397,6 @@
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.people);
-      // 修改：加大間距
       setStatus(state.coach && state.people ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 人數：${state.people}人` : '請選擇教練與上課人數');
     }
     if(n===2){
@@ -607,7 +605,6 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      // 修改：加大間距
       div.onclick=()=>{ state.coach=c; renderCoaches(); renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 人數：${state.people}人` : '請選擇教練與上課人數'); };
       coachRow.appendChild(div);
     });
@@ -618,7 +615,6 @@
     [1,2].forEach(n=>{
       const div=document.createElement('div');
       div.className = 'chip peoplemp' + (state.people===n ? ' sel' : ''); div.textContent = `${n} 人`;
-      // 修改：加大間距
       div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 人數：${state.people}人` : '請選擇教練與上課人數'); };
       peopleRow.appendChild(div);
     });
@@ -892,7 +888,6 @@
               const canceledCount = bookingsToCancel.length;
 
               if(liff.isInClient()) {
-                  // 取消部分維持原本的卡片樣式
                   await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining)]);
               }
 
@@ -998,7 +993,7 @@
     };
   }
 
-  // ★ 修改：重構成功預約卡片，拔除 +X堂，改用更實用的條列式時段顯示
+  // ★ 修改：重構成功預約卡片，拔除 +X堂，改用垂直條列式排版
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -1032,20 +1027,29 @@
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
+            // 修改：第一行顯示教練
             {
-              type: "text", text: `預約教練：${state.coach.name}　　人數：${state.people}人`, 
+              type: "text", text: `預約教練：${state.coach.name}`, 
               weight: "bold", size: "md", color: "#1a2321", margin: "sm"
             },
+            // 修改：第二行顯示人數
+            {
+              type: "text", text: `預約人數：${state.people}人`, 
+              weight: "bold", size: "md", color: "#1a2321", margin: "sm"
+            },
+            // 修改：第三行顯示「預約時段：」
             {
               type: "text", text: "預約時段：", weight: "bold", size: "sm", color: "#7a8280", margin: "lg"
             },
+            // 下面接著顯示時段列表
             timesBox,
             { type: "separator", margin: "xl", color: "#f0f0f0" },
+            // 修改：底部顯示剩餘堂數
             {
               type: "box", layout: "horizontal", margin: "xl", alignItems: "center",
               contents: [
                 { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold" },
-                { type: "text", text: `${remainText} 堂`, size: "xl", color: "#127a69", weight: "bold", align: "end" }
+                { type: "text", text: `${remainText} 堂`, size: "lg", color: "#127a69", weight: "bold", align: "end" }
               ]
             },
             { type: "separator", margin: "xl", color: "#f0f0f0" },
