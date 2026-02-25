@@ -341,6 +341,12 @@
   function weekdayZhFromDateKey(dateKey){ return ['日','一','二','三','四','五','六'][new Date(dateKey+'T00:00:00').getDay()]||''; }
   function getLimitDate(){ const d = new Date(); d.setMonth(d.getMonth()+2,0); d.setHours(23,59,59,999); return d; }
   
+  // 統一格式化日期 (將 / 轉為 -，避免比對錯誤)
+  function normalizeDate(d) {
+      if (!d) return '';
+      return d.replace(/\//g, '-');
+  }
+  
   function canBookNow(dateKey, timeStr){
     if(!dateKey || !timeStr) return false;
     const dt = new Date(dateKey+'T00:00:00'); const [hh,mm]=timeStr.split(':');
@@ -988,9 +994,24 @@
     };
   }
 
-  function createSuccessFlexMessage(successCount, remainingCount) {
+  // 升級版：預約成功 Flex Message，除了顯示 +X 堂，還能列出確切時段
+  function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
+    
+    // 將成功預約的陣列轉化為 Flex Message 裡的文字列
+    let timesBox = { type: "box", layout: "vertical", margin: "md", spacing: "sm", contents: [] };
+    if (successBookings && successBookings.length > 0) {
+        successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
+            const wd = weekdayZhFromDateKey(b.date);
+            timesBox.contents.push({
+                type: "text", text: `• ${b.date} (${wd}) ${b.time}`, size: "sm", color: "#1a2321", weight: "bold"
+            });
+        });
+    } else {
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "sm", color: "#7a8280" });
+    }
+
     return {
       type: "flex",
       altText: "私課預約成功通知",
@@ -1042,6 +1063,17 @@
                 }
               ]
             },
+            { type: "separator", margin: "xl", color: "#f0f0f0" },
+            
+            // ★ 新增的「預約成功時段」區塊
+            {
+              type: "box", layout: "vertical", margin: "xl",
+              contents: [
+                { type: "text", text: "預約成功時段", weight: "bold", size: "xs", color: "#127a69" },
+                timesBox
+              ]
+            },
+            
             { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
               type: "box", layout: "vertical", spacing: "sm", margin: "xl",
@@ -1151,45 +1183,62 @@
            
            const result = await res.json();
            const isSuccess = result.Status === 'completed' || result.status === 'success';
+           const resultsArray = result.Results || result.results || [];
            
-           let resultsArray = result.Results || result.results;
-           let actualSuccessCount = 0;
+           let successBookings = [];
+           let failedBookings = [];
            
-           if (Array.isArray(resultsArray)) {
-               // 精確比對：過濾出狀態為 success 的預約紀錄，避免 Make 雖然跑完但部分執行失敗
-               actualSuccessCount = resultsArray.filter(r => r.status === 'success' || !r.status).length;
+           if (Array.isArray(resultsArray) && resultsArray.length > 0) {
+               // 精確比對：過濾出成功與失敗的預約
+               successBookings = state.cart.filter(item => 
+                   resultsArray.some(res => 
+                       (normalizeDate(res.date || res.Date) === item.date) && 
+                       (res.time === item.time || res.Time === item.time)
+                   )
+               );
+               failedBookings = state.cart.filter(item => 
+                   !resultsArray.some(res => 
+                       (normalizeDate(res.date || res.Date) === item.date) && 
+                       (res.time === item.time || res.Time === item.time)
+                   )
+               );
            } else {
-               actualSuccessCount = isSuccess ? state.cart.length : 0;
+               // 備用機制：若 Make 成功但沒有回傳陣列，則假設全部成功
+               if (isSuccess) {
+                   successBookings = [...state.cart];
+               }
            }
+           
+           let actualSuccessCount = successBookings.length;
+           const failedCount = failedBookings.length;
            
            const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - actualSuccessCount);
 
            if (isSuccess && actualSuccessCount > 0) {
-             if (actualSuccessCount === state.cart.length) {
+             if (failedCount === 0) {
                  await Swal.fire({ 
-                     icon:'success', title:'預約成功', html:`已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
-                     confirmButtonColor: '#127a69', iconColor: '#127a69'
+                     icon:'success', 
+                     title:'預約成功', 
+                     html:`已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
+                     confirmButtonColor: '#127a69',
+                     iconColor: '#127a69'
                  });
              } else {
-                 // 修改：精確計算哪些時段失敗，並顯示具體內容與返還堂數
-                 const failedBookings = state.cart.filter(item => 
-                    !resultsArray.some(res => (res.date === item.date || res.Date === item.date) && (res.time === item.time || res.Time === item.time))
-                 );
-                 const failedCount = state.cart.length - actualSuccessCount;
-                 let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px;">• ${b.date} ${b.time}</div>`).join('');
+                 // 新增：客製化衝堂視窗排版與文字
+                 let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px; font-size:15px;">• ${b.date} ${b.time}</div>`).join('');
 
                  await Swal.fire({ 
                      icon:'warning', 
-                     title:'部分時段已被預約', 
+                     title:'糟糕！部分時段已被預約！', 
                      html: `
-                        <div style="text-align:left; font-size:14px; margin-bottom:10px;">
-                          您選擇了 ${state.cart.length} 堂課，但下列時段剛好被搶先預約了：
-                          ${failedListHtml}
+                        <div style="text-align:left; font-size:14px; margin-bottom:15px; color:#111;">
+                          以下時段已被搶先預約：
+                          <div style="margin-top:8px; padding-left:8px;">${failedListHtml}</div>
                         </div>
-                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:10px; border-radius:10px; font-size:14px; color:#111;">
-                          系統為您取消已被預約的課堂，<br>並<b>返還 ${failedCount} 堂</b> 1v1 私課給您。
+                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:12px; border-radius:10px; font-size:14px; color:#111;">
+                          系統將自動取消衝堂預約，<br>並返還 <b>${failedCount} 堂</b> 1v1 私課。
                         </div>
-                        <div style="margin-top:12px; font-weight:bold;">成功保留：<span style="color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span></div>
+                        <div style="margin-top:15px; font-weight:bold; font-size:16px;">成功保留：<span style="color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span></div>
                      `, 
                      confirmButtonColor: '#127a69',
                      iconColor: '#b2682b'
@@ -1197,13 +1246,16 @@
              }
              
              if(liff.isInClient()) {
-                 await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining)]);
+                 // 修改：將 successBookings 傳入卡片產生器，讓 LINE 能顯示具體的日期
+                 await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings)]);
              }
              liff.closeWindow();
              
            } else if (isSuccess && actualSuccessCount === 0) {
              await Swal.fire({ 
-                 icon:'error', title:'預約失敗', html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
+                 icon:'error', 
+                 title:'預約失敗', 
+                 html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
                  confirmButtonColor: '#b23a2b' 
              });
              setStep(2);
@@ -1216,7 +1268,8 @@
            
         }catch(e){ 
            Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); 
-           btnNext.disabled=false; btnNext.textContent="確認送出"; 
+           btnNext.disabled=false; 
+           btnNext.textContent="確認送出"; 
         }
       }
     };
