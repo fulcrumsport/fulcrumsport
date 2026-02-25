@@ -694,7 +694,8 @@
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
       
-      state.remainingCredits = data.remainingCredits !== undefined ? parseInt(data.remainingCredits, 10) : 0;
+      // ★ 優化：增加支援抓取帶空格的 Remaining credits
+      state.remainingCredits = data["Remaining credits"] !== undefined ? parseInt(data["Remaining credits"], 10) : (data.remainingCredits !== undefined ? parseInt(data.remainingCredits, 10) : 0);
       renderCart(); 
       
     }catch(e){ console.error(e); }
@@ -767,7 +768,6 @@
                     ? `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>` 
                     : isMarked 
                       ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
-                      // ★ 修正 1 (取消清單的垃圾桶)：同樣換成標準 SVG
                       : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                            <polyline points="3 6 5 6 21 6"></polyline>
                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
@@ -882,15 +882,10 @@
               })
           });
           const result = await res.json();
+
           if(result.status === 'success' || result.Status === 'completed') {
-              
-              const checkRes = await fetch(MAKE_QUERY_WEBHOOK_URL, {
-                  method: "POST", headers: {"Content-Type":"application/json"},
-                  body: JSON.stringify({ action: "getRecords", userId: state.uid })
-              });
-              const checkData = await checkRes.json();
-              
-              const remaining = checkData.remainingCredits !== undefined ? checkData.remainingCredits : (checkData.records || []).length;
+              // ★ 關鍵優化：直接讀取 546 模組回傳的精準餘額，並完全移除不必要的二次 fetch 請求
+              const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
               const canceledCount = bookingsToCancel.length;
 
               if(liff.isInClient()) {
@@ -900,8 +895,8 @@
               await Swal.fire({ 
                   icon:'success', 
                   title:'已成功刪除', 
-                  html: '您選取的課程已刪除',
-                  timer:1000, 
+                  html: '您選取的課程已刪除並退還堂數',
+                  timer:1500, 
                   showConfirmButton:false,
                   iconColor: '#127a69' 
               });
@@ -1163,19 +1158,17 @@
            const result = await res.json();
            const isSuccess = result.Status === 'completed' || result.status === 'success';
            
-           // ★ 修正 3：嚴格拿取後端的陣列，完全信任 Make 後端的 Filter 判斷
            let resultsArray = result.Results || result.results;
            let actualSuccessCount = 0;
            
            if (Array.isArray(resultsArray)) {
-               // 如果有拿到陣列，直接算裡面有幾個成功的包裹
                actualSuccessCount = resultsArray.length;
            } else {
-               // 如果 Make 沒吐出這個欄位 (防錯機制)
                actualSuccessCount = isSuccess ? state.cart.length : 0;
            }
            
-           const remaining = result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - actualSuccessCount;
+           // ★ 優化：同樣支援抓取帶空格的 Remaining credits
+           const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - actualSuccessCount);
 
            if (isSuccess && actualSuccessCount > 0) {
              if (actualSuccessCount === state.cart.length) {
@@ -1202,14 +1195,12 @@
              liff.closeWindow();
              
            } else if (isSuccess && actualSuccessCount === 0) {
-             // ★ 修正 3 (重頭戲)：如果 Filter 把所有時段都擋掉了 (Array=0)
              await Swal.fire({ 
                  icon:'error', 
                  title:'預約失敗', 
                  html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
                  confirmButtonColor: '#b23a2b' 
              });
-             // 把學員退回「選日期」的畫面，讓他重選
              setStep(2);
              btnNext.disabled = false;
              btnNext.textContent = "確認送出";
