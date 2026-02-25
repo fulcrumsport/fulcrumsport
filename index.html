@@ -168,7 +168,7 @@
     .btnDanger{ background:var(--danger); color:#fff; }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
     
-    .status{ margin-top:4px; font-size:12px; color:var(--muted); text-align:center; font-weight:900; min-height:16px; white-space:pre-wrap; line-height:1.2;}
+    .status{ margin-top:4px; font-size:14px; color:var(--muted); text-align:center; font-weight:900; min-height:20px; white-space:pre-wrap; line-height:1.2;}
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
@@ -185,12 +185,11 @@
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
-    /* 修改：將動畫改為深紅色，並改名為 red */
     .loader-spinner-red { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
     .loader-spinner-red:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
-      border: 3.5px solid var(--danger); /* 修改：改用深紅色變數 */
-      border-color: var(--danger) transparent var(--danger) transparent; /* 修改：改用深紅色變數 */
+      border: 3.5px solid var(--danger); 
+      border-color: var(--danger) transparent var(--danger) transparent; 
       animation: loader-spinner-ring 1s linear infinite;
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -297,7 +296,6 @@
 </div>
 
 <script>
-  // 請確認這裡的 URL 都正確無誤
   const LIFF_ID = '2008631386-AEejMove'; 
   const MAKE_OPTIONS_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/895459nt1ywk5dtvr9x31tis495coyw3'; 
@@ -394,7 +392,8 @@
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.people);
-      setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數');
+      /* 修改：Step 1 狀態文字改為教練：XXX 學員：X人 */
+      setStatus(state.coach && state.people ? `教練：${state.coach.name} 學員：${state.people}人` : '請選擇教練與上課人數');
     }
     if(n===2){
       btnBack.classList.remove('hide'); btnNext.classList.remove('hide');
@@ -446,13 +445,9 @@
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
-      /* 修改：底部文字加上教練和學員標籤，並將剩餘堂數改為青綠色 */
+      /* 修改：移除 Step 3 的教練與學員標籤，僅靠右顯示剩餘堂數 */
       html += `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:14px; font-weight:bold; color:var(--muted);">
-                教練：<span style="color:var(--text);">${state.coach.name}</span> &nbsp;&nbsp; 
-                學員：<span style="color:var(--text);">${state.people}人</span>
-            </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
             <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
       </div>`; 
@@ -607,7 +602,8 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      div.onclick=()=>{ state.coach=c; renderCoaches(); renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數'); };
+      /* 修改：Step 1 點擊教練時更新狀態文字 */
+      div.onclick=()=>{ state.coach=c; renderCoaches(); renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `教練：${state.coach.name} 學員：${state.people}人` : '請選擇教練與上課人數'); };
       coachRow.appendChild(div);
     });
   }
@@ -617,7 +613,8 @@
     [1,2].forEach(n=>{
       const div=document.createElement('div');
       div.className = 'chip peoplemp' + (state.people===n ? ' sel' : ''); div.textContent = `${n} 人`;
-      div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `已選：${state.coach.name} / ${state.people} 人` : '請選擇教練與人數'); };
+      /* 修改：Step 1 點擊人數時更新狀態文字 */
+      div.onclick=()=>{ state.people=n; renderPeople(); btnNext.disabled=!(state.coach && state.people); setStatus(state.coach && state.people ? `教練：${state.coach.name} 學員：${state.people}人` : '請選擇教練與上課人數'); };
       peopleRow.appendChild(div);
     });
   }
@@ -700,7 +697,6 @@
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
       
-      // ★ 優化：增加支援抓取帶空格的 Remaining credits
       state.remainingCredits = data["Remaining credits"] !== undefined ? parseInt(data["Remaining credits"], 10) : (data.remainingCredits !== undefined ? parseInt(data.remainingCredits, 10) : 0);
       renderCart(); 
       
@@ -864,7 +860,8 @@
       Swal.fire({
           html: `
             <div style="display: flex; flex-direction: column; align-items: center; padding: 10px 0;">
-                <div class="loader-spinner-red"></div> <div class="custom-swal-title">正在取消預約...</div>
+                <div class="loader-spinner-red"></div> 
+                <div class="custom-swal-title">正在取消預約...</div>
                 <div class="custom-swal-subtitle">請稍候，系統處理中</div>
             </div>
           `,
@@ -889,7 +886,6 @@
           const result = await res.json();
 
           if(result.status === 'success' || result.Status === 'completed') {
-              // ★ 關鍵優化：直接讀取 546 模組回傳的精準餘額，並完全移除不必要的二次 fetch 請求
               const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
               const canceledCount = bookingsToCancel.length;
 
@@ -903,7 +899,8 @@
                   html: '您選取的課程已刪除並退還堂數',
                   timer:1500, 
                   showConfirmButton:false,
-                  iconColor: '#127a69' 
+                  /* 修改：將取消成功的打勾動畫設定為深紅色 */
+                  iconColor: '#b23a2b' 
               });
               liff.closeWindow(); 
           } else {
@@ -1104,7 +1101,6 @@
             document.title = "支點運動空間";
             loadMyRecords();
         } else {
-            /* 修改：預約模式下也改為支點運動空間 */
             document.title = "支點運動空間";
             renderCoaches(); 
             renderPeople(); 
@@ -1133,7 +1129,7 @@
     
     btnHome.onclick = () => {
         window.history.replaceState({}, document.title, window.location.pathname);
-        document.title = "支點運動空間"; /* 修改：返回新增預約也維持標題 */
+        document.title = "支點運動空間"; 
         
         state.cart = []; 
         state.people = null; 
@@ -1173,7 +1169,6 @@
                actualSuccessCount = isSuccess ? state.cart.length : 0;
            }
            
-           // ★ 優化：同樣支援抓取帶空格的 Remaining credits
            const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : state.remainingCredits - actualSuccessCount);
 
            if (isSuccess && actualSuccessCount > 0) {
