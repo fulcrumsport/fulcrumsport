@@ -341,12 +341,6 @@
   function weekdayZhFromDateKey(dateKey){ return ['日','一','二','三','四','五','六'][new Date(dateKey+'T00:00:00').getDay()]||''; }
   function getLimitDate(){ const d = new Date(); d.setMonth(d.getMonth()+2,0); d.setHours(23,59,59,999); return d; }
   
-  // 統一格式化日期 (將 / 轉為 -，避免比對錯誤)
-  function normalizeDate(d) {
-      if (!d) return '';
-      return d.replace(/\//g, '-');
-  }
-  
   function canBookNow(dateKey, timeStr){
     if(!dateKey || !timeStr) return false;
     const dt = new Date(dateKey+'T00:00:00'); const [hh,mm]=timeStr.split(':');
@@ -994,12 +988,10 @@
     };
   }
 
-  // 升級版：預約成功 Flex Message，除了顯示 +X 堂，還能列出確切時段
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
     
-    // 將成功預約的陣列轉化為 Flex Message 裡的文字列
     let timesBox = { type: "box", layout: "vertical", margin: "md", spacing: "sm", contents: [] };
     if (successBookings && successBookings.length > 0) {
         successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
@@ -1064,8 +1056,6 @@
               ]
             },
             { type: "separator", margin: "xl", color: "#f0f0f0" },
-            
-            // ★ 新增的「預約成功時段」區塊
             {
               type: "box", layout: "vertical", margin: "xl",
               contents: [
@@ -1073,7 +1063,6 @@
                 timesBox
               ]
             },
-            
             { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
               type: "box", layout: "vertical", spacing: "sm", margin: "xl",
@@ -1182,31 +1171,26 @@
            })});
            
            const result = await res.json();
-           const isSuccess = result.Status === 'completed' || result.status === 'success';
-           const resultsArray = result.Results || result.results || [];
+           
+           // 判斷 Make 狀態
+           const isSuccess = result.Status === 'completed' || result.status === 'success' || result === 'Accepted';
+           const resultsArray = result.Results || result.results || (Array.isArray(result) ? result : []);
            
            let successBookings = [];
            let failedBookings = [];
            
-           if (Array.isArray(resultsArray) && resultsArray.length > 0) {
-               // 精確比對：過濾出成功與失敗的預約
-               successBookings = state.cart.filter(item => 
-                   resultsArray.some(res => 
-                       (normalizeDate(res.date || res.Date) === item.date) && 
-                       (res.time === item.time || res.Time === item.time)
-                   )
-               );
-               failedBookings = state.cart.filter(item => 
-                   !resultsArray.some(res => 
-                       (normalizeDate(res.date || res.Date) === item.date) && 
-                       (res.time === item.time || res.Time === item.time)
-                   )
-               );
-           } else {
-               // 備用機制：若 Make 成功但沒有回傳陣列，則假設全部成功
-               if (isSuccess) {
+           if (isSuccess) {
+               if (Array.isArray(resultsArray) && resultsArray.length > 0) {
+                   // 由於 Make 已格式化，我們可以直接精準比對 (使用 state.cart 原始的 YYYY-MM-DD 與 HH:mm)
+                   successBookings = state.cart.filter(item => {
+                       return resultsArray.some(res => res.date === item.date && res.time === item.time);
+                   });
+                   failedBookings = state.cart.filter(item => !successBookings.includes(item));
+               } else {
                    successBookings = [...state.cart];
                }
+           } else {
+               failedBookings = [...state.cart];
            }
            
            let actualSuccessCount = successBookings.length;
@@ -1224,7 +1208,6 @@
                      iconColor: '#127a69'
                  });
              } else {
-                 // 新增：客製化衝堂視窗排版與文字
                  let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px; font-size:15px;">• ${b.date} ${b.time}</div>`).join('');
 
                  await Swal.fire({ 
@@ -1246,16 +1229,16 @@
              }
              
              if(liff.isInClient()) {
-                 // 修改：將 successBookings 傳入卡片產生器，讓 LINE 能顯示具體的日期
                  await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings)]);
              }
              liff.closeWindow();
              
-           } else if (isSuccess && actualSuccessCount === 0) {
+           } else if (actualSuccessCount === 0) {
+             // 完全失敗時的文字更改
              await Swal.fire({ 
                  icon:'error', 
-                 title:'預約失敗', 
-                 html:'您選擇的時段剛剛被搶先預約了，請重新選擇其他時段。', 
+                 title:'糟糕！預約失敗！', 
+                 html:'您所選擇的時段已被預約，請選擇其他時段。', 
                  confirmButtonColor: '#b23a2b' 
              });
              setStep(2);
