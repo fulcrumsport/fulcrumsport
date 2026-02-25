@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>私課預約</title>
+  <title>支點運動空間</title>
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -185,11 +185,12 @@
     .swal2-styled.swal2-confirm { border-radius: 12px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
-    .loader-spinner-green { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
-    .loader-spinner-green:after {
+    /* 修改：將動畫改為深紅色，並改名為 red */
+    .loader-spinner-red { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
+    .loader-spinner-red:after {
       content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
-      border: 3.5px solid var(--primary);
-      border-color: var(--primary) transparent var(--primary) transparent;
+      border: 3.5px solid var(--danger); /* 修改：改用深紅色變數 */
+      border-color: var(--danger) transparent var(--danger) transparent; /* 修改：改用深紅色變數 */
       animation: loader-spinner-ring 1s linear infinite;
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -210,7 +211,7 @@
     <div id="card1" class="card">
       <div class="h">Step 1｜選擇教練</div>
       <div id="coachRow" class="row"></div>
-      <div class="subTitle">選擇人數</div>
+      <div class="subTitle">上課人數</div>
       <div id="peopleRow" class="row"></div>
     </div>
 
@@ -430,7 +431,6 @@
         <div class="confirmItem">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:16px; color:#333;">${item.date} (${wd}) ${item.time}</span>
-                <span style="font-size:16px; color:#333;">${state.people}人</span>
             </div>
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -445,9 +445,15 @@
       });
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
+      
+      /* 修改：底部文字加上教練和學員標籤，並將剩餘堂數改為青綠色 */
       html += `
-        <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex:0 0 auto; padding-right:4px;">
+            <div style="font-size:14px; font-weight:bold; color:var(--muted);">
+                教練：<span style="color:var(--text);">${state.coach.name}</span> &nbsp;&nbsp; 
+                學員：<span style="color:var(--text);">${state.people}人</span>
+            </div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
         </div>
       </div>`; 
       
@@ -858,8 +864,7 @@
       Swal.fire({
           html: `
             <div style="display: flex; flex-direction: column; align-items: center; padding: 10px 0;">
-                <div class="loader-spinner-green"></div>
-                <div class="custom-swal-title">正在取消預約...</div>
+                <div class="loader-spinner-red"></div> <div class="custom-swal-title">正在取消預約...</div>
                 <div class="custom-swal-subtitle">請稍候，系統處理中</div>
             </div>
           `,
@@ -1099,7 +1104,8 @@
             document.title = "支點運動空間";
             loadMyRecords();
         } else {
-            document.title = "私課預約";
+            /* 修改：預約模式下也改為支點運動空間 */
+            document.title = "支點運動空間";
             renderCoaches(); 
             renderPeople(); 
             state.weekStart = weekStartMonday(new Date()); 
@@ -1127,7 +1133,7 @@
     
     btnHome.onclick = () => {
         window.history.replaceState({}, document.title, window.location.pathname);
-        document.title = "私課預約"; 
+        document.title = "支點運動空間"; /* 修改：返回新增預約也維持標題 */
         
         state.cart = []; 
         state.people = null; 
