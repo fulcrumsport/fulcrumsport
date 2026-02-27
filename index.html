@@ -993,7 +993,6 @@
     };
   }
 
-  // ★ 修改：重構成功預約卡片，拔除 +X堂，改用垂直條列式排版
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -1003,11 +1002,11 @@
         successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
             const wd = weekdayZhFromDateKey(b.date);
             timesBox.contents.push({
-                type: "text", text: `．${b.date} (${wd}) ${b.time}`, size: "sm", color: "#1a2321", weight: "bold"
+                type: "text", text: `．${b.date} (${wd}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold"
             });
         });
     } else {
-        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "sm", color: "#7a8280" });
+        timesBox.contents.push({ type: "text", text: "詳графі請查看預約紀錄", size: "md", color: "#7a8280" });
     }
 
     return {
@@ -1027,29 +1026,16 @@
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
-            // 修改：第一行顯示教練
-            {
-              type: "text", text: `預約教練：${state.coach.name}`, 
-              weight: "bold", size: "md", color: "#1a2321", margin: "sm"
-            },
-            // 修改：第二行顯示人數
-            {
-              type: "text", text: `預約人數：${state.people}人`, 
-              weight: "bold", size: "md", color: "#1a2321", margin: "sm"
-            },
-            // 修改：第三行顯示「預約時段：」
-            {
-              type: "text", text: "預約時段：", weight: "bold", size: "sm", color: "#7a8280", margin: "lg"
-            },
-            // 下面接著顯示時段列表
+            { type: "text", text: `預約教練：${state.coach.name}`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
+            { type: "text", text: `預約人數：${state.people}人`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
+            { type: "text", text: "預約時段：", weight: "bold", size: "md", color: "#1a2321", margin: "md" },
             timesBox,
             { type: "separator", margin: "xl", color: "#f0f0f0" },
-            // 修改：底部顯示剩餘堂數
             {
               type: "box", layout: "horizontal", margin: "xl", alignItems: "center",
               contents: [
-                { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold" },
-                { type: "text", text: `${remainText} 堂`, size: "lg", color: "#127a69", weight: "bold", align: "end" }
+                { type: "text", text: "剩餘1對1：", size: "md", color: "#1a2321", weight: "bold", flex: 0 },
+                { type: "text", text: `${remainText} 堂`, size: "md", color: "#1a2321", weight: "bold", align: "start" }
               ]
             },
             { type: "separator", margin: "xl", color: "#f0f0f0" },
@@ -1162,20 +1148,47 @@
            const result = await res.json();
            
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result === 'Accepted';
-           const resultsArray = result.Results || result.results || (Array.isArray(result) ? result : []);
            
            let successBookings = [];
            let failedBookings = [];
            
            if (isSuccess) {
-               if (Array.isArray(resultsArray) && resultsArray.length > 0) {
+               let parsedList = [];
+               let rawResults = result.Results || result.results;
+               if (!rawResults) rawResults = result;
+               if (!Array.isArray(rawResults)) rawResults = [rawResults];
+
+               function parseItem(item) {
+                   if (Array.isArray(item)) {
+                       item.forEach(parseItem);
+                   } else if (typeof item === 'object' && item !== null) {
+                       parsedList.push(item);
+                   } else if (typeof item === 'string') {
+                       try {
+                           let obj = JSON.parse(item);
+                           if (Array.isArray(obj)) obj.forEach(parseItem);
+                           else parsedList.push(obj);
+                       } catch (e) {
+                           try {
+                               let arr = JSON.parse(`[${item}]`);
+                               arr.forEach(parseItem);
+                           } catch (e2) {}
+                       }
+                   }
+               }
+               parseItem(rawResults);
+
+               const hasAnyValidRecord = parsedList.some(res => res.date || res.Date);
+
+               if (hasAnyValidRecord) {
                    successBookings = state.cart.filter(item => {
-                       return resultsArray.some(rawRes => {
-                           let resObj = rawRes;
-                           if (typeof rawRes === 'string') {
-                               try { resObj = JSON.parse(rawRes); } catch(e) {}
-                           }
-                           return resObj && resObj.date === item.date && resObj.time === item.time;
+                       const dateSlash = item.date.replace(/-/g, '/');
+                       return parsedList.some(res => {
+                           const rDate = res.date || res.Date;
+                           const rTime = res.time || res.Time;
+                           const rStatus = res.status || res.Status;
+                           const isNotFailed = (rStatus !== 'failed' && rStatus !== 'Failed');
+                           return (rDate === item.date || rDate === dateSlash) && (rTime === item.time) && isNotFailed;
                        });
                    });
                    failedBookings = state.cart.filter(item => !successBookings.includes(item));
@@ -1203,6 +1216,7 @@
              } else {
                  let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px; font-size:15px;">• ${b.date} ${b.time}</div>`).join('');
 
+                 // ★ 修改：稍微縮小字體 (13px) 並拿掉強制斷行 <br>，讓文字可以自然適應手機寬度，解決單一字元換行的問題
                  await Swal.fire({ 
                      icon:'warning', 
                      title:'糟糕！部分時段已被預約！', 
@@ -1211,10 +1225,10 @@
                           以下時段已被搶先預約：
                           <div style="margin-top:8px; padding-left:8px;">${failedListHtml}</div>
                         </div>
-                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:12px; border-radius:10px; font-size:14px; color:#111;">
-                          系統將自動取消衝堂預約，<br>並返還 <b>${failedCount} 堂</b> 1v1 私課。
+                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:10px 8px; border-radius:10px; font-size:13px; color:#111;">
+                          系統將自動取消衝堂預約，並返還 <b>${failedCount} 堂</b> 1v1 私課。
                         </div>
-                        <div style="margin-top:15px; font-weight:bold; font-size:16px;">成功保留：<span style="color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span></div>
+                        <div style="margin-top:15px; font-weight:bold; font-size:15px;">成功保留：<span style="color:#127a69; font-size:17px;">${actualSuccessCount} 堂</span></div>
                      `, 
                      confirmButtonColor: '#127a69',
                      iconColor: '#b2682b'
