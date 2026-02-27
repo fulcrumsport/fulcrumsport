@@ -888,7 +888,8 @@
               const canceledCount = bookingsToCancel.length;
 
               if(liff.isInClient()) {
-                  await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining)]);
+                  // 傳入 bookingsToCancel 以便卡片顯示具體日期時段
+                  await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining, bookingsToCancel)]);
               }
 
               await Swal.fire({ 
@@ -908,9 +909,28 @@
       }
   }
 
-  function createCancellationFlexMessage(cancelCount, remainingCount) {
+  // ★ 取消卡片大升級：垂直俐落排版 + 顯示具體取消時段
+  function createCancellationFlexMessage(cancelCount, remainingCount, canceledBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
+    
+    let timesBox = { type: "box", layout: "vertical", margin: "sm", spacing: "sm", contents: [] };
+    let coachName = "無";
+    let peopleCount = "1";
+
+    if (canceledBookings && canceledBookings.length > 0) {
+        canceledBookings.forEach(b => {
+            timesBox.contents.push({
+                type: "text", text: `．${b.date} (${b.weekday}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold"
+            });
+        });
+        // 從第一筆資料抓取教練與人數
+        coachName = canceledBookings[0].coach || "無";
+        peopleCount = canceledBookings[0].people || "1";
+    } else {
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
+    }
+
     return {
       type: "flex",
       altText: "私課取消通知",
@@ -919,7 +939,7 @@
         header: {
           type: "box", layout: "vertical",
           contents: [
-            { type: "text", text: "私課已取消", weight: "bold", size: "xl", color: "#ffffff" },
+            { type: "text", text: "私課取消成功", weight: "bold", size: "xl", color: "#ffffff" },
             { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
             { type: "text", text: todayStr, size: "xs", color: "#ffffffcc", margin: "xs" }
           ],
@@ -928,38 +948,16 @@
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
+            { type: "text", text: `教練：${coachName}`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
+            { type: "text", text: `人數：${peopleCount}人`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
+            { type: "text", text: "取消時段：", weight: "bold", size: "md", color: "#1a2321", margin: "md" },
+            timesBox,
+            { type: "separator", margin: "xl", color: "#f0f0f0" },
             {
-              type: "box", layout: "horizontal", margin: "md", alignItems: "center",
+              type: "box", layout: "horizontal", margin: "xl", alignItems: "center",
               contents: [
-                {
-                  type: "box", layout: "vertical", flex: 1,
-                  contents: [
-                    { type: "text", text: "本次取消", size: "md", color: "#7a8280", weight: "bold", align: "center" },
-                    {
-                      type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
-                      contents: [
-                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, 
-                        { type: "text", text: `-${cancelCount}`, color: "#b23a2b", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
-                        { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
-                      ]
-                    }
-                  ]
-                },
-                { type: "separator", color: "#999999" },
-                {
-                  type: "box", layout: "vertical", flex: 1,
-                  contents: [
-                    { type: "text", text: "剩餘1對1", size: "md", color: "#7a8280", weight: "bold", align: "center" },
-                    {
-                      type: "box", layout: "baseline", justifyContent: "center", margin: "sm",
-                      contents: [
-                        { type: "text", text: "堂", size: "md", color: "#ffffff00" }, 
-                        { type: "text", text: remainText, color: "#1a2321", size: "5xl", weight: "bold", align: "center", margin: "sm", adjustMode: "shrink-to-fit" },
-                        { type: "text", text: "堂", color: "#1a2321", size: "md", weight: "bold", margin: "sm" }
-                      ]
-                    }
-                  ]
-                }
+                { type: "text", text: "剩餘1對1：", size: "md", color: "#1a2321", weight: "bold", flex: 0 },
+                { type: "text", text: `${remainText} 堂`, size: "lg", color: "#b23a2b", weight: "bold", align: "start" }
               ]
             },
             { type: "separator", margin: "xl", color: "#f0f0f0" },
@@ -981,8 +979,8 @@
               contents: [
                 {
                   type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "10px", paddingAll: "10px",
-                  action: { type: "uri", label: "查看預約詳情", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
-                  contents: [ { type: "text", text: "查看預約詳情", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
+                  action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
+                  contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
                 }
               ]
             }
@@ -1006,7 +1004,7 @@
             });
         });
     } else {
-        timesBox.contents.push({ type: "text", text: "詳графі請查看預約紀錄", size: "md", color: "#7a8280" });
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
     }
 
     return {
@@ -1026,8 +1024,8 @@
         body: {
           type: "box", layout: "vertical", paddingAll: "24px",
           contents: [
-            { type: "text", text: `預約教練：${state.coach.name}`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
-            { type: "text", text: `預約人數：${state.people}人`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
+            { type: "text", text: `教練：${state.coach.name}`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
+            { type: "text", text: `人數：${state.people}人`, weight: "bold", size: "md", color: "#1a2321", margin: "xs" },
             { type: "text", text: "預約時段：", weight: "bold", size: "md", color: "#1a2321", margin: "md" },
             timesBox,
             { type: "separator", margin: "xl", color: "#f0f0f0" },
@@ -1035,7 +1033,7 @@
               type: "box", layout: "horizontal", margin: "xl", alignItems: "center",
               contents: [
                 { type: "text", text: "剩餘1對1：", size: "md", color: "#1a2321", weight: "bold", flex: 0 },
-                { type: "text", text: `${remainText} 堂`, size: "md", color: "#1a2321", weight: "bold", align: "start" }
+                { type: "text", text: `${remainText} 堂`, size: "lg", color: "#127a69", weight: "bold", align: "start" }
               ]
             },
             { type: "separator", margin: "xl", color: "#f0f0f0" },
@@ -1057,8 +1055,8 @@
               contents: [
                 {
                   type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "10px", paddingAll: "10px",
-                  action: { type: "uri", label: "查看預約詳情", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
-                  contents: [ { type: "text", text: "查看預約詳情", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
+                  action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
+                  contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
                 }
               ]
             }
@@ -1216,7 +1214,6 @@
              } else {
                  let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px; font-size:15px;">• ${b.date} ${b.time}</div>`).join('');
 
-                 // ★ 修改：稍微縮小字體 (13px) 並拿掉強制斷行 <br>，讓文字可以自然適應手機寬度，解決單一字元換行的問題
                  await Swal.fire({ 
                      icon:'warning', 
                      title:'糟糕！部分時段已被預約！', 
@@ -1226,7 +1223,7 @@
                           <div style="margin-top:8px; padding-left:8px;">${failedListHtml}</div>
                         </div>
                         <div style="background:#fef5f5; border:1px solid #ffcccc; padding:10px 8px; border-radius:10px; font-size:13px; color:#111;">
-                          系統將自動取消衝堂預約，並返還 <b>${failedCount} 堂</b> 1v1 私課。
+                          系統將自動取消衝堂預約，<br>並返還 <b>${failedCount} 堂</b> 1v1 私課。
                         </div>
                         <div style="margin-top:15px; font-weight:bold; font-size:15px;">成功保留：<span style="color:#127a69; font-size:17px;">${actualSuccessCount} 堂</span></div>
                      `, 
@@ -1243,8 +1240,8 @@
            } else if (actualSuccessCount === 0) {
              await Swal.fire({ 
                  icon:'error', 
-                 title:'糟糕！預約失敗！', 
-                 html:'您所選擇的時段已被預約，請選擇其他時段。', 
+                 title:'糟糕！預約失敗！<br>您所選擇的時段已被預約，', 
+                 html:'請選擇其他時段。', 
                  confirmButtonColor: '#b23a2b' 
              });
              setStep(2);
