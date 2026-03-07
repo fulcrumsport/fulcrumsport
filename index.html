@@ -172,7 +172,7 @@
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
-    .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
@@ -268,7 +268,7 @@
             <div class="h" id="recordListTitle">預約清單</div>
             <div id="myRecordCount" class="recordCount">共 0 堂</div>
         </div>
-        <div id="recordList" class="confirmList" style="flex:1;">
+        <div id="recordList" class="confirmList" style="flex:1; padding-top: 4px;">
             <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
         </div>
         <div id="recordRemainingContainer" style="display:flex; justify-content:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto; padding-right:4px; display:none;">
@@ -291,7 +291,7 @@
       
       <div id="recordBtns" class="btnRow hide" style="width:100%;">
           <button id="btnHome" class="btn" style="background:#fff; color:var(--primary); border:2px solid var(--primary);">新增預約</button>
-          <button id="btnCancelBatch" class="btn btnDanger" disabled>刪除預約</button>
+          <button id="btnCancelBatch" class="btn btnDanger" disabled>取消預約</button>
       </div>
     </div>
     <div id="status" class="status">載入中…</div>
@@ -335,7 +335,6 @@
 
   function pad2(n){ return String(n).padStart(2,'0'); }
   function ymd(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
-  function getTodaySlash() { const d = new Date(); return `${d.getFullYear()}/${pad2(d.getMonth()+1)}/${pad2(d.getDate())}`; }
   
   function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
   function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
@@ -451,7 +450,6 @@
         </div>`;
       });
       
-      // 在此處關閉 confirmList，使其成為可獨立捲動的區塊
       html += `</div>`; 
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
@@ -721,7 +719,7 @@
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       
-      $('#recordListTitle').textContent = `${state.name} 的私課預約`;
+      $('#recordListTitle').textContent = `${state.name} 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
@@ -737,12 +735,12 @@
           const data = await res.json();
           state.records = data.records || [];
           
-          // 取得紀錄的剩餘堂數
           if(data["Remaining credits"] !== undefined || data.remainingCredits !== undefined) {
               state.recordRemaining = data["Remaining credits"] !== undefined ? data["Remaining credits"] : data.remainingCredits;
           }
 
           renderRecordList();
+          updateRecordBtns(); // 更新底部按鈕狀態及剩餘堂數顯示
           setStatus("");
       } catch(e) {
           console.error(e);
@@ -754,15 +752,6 @@
   function renderRecordList() {
       const records = state.records;
       $('#myRecordCount').textContent = `共 ${records.length} 堂`;
-      
-      // 更新剩餘堂數 UI 狀態
-      const remainContainer = document.getElementById('recordRemainingContainer');
-      if (state.recordRemaining !== undefined && remainContainer) {
-          remainContainer.style.display = 'flex';
-          document.getElementById('recordRemainingVal').textContent = state.recordRemaining;
-      } else if (remainContainer) {
-          remainContainer.style.display = 'none';
-      }
 
       if(records.length === 0) {
           recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">目前沒有預約紀錄</div>';
@@ -817,12 +806,23 @@
 
   function updateRecordBtns() {
       const count = state.selectedRecords.size;
+      // 更新按鈕文字為取消預約
       if(count > 0) {
-          btnCancelBatch.textContent = `刪除預約 (${count} 堂)`;
+          btnCancelBatch.textContent = `取消預約 (${count} 堂)`;
           btnCancelBatch.disabled = false;
       } else {
-          btnCancelBatch.textContent = `刪除預約`;
+          btnCancelBatch.textContent = `取消預約`;
           btnCancelBatch.disabled = true;
+      }
+      
+      // 動態更新剩餘堂數：原本取得的剩餘 + 標記為取消的數量
+      const remainContainer = document.getElementById('recordRemainingContainer');
+      if (state.recordRemaining !== undefined && remainContainer) {
+          remainContainer.style.display = 'flex';
+          const currentRemain = parseInt(state.recordRemaining, 10);
+          document.getElementById('recordRemainingVal').textContent = currentRemain + count;
+      } else if (remainContainer) {
+          remainContainer.style.display = 'none';
       }
   }
 
@@ -860,8 +860,8 @@
       Swal.fire({
           html: `
             <div style="padding: 10px 0;">
-                <div class="custom-swal-title">確認刪除預約？</div>
-                <div class="custom-swal-subtitle">取消 <span style="font-weight:950;">${count} 堂</span> 私課？</div>
+                <div class="custom-swal-title">確認取消預約？</div>
+                <div class="custom-swal-subtitle">即將取消 <span style="font-weight:950;">${count} 堂</span> 私課？</div>
             </div>
           `,
           showCancelButton: true,
@@ -916,8 +916,8 @@
 
               await Swal.fire({ 
                   icon:'success', 
-                  title:'已成功刪除', 
-                  html: '您選取的課程已刪除並退還堂數',
+                  title:'已成功取消', 
+                  html: '您選取的課程已取消並退還堂數',
                   timer:1500, 
                   showConfirmButton:false,
                   iconColor: '#b23a2b' 
@@ -931,10 +931,9 @@
       }
   }
 
-  // ★ 取消卡片排版更新
+  // ★ 取消卡片 Flex Message (移除日期、放大時段/按鈕、修改提醒字色)
   function createCancellationFlexMessage(cancelCount, remainingCount, canceledBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
-    const todayStr = getTodaySlash(); 
     
     let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
     let coachName = "無";
@@ -943,13 +942,13 @@
     if (canceledBookings && canceledBookings.length > 0) {
         canceledBookings.forEach(b => {
             timesBox.contents.push({
-                type: "text", text: `．${b.date} (${b.weekday}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold"
+                type: "text", text: `．${b.date} (${b.weekday}) ${b.time}`, size: "lg", color: "#1a2321", weight: "bold"
             });
         });
         coachName = canceledBookings[0].coach || "無";
         courseName = canceledBookings[0].course || canceledBookings[0].people || "1對1";
     } else {
-        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "lg", color: "#7a8280" });
     }
 
     return {
@@ -962,8 +961,7 @@
           type: "box", layout: "vertical",
           contents: [
             { type: "text", text: "私課取消成功", weight: "bold", size: "xl", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
-            { type: "text", text: todayStr, size: "xs", color: "#ffffffcc", margin: "xs" }
+            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" }
           ],
           backgroundColor: "#b23a2b", paddingAll: "16px"
         },
@@ -983,7 +981,7 @@
             {
               type: "box", layout: "vertical", spacing: "xs", margin: "md",
               contents: [
-                { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b" },
+                { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" },
                 { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
                 { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
               ]
@@ -992,9 +990,9 @@
               type: "box", layout: "vertical", margin: "md",
               contents: [
                 {
-                  type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "8px", paddingAll: "8px",
+                  type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "12px", paddingAll: "12px",
                   action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
-                  contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "sm", align: "center" } ]
+                  contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
                 }
               ]
             }
@@ -1005,21 +1003,20 @@
     };
   }
 
-  // ★ 預約成功卡片排版更新
+  // ★ 預約成功卡片 Flex Message (移除日期、放大時段/按鈕、修改提醒字色)
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
-    const todayStr = getTodaySlash(); 
     
     let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
     if (successBookings && successBookings.length > 0) {
         successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
             const wd = weekdayZhFromDateKey(b.date);
             timesBox.contents.push({
-                type: "text", text: `．${b.date} (${wd}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold"
+                type: "text", text: `．${b.date} (${wd}) ${b.time}`, size: "lg", color: "#1a2321", weight: "bold"
             });
         });
     } else {
-        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "lg", color: "#7a8280" });
     }
 
     return {
@@ -1032,8 +1029,7 @@
           type: "box", layout: "vertical",
           contents: [
             { type: "text", text: "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" },
-            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" },
-            { type: "text", text: todayStr, size: "xs", color: "#ffffffcc", margin: "xs" } 
+            { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" }
           ],
           backgroundColor: "#127a69", paddingAll: "16px"
         },
@@ -1053,7 +1049,7 @@
             {
               type: "box", layout: "vertical", spacing: "xs", margin: "md",
               contents: [
-                { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b" },
+                { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" },
                 { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
                 { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
               ]
@@ -1062,9 +1058,9 @@
               type: "box", layout: "vertical", margin: "md",
               contents: [
                 {
-                  type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "8px",
+                  type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "12px", paddingAll: "12px",
                   action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" },
-                  contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "sm", align: "center" } ]
+                  contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ]
                 }
               ]
             }
