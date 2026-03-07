@@ -271,6 +271,9 @@
         <div id="recordList" class="confirmList" style="flex:1;">
             <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
         </div>
+        <div id="recordRemainingContainer" style="display:flex; justify-content:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto; padding-right:4px; display:none;">
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="recordRemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂(1對1)</div>
+        </div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
             <ol>
@@ -314,7 +317,8 @@
     mode: 'book',
     records: [], 
     selectedRecords: new Set(),
-    remainingCredits: 0 
+    remainingCredits: 0,
+    recordRemaining: undefined 
   };
 
   const $ = s => document.querySelector(s);
@@ -447,13 +451,16 @@
         </div>`;
       });
       
+      // 在此處關閉 confirmList，使其成為可獨立捲動的區塊
+      html += `</div>`; 
+      
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
+      // 剩餘堂數獨立置於清單外圍不被蓋住
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘1對1：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂</div>
-        </div>
-      </div>`; 
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂(1對1)</div>
+        </div>`; 
       
       confirmInfo.innerHTML = html;
       
@@ -729,6 +736,12 @@
           });
           const data = await res.json();
           state.records = data.records || [];
+          
+          // 取得紀錄的剩餘堂數
+          if(data["Remaining credits"] !== undefined || data.remainingCredits !== undefined) {
+              state.recordRemaining = data["Remaining credits"] !== undefined ? data["Remaining credits"] : data.remainingCredits;
+          }
+
           renderRecordList();
           setStatus("");
       } catch(e) {
@@ -741,6 +754,16 @@
   function renderRecordList() {
       const records = state.records;
       $('#myRecordCount').textContent = `共 ${records.length} 堂`;
+      
+      // 更新剩餘堂數 UI 狀態
+      const remainContainer = document.getElementById('recordRemainingContainer');
+      if (state.recordRemaining !== undefined && remainContainer) {
+          remainContainer.style.display = 'flex';
+          document.getElementById('recordRemainingVal').textContent = state.recordRemaining;
+      } else if (remainContainer) {
+          remainContainer.style.display = 'none';
+      }
+
       if(records.length === 0) {
           recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">目前沒有預約紀錄</div>';
           return;
@@ -908,12 +931,12 @@
       }
   }
 
-  // ★ 更新：取消卡片垂直俐落排版
+  // ★ 取消卡片排版更新
   function createCancellationFlexMessage(cancelCount, remainingCount, canceledBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
     
-    let timesBox = { type: "box", layout: "vertical", margin: "sm", spacing: "sm", contents: [] };
+    let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
     let coachName = "無";
     let courseName = "1對1";
 
@@ -934,7 +957,7 @@
       altText: "私課取消通知",
       contents: {
         type: "bubble",
-        size: "mega", // ★ 縮小尺寸，讓卡片更精緻
+        size: "mega", 
         header: {
           type: "box", layout: "vertical",
           contents: [
@@ -947,36 +970,22 @@
         body: {
           type: "box", layout: "vertical", paddingAll: "20px",
           contents: [
-            {
-              type: "box", layout: "horizontal", margin: "none",
-              contents: [
-                { type: "text", text: `教練：${coachName}`, weight: "bold", size: "sm", color: "#1a2321" },
-                { type: "text", text: `課程：${courseName}`, weight: "bold", size: "sm", color: "#1a2321", align: "end" }
-              ]
-            },
-            { type: "separator", margin: "md", color: "#e5e5e5" }, // ★ 明顯的分隔線
-            { type: "text", text: "取消時段：", weight: "bold", size: "xs", color: "#7a8280", margin: "md" },
             timesBox,
-            { type: "separator", margin: "md", color: "#e5e5e5" }, // ★ 明顯的分隔線
             {
-              type: "box", layout: "horizontal", margin: "md", alignItems: "center",
+              type: "box", layout: "vertical", margin: "md", spacing: "sm",
               contents: [
-                { type: "text", text: "剩餘1對1：", size: "sm", color: "#1a2321", weight: "bold", flex: 0 },
-                { type: "text", text: `${remainText} 堂`, size: "md", color: "#b23a2b", weight: "bold", align: "end" }
+                { type: "text", text: `教練：${coachName}`, size: "sm", color: "#1a2321" },
+                { type: "text", text: `課程：${courseName}`, size: "sm", color: "#1a2321" },
+                { type: "text", text: `剩餘：${remainText}堂(1對1)`, size: "sm", color: "#1a2321" }
               ]
             },
-            { type: "separator", margin: "md", color: "#e5e5e5" },
+            { type: "separator", margin: "md", color: "#e5e5e5" }, 
             {
-              type: "box", layout: "vertical", spacing: "sm", margin: "md",
+              type: "box", layout: "vertical", spacing: "xs", margin: "md",
               contents: [
                 { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b" },
-                {
-                  type: "box", layout: "vertical", spacing: "xs",
-                  contents: [
-                    { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
-                    { type: "text", text: "• 如有問題，請於官方 Line 聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
-                  ]
-                }
+                { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
+                { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
               ]
             },
             {
@@ -996,12 +1005,12 @@
     };
   }
 
-  // ★ 更新：預約成功卡片垂直俐落排版
+  // ★ 預約成功卡片排版更新
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
     
-    let timesBox = { type: "box", layout: "vertical", margin: "sm", spacing: "sm", contents: [] };
+    let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
     if (successBookings && successBookings.length > 0) {
         successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
             const wd = weekdayZhFromDateKey(b.date);
@@ -1018,7 +1027,7 @@
       altText: "私課預約成功通知",
       contents: {
         type: "bubble",
-        size: "mega", // ★ 縮小尺寸，讓卡片更精緻
+        size: "mega", 
         header: {
           type: "box", layout: "vertical",
           contents: [
@@ -1031,36 +1040,22 @@
         body: {
           type: "box", layout: "vertical", paddingAll: "20px",
           contents: [
-            {
-              type: "box", layout: "horizontal", margin: "none",
-              contents: [
-                { type: "text", text: `教練：${state.coach.name}`, weight: "bold", size: "sm", color: "#1a2321" },
-                { type: "text", text: `課程：${state.course}`, weight: "bold", size: "sm", color: "#1a2321", align: "end" }
-              ]
-            },
-            { type: "separator", margin: "md", color: "#e5e5e5" }, // ★ 明顯的分隔線
-            { type: "text", text: "預約時段：", weight: "bold", size: "xs", color: "#7a8280", margin: "md" },
             timesBox,
-            { type: "separator", margin: "md", color: "#e5e5e5" }, // ★ 明顯的分隔線
             {
-              type: "box", layout: "horizontal", margin: "md", alignItems: "center",
+              type: "box", layout: "vertical", margin: "md", spacing: "sm",
               contents: [
-                { type: "text", text: "剩餘1對1：", size: "sm", color: "#1a2321", weight: "bold", flex: 0 },
-                { type: "text", text: `${remainText} 堂`, size: "md", color: "#127a69", weight: "bold", align: "end" }
+                { type: "text", text: `教練：${state.coach.name}`, size: "sm", color: "#1a2321" },
+                { type: "text", text: `課程：${state.course}`, size: "sm", color: "#1a2321" },
+                { type: "text", text: `剩餘：${remainText}堂(1對1)`, size: "sm", color: "#1a2321" }
               ]
             },
-            { type: "separator", margin: "md", color: "#e5e5e5" },
+            { type: "separator", margin: "md", color: "#e5e5e5" }, 
             {
-              type: "box", layout: "vertical", spacing: "sm", margin: "md",
+              type: "box", layout: "vertical", spacing: "xs", margin: "md",
               contents: [
                 { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b" },
-                {
-                  type: "box", layout: "vertical", spacing: "xs",
-                  contents: [
-                    { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
-                    { type: "text", text: "• 如有問題，請於官方 Line 聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
-                  ]
-                }
+                { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
+                { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
               ]
             },
             {
@@ -1150,7 +1145,6 @@
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
         try{
-           // 保持 body 內同時傳送 course 與 people 變數，避免 Make 設定需要改動
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
               action: "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, course: state.course, people: state.course,
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
