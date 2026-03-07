@@ -275,7 +275,6 @@
       <div id="coachRow" class="row"></div>
       <div class="subTitle">選擇課程</div>
       <div id="courseRow" class="courseGrid"></div>
-      <div id="courseCreditsTip" style="font-size:15px; color:var(--primary); font-weight:900; margin-top:12px; text-align:center; min-height:22px; transition: all 0.3s;"></div>
     </div>
 
     <div id="card2" class="card hide" style="flex:1; min-height:0;">
@@ -440,6 +439,22 @@
 
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
+  // ★ 處理 Step 1 選擇課程後的下方灰字顯示
+  function renderCourseTip() {
+      if (state.step !== 1) return;
+      if (!state.course || !state.coach) { 
+          setStatus('請選擇教練與課程'); 
+          return; 
+      }
+      
+      let credits = '--';
+      if (state.course === '1對1' && state.credits_1on1 !== undefined) credits = state.credits_1on1;
+      else if (state.course === '1對2' && state.credits_1on2 !== undefined) credits = state.credits_1on2;
+      else if (state.course === '包班' && state.credits_group !== undefined) credits = state.credits_group;
+      
+      setStatus(credits === '--' ? `剩餘：讀取中...` : `剩餘：${credits}堂(${state.course})`);
+  }
+
   function updateStatusInStep2() {
       if(state.loadingOptions) {
           setStatus(`讀取 ${state.coach.name} 的可預約時段中…`);
@@ -483,7 +498,7 @@
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.course);
-      setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程');
+      renderCourseTip();
     }
     if(n===2){
       btnBack.classList.remove('hide'); btnNext.classList.remove('hide');
@@ -537,7 +552,6 @@
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
-      // 動態代入 Step 1 選擇的課程名稱
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
             <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂(${state.course || '1對1'})</div>
@@ -693,7 +707,13 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      div.onclick=()=>{ state.coach=c; renderCoaches(); renderCourse(); renderCourseTip(); btnNext.disabled=!(state.coach && state.course); setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程'); };
+      div.onclick=()=>{ 
+          state.coach=c; 
+          renderCoaches(); 
+          renderCourse(); 
+          btnNext.disabled=!(state.coach && state.course); 
+          renderCourseTip(); 
+      };
       coachRow.appendChild(div);
     });
   }
@@ -704,23 +724,14 @@
       const div=document.createElement('div');
       div.className = 'chip' + (state.course===n ? ' sel' : ''); 
       div.textContent = n;
-      div.onclick=()=>{ state.course=n; renderCourse(); renderCourseTip(); btnNext.disabled=!(state.coach && state.course); setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程'); };
+      div.onclick=()=>{ 
+          state.course=n; 
+          renderCourse(); 
+          btnNext.disabled=!(state.coach && state.course); 
+          renderCourseTip(); 
+      };
       courseRow.appendChild(div);
     });
-  }
-
-  // ★ Step 1 動態顯示課程對應的剩餘堂數提示
-  function renderCourseTip() {
-      const tipEl = document.getElementById('courseCreditsTip');
-      if (!tipEl) return;
-      if (!state.course) { tipEl.textContent = ''; return; }
-      
-      let credits = '--';
-      if (state.course === '1對1' && state.credits_1on1 !== undefined) credits = state.credits_1on1;
-      else if (state.course === '1對2' && state.credits_1on2 !== undefined) credits = state.credits_1on2;
-      else if (state.course === '包班' && state.credits_group !== undefined) credits = state.credits_group;
-      
-      tipEl.textContent = credits === '--' ? `剩餘：讀取中...` : `剩餘：${credits}堂(${state.course})`;
   }
 
   function renderCoachIntro(){
@@ -792,7 +803,6 @@
   async function loadOptionsForCoach(){
     state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; 
     
-    // 動態更新 Step 2 的課程名稱
     const s2Name = document.getElementById('step2CourseName');
     if(s2Name) s2Name.textContent = `(${state.course})`;
 
@@ -813,7 +823,6 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
-  // ★ 載入預約模式時，背景先抓取學員的各項課程剩餘堂數
   function fetchUserCreditsInBackground() {
       fetch(MAKE_QUERY_WEBHOOK_URL, {
           method: "POST", headers: {"Content-Type":"application/json"},
@@ -822,7 +831,7 @@
           state.credits_1on1 = data.credits_1on1 !== undefined ? data.credits_1on1 : (data["Remaining credits"] || 0);
           state.credits_1on2 = data.credits_1on2 !== undefined ? data.credits_1on2 : '--';
           state.credits_group = data.credits_group !== undefined ? data.credits_group : '--';
-          renderCourseTip();
+          if(state.step === 1) renderCourseTip(); 
       }).catch(e=>console.log(e));
   }
 
@@ -835,7 +844,6 @@
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       
-      // 替換標題，加入螢光筆高亮底襯效果
       $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
@@ -1259,11 +1267,8 @@
             state.weekStart = weekStartMonday(new Date()); 
             renderWeekStrip();
             setStep(1);
-            // 預約模式下也先默默去抓學員各種課程的堂數
             fetchUserCreditsInBackground();
         }
-        
-        setStatus('');
         
     } catch(err) { 
         console.error(err);
@@ -1390,8 +1395,8 @@
                           以下時段已被搶先預約：
                           <div style="margin-top:8px; padding-left:8px;">${failedListHtml}</div>
                         </div>
-                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:12px; border-radius:10px; font-size:14px; color:#111;">
-                          系統將自動取消衝堂預約，並返還 <b>${failedCount} 堂</b> 1v1 私課。
+                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:12px; border-radius:10px; font-size:14px; color:#111; line-height:1.5;">
+                          系統將取消上述衝堂時段預約，<br>並返還 <b>${failedCount} 堂</b> ${state.course}。
                         </div>
                         <div style="margin-top:15px; font-weight:bold; font-size:16px;">成功保留：<span style="color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span></div>
                      `, 
