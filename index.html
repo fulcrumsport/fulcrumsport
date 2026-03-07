@@ -84,6 +84,12 @@
     .tab{ font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:8px; position:relative; transition:color 0.2s;}
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
+    
+    /* 取消紀錄頁面的專屬 Tab 樣式 */
+    .record-tab { font-weight:950; font-size:15px; color:var(--muted); cursor:pointer; padding-bottom:8px; position:relative; transition:color 0.2s; }
+    .record-tab.active { color:var(--text); }
+    .record-tab.active::after { content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
+
     .slotGrid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; align-content:start;}
     
     .slot{ padding:8px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
@@ -186,18 +192,18 @@
     .statusError{ color:var(--danger); font-weight:950; }
     .hide{ display:none !important; }
 
-    .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     .recordHeader .h { margin:0; display:flex; align-items:center; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* 學員名稱高亮（石綠色底部畫記變為橢圓徽章設計） */
+    /* 學員名稱高亮（石綠色螢光筆畫記效果） */
     .name-highlight {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 950;
         color: var(--text); /* 黑色字體 */
-        background-color: #dcece9; /* 石綠色的淡色底，作為完整的橢圓形包覆 */
-        padding: 4px 16px;
-        border-radius: 999px;
+        background: linear-gradient(transparent 60%, rgba(18, 122, 105, 0.25) 40%);
+        padding: 0 4px;
+        border-radius: 0;
         margin-right: 6px;
         display: inline-block;
     }
@@ -302,11 +308,18 @@
             <div class="h" id="recordListTitle">預約清單</div>
             <div id="myRecordCount" class="recordCount">共 0 堂</div>
         </div>
+        
+        <div class="tabs" style="justify-content: flex-start; gap: 22px; margin-bottom: 6px; border-bottom: 2px solid var(--border);">
+            <div class="record-tab active" data-tab="1對1">1對1</div>
+            <div class="record-tab" data-tab="1對2">1對2</div>
+            <div class="record-tab" data-tab="包班">包班</div>
+        </div>
+        
         <div id="recordList" class="confirmList" style="flex:1;">
             <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
         </div>
         <div id="recordRemainingContainer" style="display:flex; justify-content:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto; padding-right:4px; display:none;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="recordRemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂(1對1)</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="recordRemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="recordRemainingType">(1對1)</span></div>
         </div>
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
@@ -346,13 +359,17 @@
   const state = {
     step: 1, uid: '', name: '', coach: null, course: null,
     weekStart: null, dateKey: null, tab: 'am',
+    recordTab: '1對1', // 新增：取消紀錄的預設分類標籤
     cart: [],
     optionsRaw: [], availabilityMap: {}, loadingOptions: false,
     mode: 'book',
     records: [], 
     selectedRecords: new Set(),
     remainingCredits: 0,
-    recordRemaining: undefined 
+    recordRemaining: undefined,
+    credits_1on1: undefined,
+    credits_1on2: undefined,
+    credits_group: undefined
   };
 
   const $ = s => document.querySelector(s);
@@ -479,7 +496,7 @@
         html += `
         <div class="confirmItem">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:19px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span>
+                <span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span>
             </div>
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -762,7 +779,7 @@
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       
-      // 替換標題，加入橢圓高亮底襯
+      // 替換標題，加入螢光筆高亮底襯效果
       $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
@@ -779,9 +796,13 @@
           const data = await res.json();
           state.records = data.records || [];
           
+          // 記錄各種課程的剩餘堂數（如果有從 Make 傳過來的話）
           if(data["Remaining credits"] !== undefined || data.remainingCredits !== undefined) {
               state.recordRemaining = data["Remaining credits"] !== undefined ? data["Remaining credits"] : data.remainingCredits;
           }
+          if(data.credits_1on1 !== undefined) state.credits_1on1 = data.credits_1on1;
+          if(data.credits_1on2 !== undefined) state.credits_1on2 = data.credits_1on2;
+          if(data.credits_group !== undefined) state.credits_group = data.credits_group;
 
           renderRecordList();
           updateRecordBtns(); 
@@ -793,35 +814,42 @@
       }
   }
 
+  // ★ 綁定分類書籤 Tab 的點擊事件
+  document.querySelectorAll('.record-tab').forEach(el => {
+      el.onclick = () => {
+          document.querySelectorAll('.record-tab').forEach(t => t.classList.remove('active')); 
+          el.classList.add('active');
+          state.recordTab = el.dataset.tab; // 更新目前的分類狀態
+          renderRecordList();
+          updateRecordBtns();
+      };
+  });
+
   function renderRecordList() {
       const records = state.records;
-      $('#myRecordCount').textContent = `共 ${records.length} 堂`;
-
-      if(records.length === 0) {
-          recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">目前沒有預約紀錄</div>';
-          return;
-      }
-
+      let filteredCount = 0;
       let html = '';
-      records.forEach((r, index) => {
-          const isMarked = state.selectedRecords.has(index);
+
+      // 根據目前的 state.recordTab 過濾顯示項目
+      records.forEach((r, originalIndex) => {
+          const courseDisplay = getCourseName(r.course, r.people);
+          if (courseDisplay !== state.recordTab) return; // 不符合目前標籤就跳過
+
+          filteredCount++;
+          const isMarked = state.selectedRecords.has(originalIndex);
           
           const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
           const now = new Date();
           const diffHours = (classTime - now) / (1000 * 60 * 60);
           const canCancel = diffHours >= 2;
           
-          // 強制將日期中的斜線替換為 -，確保顯示一致
           const displayDate = (r.date || '').replace(/\//g, '-');
           
-          // 轉換課程名稱，將人數轉換為顯示的字眼
-          const courseDisplay = getCourseName(r.course, r.people);
-          
           html += `
-          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${index})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
+          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${originalIndex})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
-                      <span class="record-date" style="font-size:19px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span>
+                      <span class="record-date" style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span>
                       <span style="font-size:14px; font-weight:900; color:var(--muted); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${courseDisplay}</span>
                   </div>
               </div>
@@ -841,14 +869,21 @@
               </div>
           </div>`;
       });
-      recordList.innerHTML = html;
+      
+      $('#myRecordCount').textContent = `共 ${filteredCount} 堂`;
+
+      if(filteredCount === 0) {
+          recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>';
+      } else {
+          recordList.innerHTML = html;
+      }
   }
 
-  window.toggleDeleteMark = function(index) {
-      if(state.selectedRecords.has(index)) {
-          state.selectedRecords.delete(index);
+  window.toggleDeleteMark = function(originalIndex) {
+      if(state.selectedRecords.has(originalIndex)) {
+          state.selectedRecords.delete(originalIndex);
       } else {
-          state.selectedRecords.add(index);
+          state.selectedRecords.add(originalIndex);
       }
       renderRecordList();
       updateRecordBtns();
@@ -865,13 +900,32 @@
           btnCancelBatch.disabled = true;
       }
       
+      // 計算目前分類 Tab 中被標記取消的數量
+      let currentTabSelectedCount = 0;
+      state.selectedRecords.forEach(idx => {
+          const r = state.records[idx];
+          if (getCourseName(r.course, r.people) === state.recordTab) {
+              currentTabSelectedCount++;
+          }
+      });
+
+      // 決定要顯示的基底剩餘堂數（自動依賴 Make 回傳的分開變數，如果沒傳則抓原本的或顯示--）
+      let baseRemain = '--';
+      if (state.recordTab === '1對1' && state.credits_1on1 !== undefined) baseRemain = state.credits_1on1;
+      else if (state.recordTab === '1對2' && state.credits_1on2 !== undefined) baseRemain = state.credits_1on2;
+      else if (state.recordTab === '包班' && state.credits_group !== undefined) baseRemain = state.credits_group;
+      else if (state.recordTab === '1對1' && state.recordRemaining !== undefined) baseRemain = state.recordRemaining; // 向下相容
+      
       const remainContainer = document.getElementById('recordRemainingContainer');
-      if (state.recordRemaining !== undefined && remainContainer) {
+      if (remainContainer) {
           remainContainer.style.display = 'flex';
-          const currentRemain = parseInt(state.recordRemaining, 10);
-          document.getElementById('recordRemainingVal').textContent = currentRemain + count;
-      } else if (remainContainer) {
-          remainContainer.style.display = 'none';
+          document.getElementById('recordRemainingType').textContent = `(${state.recordTab})`;
+          
+          if (baseRemain !== '--') {
+              document.getElementById('recordRemainingVal').textContent = parseInt(baseRemain, 10) + currentTabSelectedCount;
+          } else {
+              document.getElementById('recordRemainingVal').textContent = '--';
+          }
       }
   }
 
@@ -980,7 +1034,6 @@
       }
   }
 
-  // ★ 取消卡片 Flex Message (獨立圓點排版、移除日期、放大按鈕)
   function createCancellationFlexMessage(cancelCount, remainingCount, canceledBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     
@@ -1000,8 +1053,6 @@
             });
         });
         coachName = canceledBookings[0].coach || "無";
-        
-        // 使用 getCourseName 函數轉換顯示名稱
         courseName = getCourseName(canceledBookings[0].course, canceledBookings[0].people);
     } else {
         timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "lg", color: "#7a8280" });
@@ -1030,7 +1081,7 @@
               contents: [
                 { type: "text", text: `教練：${coachName}`, size: "sm", color: "#1a2321" },
                 { type: "text", text: `課程：${courseName}`, size: "sm", color: "#1a2321" },
-                { type: "text", text: `剩餘：${remainText}堂(1對1)`, size: "sm", color: "#1a2321" }
+                { type: "text", text: `剩餘：${remainText}堂(${courseName})`, size: "sm", color: "#1a2321" }
               ]
             },
             { type: "separator", margin: "md", color: "#e5e5e5" }, 
@@ -1059,7 +1110,6 @@
     };
   }
 
-  // ★ 預約成功卡片 Flex Message
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     
@@ -1103,7 +1153,7 @@
               contents: [
                 { type: "text", text: `教練：${state.coach.name}`, size: "sm", color: "#1a2321" },
                 { type: "text", text: `課程：${state.course}`, size: "sm", color: "#1a2321" },
-                { type: "text", text: `剩餘：${remainText}堂(1對1)`, size: "sm", color: "#1a2321" }
+                { type: "text", text: `剩餘：${remainText}堂(${state.course})`, size: "sm", color: "#1a2321" }
               ]
             },
             { type: "separator", margin: "md", color: "#e5e5e5" }, 
