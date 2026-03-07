@@ -187,17 +187,19 @@
     .hide{ display:none !important; }
 
     .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-    .recordHeader .h { margin:0; display:flex; align-items:baseline; }
+    .recordHeader .h { margin:0; display:flex; align-items:center; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* 學員名稱高亮（石綠色底部畫記） */
+    /* 學員名稱高亮（石綠色底部畫記變為橢圓徽章設計） */
     .name-highlight {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 950;
-        color: var(--primary);
-        background: linear-gradient(transparent 60%, rgba(18, 122, 105, 0.25) 40%);
-        padding: 0 2px;
-        margin-right: 4px;
+        color: var(--text); /* 黑色字體 */
+        background-color: #dcece9; /* 石綠色的淡色底，作為完整的橢圓形包覆 */
+        padding: 4px 16px;
+        border-radius: 999px;
+        margin-right: 6px;
+        display: inline-block;
     }
 
     /* 給取消紀錄列表的灰色質感底框，讓白色卡片跳出來 */
@@ -387,6 +389,15 @@
     dt.setHours(hh,mm,0); return dt >= new Date(Date.now()+3600000);
   }
   
+  // ★ 轉換課程名稱的工具函數（解決 Make 人數顯示問題）
+  function getCourseName(course, people) {
+      if (course === '1對1' || course === '1對2' || course === '包班') return course;
+      if (people == 1 || people == '1') return '1對1';
+      if (people == 2 || people == '2') return '1對2';
+      if (people >= 6 || people == '6') return '包班';
+      return course || '1對1';
+  }
+
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
   function updateStatusInStep2() {
@@ -468,10 +479,10 @@
         html += `
         <div class="confirmItem">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:16px; color:#333;">${item.date} (${wd}) ${item.time}</span>
+                <span style="font-size:19px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span>
             </div>
             <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -751,7 +762,7 @@
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       
-      // 替換標題，加入石綠色高亮底襯
+      // 替換標題，加入橢圓高亮底襯
       $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
@@ -803,12 +814,15 @@
           // 強制將日期中的斜線替換為 -，確保顯示一致
           const displayDate = (r.date || '').replace(/\//g, '-');
           
+          // 轉換課程名稱，將人數轉換為顯示的字眼
+          const courseDisplay = getCourseName(r.course, r.people);
+          
           html += `
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${index})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
                       <span class="record-date" style="font-size:19px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span>
-                      <span style="font-size:14px; font-weight:900; color:var(--primary); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${r.course || r.people || '1對1'}</span>
+                      <span style="font-size:14px; font-weight:900; color:var(--muted); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${courseDisplay}</span>
                   </div>
               </div>
               <div class="step3Del">
@@ -986,7 +1000,9 @@
             });
         });
         coachName = canceledBookings[0].coach || "無";
-        courseName = canceledBookings[0].course || canceledBookings[0].people || "1對1";
+        
+        // 使用 getCourseName 函數轉換顯示名稱
+        courseName = getCourseName(canceledBookings[0].course, canceledBookings[0].people);
     } else {
         timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "lg", color: "#7a8280" });
     }
@@ -1043,7 +1059,7 @@
     };
   }
 
-  // ★ 預約成功卡片 Flex Message (獨立圓點排版、移除日期、放大按鈕)
+  // ★ 預約成功卡片 Flex Message
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     
