@@ -138,8 +138,8 @@
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* 固定於底部的常駐容器 */
-    .stickyBottom { flex: 0 0 auto; border-top: 1px dashed #dcece9; margin-top: 6px; padding-top: 12px; margin-bottom: 12px; }
+    /* ★ 移除底部分隔線，讓整體排版更純淨 */
+    .stickyBottom { flex: 0 0 auto; margin-top: 6px; margin-bottom: 12px; }
 
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
     .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; padding: 0 !important; line-height: 1.4 !important; }
@@ -221,8 +221,8 @@
                 <span>Step 3｜確認預約內容</span>
                 <span id="step3Count" class="recordCount" style="margin:0; font-size:14px;">共 0 堂</span>
             </div>
-            <div style="font-size:16px; font-weight:950; color:var(--text); margin-bottom: 4px;">
-                預約教練：<span id="step3CoachName" style="color:var(--text);"></span>
+            <div style="font-size:15px; font-weight:950; color:var(--text); margin-bottom: 12px; margin-top: 24px;">
+                預約教練：<span id="step3CoachName" style="color:var(--primary); font-size: 22px;"></span>
             </div>
         </div>
         
@@ -801,7 +801,7 @@
           Swal.fire({
               icon: 'error',
               title: '操作逾時',
-              html: '您勾選的清單中，有距離開課已<b>不足 2 小時</b>的時段。<br><br>系統自動鎖定，請重新確認您的預約清單。',
+              html: '您勾選的清單中，有距離開課已<b>不足 2 小時</b>的時段。<br><br>系統已自動鎖定，請重新確認您的預約清單。',
               confirmButtonColor: '#b23a2b'
           });
           
@@ -864,17 +864,15 @@
               const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
               const canceledCount = bookingsToCancel.length;
 
-              // 將 LIFF 視窗動作獨立包裹，防止發生外部開啟等錯誤而跳出「系統異常」
+              // ★ 修復：加入 finally 確保視窗必定關閉
               try {
                   if(liff.isInClient()) {
                       await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining, bookingsToCancel)]);
                   }
-                  liff.closeWindow(); 
               } catch(liffErr) {
-                  console.warn("關閉視窗或傳送卡片失敗:", liffErr);
-                  if(!liff.isInClient()) {
-                      Swal.fire('提示', '已成功取消，請手動關閉視窗返回 LINE。', 'info');
-                  }
+                  console.warn("傳送卡片失敗:", liffErr);
+              } finally {
+                  liff.closeWindow(); 
               }
               
           } else {
@@ -886,7 +884,7 @@
       }
   }
 
-  // ★ 回傳 LINE 的取消卡片
+  // ★ 卡片格式：已移除造成錯誤的 separator style 屬性
   function createCancellationFlexMessage(cancelCount, remainingCount, canceledBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -928,7 +926,7 @@
             { type: "text", text: `教練：${coachName}`, size: "sm", color: "#7a8280", margin: "lg" },
             { type: "text", text: `課程：${courseName}`, size: "sm", color: "#7a8280" },
             { type: "text", text: `剩餘：${remainText}堂(${courseName})`, size: "sm", color: "#7a8280" },
-            { type: "separator", margin: "lg", color: "#e5e5e5", style: "dashed" }, 
+            { type: "separator", margin: "lg", color: "#e5e5e5" }, 
             { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b", margin: "md" },
             { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
             { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true },
@@ -949,7 +947,7 @@
     };
   }
 
-  // ★ 回傳 LINE 的預約卡片
+  // ★ 卡片格式：已移除造成錯誤的 separator style 屬性
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -987,7 +985,7 @@
             { type: "text", text: `教練：${state.coach.name}`, size: "sm", color: "#7a8280", margin: "lg" },
             { type: "text", text: `課程：${state.course}`, size: "sm", color: "#7a8280" },
             { type: "text", text: `剩餘：${remainText}堂(${state.course})`, size: "sm", color: "#7a8280" },
-            { type: "separator", margin: "lg", color: "#e5e5e5", style: "dashed" }, 
+            { type: "separator", margin: "lg", color: "#e5e5e5" }, 
             { type: "text", text: "溫馨提醒", weight: "bold", size: "xs", color: "#b2682b", margin: "md" },
             { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
             { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true },
@@ -1173,17 +1171,15 @@
                  });
              }
              
-             // 將 LIFF 視窗動作獨立包裹，防止發生外部開啟等錯誤而跳出「系統異常」
+             // ★ 修復：加入 finally 確保無論卡片是否傳送成功，視窗必定關閉
              try {
                  if(liff.isInClient()) {
                      await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings)]);
                  }
-                 liff.closeWindow();
              } catch(liffErr) {
-                 console.warn("關閉視窗或傳送卡片失敗:", liffErr);
-                 if(!liff.isInClient()) {
-                      Swal.fire('提示', '預約已完成。請手動關閉視窗返回 LINE。', 'info');
-                 }
+                 console.warn("傳送卡片失敗:", liffErr);
+             } finally {
+                 liff.closeWindow();
              }
              
            } else if (actualSuccessCount === 0) {
@@ -1203,7 +1199,7 @@
            
         }catch(e){ 
            console.error("系統異常詳細內容：", e);
-           // 若發生真正的例外錯誤，印出具體報錯訊息在小字中，方便除錯
+           // 若發生不可預期的外層錯誤，會在這裡印出真實的 error message 幫助我們除錯
            Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。<br><span style="font-size:12px;color:#999;">錯誤: '+e.message+'</span>', iconColor: '#d32f2f' }); 
            btnNext.disabled=false; 
            btnNext.textContent="確認送出"; 
