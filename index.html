@@ -137,20 +137,32 @@
     .infoBox { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:4px; flex: 1 1 auto; overflow-y:auto; min-height:0; padding-bottom: 8px; padding-right: 4px;}
     
+    /* 調整確認項目的版面，使其不慘白 */
     .confirmItem { 
-      background:#fff; border: 1px solid var(--border); border-radius: 14px;   
-      padding: 14px 16px; font-size: 16px; font-weight: 950; color: var(--text); 
+      background:#fff; 
+      border: 1px solid var(--border); 
+      border-left: 5px solid var(--primary); /* 增加主色左邊框 */
+      border-radius: 14px;   
+      padding: 16px; /* 增加內距 */
       display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(18,122,105,0.04); 
+      transition: all 0.2s ease;
       flex: 0 0 auto;
     }
     
-    .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
+    /* 取消選取狀態的視覺強化 */
+    .confirmItem.marked-delete { 
+      background-color: #fff5f5; 
+      border-color: #ffcccc; 
+      border-left: 5px solid var(--danger);
+      box-shadow: 0 4px 12px rgba(178,58,43,0.04);
+    }
     .confirmItem.marked-delete .record-text { opacity: 0.6; }
+    .confirmItem.marked-delete .record-date { color: var(--text) !important; }
     .confirmItem.marked-delete .record-text span {
         text-decoration: line-through;
         text-decoration-color: var(--danger);
-        text-decoration-thickness: 1.5px;
+        text-decoration-thickness: 2px;
     }
     
     .step3Del { font-size: 18px; margin-left: auto; cursor: pointer; padding: 4px; display: flex; align-items: center; }
@@ -175,15 +187,25 @@
     .hide{ display:none !important; }
 
     .recordHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-    .recordHeader .h { margin:0; }
+    .recordHeader .h { margin:0; display:flex; align-items:baseline; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* 給取消紀錄列表的灰色質感底框 */
+    /* 學員名稱高亮（石綠色底部畫記） */
+    .name-highlight {
+        font-size: 24px;
+        font-weight: 950;
+        color: var(--primary);
+        background: linear-gradient(transparent 60%, rgba(18, 122, 105, 0.25) 40%);
+        padding: 0 2px;
+        margin-right: 4px;
+    }
+
+    /* 給取消紀錄列表的灰色質感底框，讓白色卡片跳出來 */
     #recordList {
-        background: #f2f6f5;
-        padding: 12px;
-        border-radius: 16px;
-        box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+        background: #eef2f1; /* 微青灰底色 */
+        padding: 14px;
+        border-radius: 18px;
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
     }
 
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
@@ -464,7 +486,6 @@
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
-      // 剩餘堂數獨立置於清單外圍不被蓋住
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
             <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂(1對1)</div>
@@ -730,7 +751,8 @@
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       
-      $('#recordListTitle').textContent = `${state.name} 的預約清單`;
+      // 替換標題，加入石綠色高亮底襯
+      $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
       recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
@@ -778,20 +800,23 @@
           const diffHours = (classTime - now) / (1000 * 60 * 60);
           const canCancel = diffHours >= 2;
           
+          // 強制將日期中的斜線替換為 -，確保顯示一致
+          const displayDate = (r.date || '').replace(/\//g, '-');
+          
           html += `
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${index})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
-                      <span class="record-date" style="font-size:16px; color:var(--text);">${r.date} (${r.weekday}) ${r.time}</span>
-                      <span style="font-size:13px; color:var(--muted);">教練：${r.coach} &nbsp; 課程：${r.course || r.people || '1對1'}</span>
+                      <span class="record-date" style="font-size:19px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span>
+                      <span style="font-size:14px; font-weight:900; color:var(--primary); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${r.course || r.people || '1對1'}</span>
                   </div>
               </div>
               <div class="step3Del">
                   ${!canCancel 
                     ? `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>` 
                     : isMarked 
-                      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
-                      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
+                      : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                            <polyline points="3 6 5 6 21 6"></polyline>
                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -817,7 +842,7 @@
 
   function updateRecordBtns() {
       const count = state.selectedRecords.size;
-      // 更新按鈕文字為取消預約
+      
       if(count > 0) {
           btnCancelBatch.textContent = `取消預約 (${count} 堂)`;
           btnCancelBatch.disabled = false;
@@ -826,7 +851,6 @@
           btnCancelBatch.disabled = true;
       }
       
-      // 動態更新剩餘堂數：原本取得的剩餘 + 標記為取消的數量
       const remainContainer = document.getElementById('recordRemainingContainer');
       if (state.recordRemaining !== undefined && remainContainer) {
           remainContainer.style.display = 'flex';
