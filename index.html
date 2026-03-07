@@ -91,64 +91,27 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    .cartWrap {
-      margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 6px; 
-      flex: 1 1 auto; 
-      min-height: 0; 
-    }
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-height: 0; }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
-    .cartScrollArea {
-      flex: 1 1 auto; overflow-y: auto; min-height: 0;
-      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px;
-      display: flex; flex-direction: column; gap: 6px;
-    }
+    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; min-height: 0; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
     
-    .cartItem {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary);
-      border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-      flex: 0 0 auto;
-    }
+    .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text); box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex: 0 0 auto; }
     .cartActions { display: flex; align-items: center; gap: 16px; }
     
-    .repeatBtn {
-      font-size: 11px; padding: 4px 10px; border-radius: 6px;
-      background: #eef2f1; color: var(--primary); border: 1px solid #dcece9;
-      cursor: pointer; font-weight: 900; transition: all 0.2s;
-    }
+    .repeatBtn { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #eef2f1; color: var(--primary); border: 1px solid #dcece9; cursor: pointer; font-weight: 900; transition: all 0.2s; }
     .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
     
-    .delBtn { 
-      width: 28px; height: 28px; font-size: 18px; 
-      display: flex; align-items: center; justify-content: center; 
-      color: var(--danger); 
-      background: #fff5f5;
-      cursor: pointer; 
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
+    .delBtn { width: 28px; height: 28px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
     .delBtn:active { transform: scale(0.9); }
 
     .confirmWrap{ display:flex; flex-direction:column; gap:8px; padding:0; height: 100%; min-height:0; }
     .confirmList { display:flex; flex-direction:column; gap:10px; flex: 1 1 auto; overflow-y:auto; min-height:0; padding-bottom: 8px; padding-right: 4px;}
     
-    .confirmItem { 
-      background:#fff; border: 1px solid var(--border); border-radius: 14px;   
-      padding: 14px 16px; font-size: 16px; font-weight: 950; color: var(--text); 
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.2s ease;
-      flex: 0 0 auto;
-    }
+    .confirmItem { background:#fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; font-size: 16px; font-weight: 950; color: var(--text); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: all 0.2s ease; flex: 0 0 auto; }
     
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; }
     .confirmItem.marked-delete .record-text { opacity: 0.6; }
-    .confirmItem.marked-delete .record-text span {
-        text-decoration: line-through;
-        text-decoration-color: var(--danger);
-        text-decoration-thickness: 1.5px;
-    }
+    .confirmItem.marked-delete .record-text span { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 1.5px; }
     
     .step3Del { font-size: 18px; margin-left: auto; cursor: pointer; padding: 4px; display: flex; align-items: center; }
     .icon-trash { color: #d32f2f; }
@@ -175,13 +138,8 @@
     .recordHeader .h { margin:0; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* Sticky Bottom Container for Step3 & Record */
-    .stickyBottom {
-      flex: 0 0 auto; 
-      border-top: 1px dashed #dcece9; 
-      margin-top: 6px; 
-      padding-top: 10px;
-    }
+    /* 固定於底部的常駐容器 */
+    .stickyBottom { flex: 0 0 auto; border-top: 1px dashed #dcece9; margin-top: 6px; padding-top: 12px; margin-bottom: 12px; }
 
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
     .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; padding: 0 !important; line-height: 1.4 !important; }
@@ -193,12 +151,7 @@
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
     .loader-spinner-red { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
-    .loader-spinner-red:after {
-      content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
-      border: 3.5px solid var(--danger); 
-      border-color: var(--danger) transparent var(--danger) transparent; 
-      animation: loader-spinner-ring 1s linear infinite;
-    }
+    .loader-spinner-red:after { content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%; border: 3.5px solid var(--danger); border-color: var(--danger) transparent var(--danger) transparent; animation: loader-spinner-ring 1s linear infinite; }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
@@ -261,18 +214,23 @@
       </div>
     </div>
 
-    <div id="card3" class="card hide" style="flex:1; min-height:0;">
+    <div id="card3" class="card hide" style="flex:1; min-height:0; padding-bottom: 0;">
       <div class="confirmWrap">
-        <div class="h" style="flex: 0 0 auto; display:flex; justify-content:space-between; align-items:center;">
-            <span>Step 3｜確認預約內容</span>
-            <span id="step3Count" class="recordCount" style="margin:0; font-size:14px;">共 0 堂</span>
+        <div style="flex: 0 0 auto;">
+            <div class="h" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <span>Step 3｜確認預約內容</span>
+                <span id="step3Count" class="recordCount" style="margin:0; font-size:14px;">共 0 堂</span>
+            </div>
+            <div style="font-size:16px; font-weight:950; color:var(--text); margin-bottom: 4px;">
+                預約教練：<span id="step3CoachName" style="color:var(--text);"></span>
+            </div>
         </div>
+        
         <div id="confirmInfo" class="confirmList"></div>
         
         <div class="stickyBottom">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <div style="font-size:14px; font-weight:950; color:var(--text);">教練：<span id="step3CoachName" style="color:var(--primary);"></span></div>
-                <div style="font-size:15px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingCredits" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂</div>
+            <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:6px;">
+                <div style="font-size:15px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingCredits" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂(<span id="step3CourseType"></span>)</div>
             </div>
             <div class="remindTitle">溫馨提醒</div>
             <div class="remindBox">
@@ -285,10 +243,10 @@
       </div>
     </div>
 
-    <div id="cardRecord" class="card hide" style="flex:1; min-height:0;">
+    <div id="cardRecord" class="card hide" style="flex:1; min-height:0; padding-bottom: 0;">
         <div class="recordHeader">
             <div class="h" id="recordListTitle">預約清單</div>
-            <div id="myRecordCount" class="recordCount">共 0 堂</div>
+            <div id="myRecordCount" class="recordCount" style="margin:0;">共 0 堂</div>
         </div>
         <div id="recordList" class="confirmList">
             <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
@@ -296,7 +254,7 @@
         
         <div class="stickyBottom">
             <div id="recordRemainingBox" class="hide" style="display:flex; justify-content:flex-end; margin-bottom:6px;">
-                <div style="font-size:15px; font-weight:950; color:var(--text);">剩餘總數：<span id="recordRemainingCredits" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂</div>
+                <div style="font-size:15px; font-weight:950; color:var(--text);">目前總剩餘：<span id="recordRemainingCredits" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂</div>
             </div>
             <div class="remindTitle">溫馨提醒</div>
             <div class="remindBox">
@@ -449,13 +407,13 @@
       }
       btnNext.disabled = false;
       
-      // 更新計數與常駐區塊文字
+      // 更新常駐區塊與頭部的文字
       $('#step3Count').textContent = `共 ${state.cart.length} 堂`;
       $('#step3CoachName').textContent = state.coach.name;
+      $('#step3CourseType').textContent = state.course || '1對1';
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       $('#step3RemainingCredits').textContent = currentLeft;
 
-      // 僅渲染內部滾動的項目
       let html = '';
       state.cart.sort((a,b)=>a.ts - b.ts).forEach(item=>{
         const wd = weekdayZhFromDateKey(item.date);
@@ -773,7 +731,6 @@
           const diffHours = (classTime - now) / (1000 * 60 * 60);
           const canCancel = diffHours >= 2;
           
-          // 為單筆紀錄加入了標籤與卡片結構設計，提升質感
           html += `
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${index})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
               <div class="record-text" style="display:flex; flex-direction:column; gap:6px; width:100%;">
@@ -844,7 +801,7 @@
           Swal.fire({
               icon: 'error',
               title: '操作逾時',
-              html: '您勾選的清單中，有距離開課已<b>不足 2 小時</b>的時段。<br><br>系統已自動鎖定，請重新確認您的預約清單。',
+              html: '您勾選的清單中，有距離開課已<b>不足 2 小時</b>的時段。<br><br>系統自動鎖定，請重新確認您的預約清單。',
               confirmButtonColor: '#b23a2b'
           });
           
@@ -907,28 +864,29 @@
               const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
               const canceledCount = bookingsToCancel.length;
 
-              if(liff.isInClient()) {
-                  await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining, bookingsToCancel)]);
+              // 將 LIFF 視窗動作獨立包裹，防止發生外部開啟等錯誤而跳出「系統異常」
+              try {
+                  if(liff.isInClient()) {
+                      await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining, bookingsToCancel)]);
+                  }
+                  liff.closeWindow(); 
+              } catch(liffErr) {
+                  console.warn("關閉視窗或傳送卡片失敗:", liffErr);
+                  if(!liff.isInClient()) {
+                      Swal.fire('提示', '已成功取消，請手動關閉視窗返回 LINE。', 'info');
+                  }
               }
-
-              await Swal.fire({ 
-                  icon:'success', 
-                  title:'已成功刪除', 
-                  html: '您選取的課程已刪除並退還堂數',
-                  timer:1500, 
-                  showConfirmButton:false,
-                  iconColor: '#b23a2b' 
-              });
-              liff.closeWindow(); 
+              
           } else {
               throw new Error('Cancel failed');
           }
       } catch(e) {
+          console.error(e);
           Swal.fire({ icon:'error', title:'取消失敗', html:'請聯繫客服人員', iconColor: '#d32f2f' });
       }
   }
 
-  // ★ 僅此處：回傳 LINE 的取消卡片套用精品票券格式
+  // ★ 回傳 LINE 的取消卡片
   function createCancellationFlexMessage(cancelCount, remainingCount, canceledBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -991,7 +949,7 @@
     };
   }
 
-  // ★ 僅此處：回傳 LINE 的預約卡片套用精品票券格式
+  // ★ 回傳 LINE 的預約卡片
   function createSuccessFlexMessage(successCount, remainingCount, successBookings) {
     const remainText = remainingCount !== undefined ? `${remainingCount}` : "-";
     const todayStr = getTodaySlash(); 
@@ -1215,10 +1173,18 @@
                  });
              }
              
-             if(liff.isInClient()) {
-                 await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings)]);
+             // 將 LIFF 視窗動作獨立包裹，防止發生外部開啟等錯誤而跳出「系統異常」
+             try {
+                 if(liff.isInClient()) {
+                     await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings)]);
+                 }
+                 liff.closeWindow();
+             } catch(liffErr) {
+                 console.warn("關閉視窗或傳送卡片失敗:", liffErr);
+                 if(!liff.isInClient()) {
+                      Swal.fire('提示', '預約已完成。請手動關閉視窗返回 LINE。', 'info');
+                 }
              }
-             liff.closeWindow();
              
            } else if (actualSuccessCount === 0) {
              await Swal.fire({ 
@@ -1236,7 +1202,9 @@
            }
            
         }catch(e){ 
-           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); 
+           console.error("系統異常詳細內容：", e);
+           // 若發生真正的例外錯誤，印出具體報錯訊息在小字中，方便除錯
+           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。<br><span style="font-size:12px;color:#999;">錯誤: '+e.message+'</span>', iconColor: '#d32f2f' }); 
            btnNext.disabled=false; 
            btnNext.textContent="確認送出"; 
         }
