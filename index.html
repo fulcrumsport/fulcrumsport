@@ -99,7 +99,7 @@
         flex: 1;
         text-align: center;
         font-weight: 950;
-        font-size: 16px;
+        font-size: 18px; /* 放大字體 */
         color: var(--muted);
         cursor: pointer;
         padding: 10px 0;
@@ -275,6 +275,7 @@
       <div id="coachRow" class="row"></div>
       <div class="subTitle">選擇課程</div>
       <div id="courseRow" class="courseGrid"></div>
+      <div id="courseCreditsTip" style="font-size:15px; color:var(--primary); font-weight:900; margin-top:12px; text-align:center; min-height:22px; transition: all 0.3s;"></div>
     </div>
 
     <div id="card2" class="card hide" style="flex:1; min-height:0;">
@@ -304,7 +305,7 @@
               <div class="tab" data-tab="night">晚上</div>
             </div>
             <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
-              可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂
+              可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂<span id="step2CourseName"></span>
             </div>
           </div>
           <div id="slotGrid2" class="slotGrid"></div>
@@ -536,9 +537,10 @@
       
       let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       
+      // 動態代入 Step 1 選擇的課程名稱
       html += `
         <div style="display:flex; justify-content:flex-end; margin-top:12px; flex:0 0 auto; padding-right:4px;">
-            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂(1對1)</div>
+            <div style="font-size:16px; font-weight:950; color:var(--text);">剩餘：<span style="color: var(--primary); font-size:18px; margin:0 2px;">${currentLeft}</span> 堂(${state.course || '1對1'})</div>
         </div>`; 
       
       confirmInfo.innerHTML = html;
@@ -691,7 +693,7 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      div.onclick=()=>{ state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程'); };
+      div.onclick=()=>{ state.coach=c; renderCoaches(); renderCourse(); renderCourseTip(); btnNext.disabled=!(state.coach && state.course); setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程'); };
       coachRow.appendChild(div);
     });
   }
@@ -702,9 +704,23 @@
       const div=document.createElement('div');
       div.className = 'chip' + (state.course===n ? ' sel' : ''); 
       div.textContent = n;
-      div.onclick=()=>{ state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程'); };
+      div.onclick=()=>{ state.course=n; renderCourse(); renderCourseTip(); btnNext.disabled=!(state.coach && state.course); setStatus(state.coach && state.course ? `教練：${state.coach.name} &nbsp;&nbsp;&nbsp; 課程：${state.course}` : '請選擇教練與課程'); };
       courseRow.appendChild(div);
     });
+  }
+
+  // ★ Step 1 動態顯示課程對應的剩餘堂數提示
+  function renderCourseTip() {
+      const tipEl = document.getElementById('courseCreditsTip');
+      if (!tipEl) return;
+      if (!state.course) { tipEl.textContent = ''; return; }
+      
+      let credits = '--';
+      if (state.course === '1對1' && state.credits_1on1 !== undefined) credits = state.credits_1on1;
+      else if (state.course === '1對2' && state.credits_1on2 !== undefined) credits = state.credits_1on2;
+      else if (state.course === '包班' && state.credits_group !== undefined) credits = state.credits_group;
+      
+      tipEl.textContent = credits === '--' ? `剩餘：讀取中...` : `剩餘：${credits}堂(${state.course})`;
   }
 
   function renderCoachIntro(){
@@ -775,6 +791,11 @@
 
   async function loadOptionsForCoach(){
     state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; 
+    
+    // 動態更新 Step 2 的課程名稱
+    const s2Name = document.getElementById('step2CourseName');
+    if(s2Name) s2Name.textContent = `(${state.course})`;
+
     setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart();
     try{
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
@@ -792,6 +813,19 @@
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
   }
 
+  // ★ 載入預約模式時，背景先抓取學員的各項課程剩餘堂數
+  function fetchUserCreditsInBackground() {
+      fetch(MAKE_QUERY_WEBHOOK_URL, {
+          method: "POST", headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ action: "getRecords", userId: state.uid })
+      }).then(r=>r.json()).then(data=>{
+          state.credits_1on1 = data.credits_1on1 !== undefined ? data.credits_1on1 : (data["Remaining credits"] || 0);
+          state.credits_1on2 = data.credits_1on2 !== undefined ? data.credits_1on2 : '--';
+          state.credits_group = data.credits_group !== undefined ? data.credits_group : '--';
+          renderCourseTip();
+      }).catch(e=>console.log(e));
+  }
+
   async function loadMyRecords() {
       state.mode = 'record';
       stepBar.classList.add('hide'); 
@@ -801,6 +835,7 @@
       btnBack.classList.add('hide'); btnNext.classList.add('hide');
       recordBtns.classList.remove('hide'); 
       
+      // 替換標題，加入螢光筆高亮底襯效果
       $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
       
       setStatus("讀取預約紀錄中...");
@@ -1063,15 +1098,15 @@
             timesBox.contents.push({
                 type: "box", layout: "horizontal", spacing: "sm",
                 contents: [
-                    { type: "text", text: "•", size: "lg", color: "#1a2321", weight: "bold", flex: 0 },
-                    { type: "text", text: `${dateFormatted} (${b.weekday}) ${b.time}`, size: "lg", color: "#1a2321", weight: "bold", flex: 1 }
+                    { type: "text", text: "•", size: "md", color: "#1a2321", weight: "bold", flex: 0 },
+                    { type: "text", text: `${dateFormatted} (${b.weekday}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold", flex: 1 }
                 ]
             });
         });
         coachName = canceledBookings[0].coach || "無";
         courseName = getCourseName(canceledBookings[0].course, canceledBookings[0].people);
     } else {
-        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "lg", color: "#7a8280" });
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
     }
 
     return {
@@ -1137,13 +1172,13 @@
             timesBox.contents.push({
                 type: "box", layout: "horizontal", spacing: "sm",
                 contents: [
-                    { type: "text", text: "•", size: "lg", color: "#1a2321", weight: "bold", flex: 0 },
-                    { type: "text", text: `${dateFormatted} (${wd}) ${b.time}`, size: "lg", color: "#1a2321", weight: "bold", flex: 1 }
+                    { type: "text", text: "•", size: "md", color: "#1a2321", weight: "bold", flex: 0 },
+                    { type: "text", text: `${dateFormatted} (${wd}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold", flex: 1 }
                 ]
             });
         });
     } else {
-        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "lg", color: "#7a8280" });
+        timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
     }
 
     return {
@@ -1224,6 +1259,8 @@
             state.weekStart = weekStartMonday(new Date()); 
             renderWeekStrip();
             setStep(1);
+            // 預約模式下也先默默去抓學員各種課程的堂數
+            fetchUserCreditsInBackground();
         }
         
         setStatus('');
@@ -1257,7 +1294,7 @@
         cardRecord.classList.add('hide');
         recordBtns.classList.add('hide'); 
         
-        renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
+        renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
         setStep(1);
     };
 
