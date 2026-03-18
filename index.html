@@ -90,7 +90,7 @@
         display: flex;
         gap: 6px;
         margin-bottom: 12px;
-        background: var(--selBg); /* 淺青色底 */
+        background: var(--selBg);
         padding: 5px;
         border-radius: 99px;
         flex: 0 0 auto;
@@ -99,7 +99,7 @@
         flex: 1;
         text-align: center;
         font-weight: 950;
-        font-size: 18px; /* 放大字體 */
+        font-size: 18px;
         color: var(--muted);
         cursor: pointer;
         padding: 10px 0;
@@ -166,11 +166,10 @@
     .infoBox { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:4px; flex: 1 1 auto; overflow-y:auto; min-height:0; padding-bottom: 8px; padding-right: 4px;}
     
-    /* 調整確認項目的版面 */
     .confirmItem { 
       background:#fff; 
       border: 1px solid var(--border); 
-      border-left: 5px solid var(--primary); /* 主色左邊框 */
+      border-left: 5px solid var(--primary);
       border-radius: 14px;   
       padding: 16px; 
       display: flex; justify-content: space-between; align-items: center;
@@ -179,7 +178,6 @@
       flex: 0 0 auto;
     }
     
-    /* 取消選取狀態的視覺強化 */
     .confirmItem.marked-delete { 
       background-color: #fff5f5; 
       border-color: #ffcccc; 
@@ -219,11 +217,10 @@
     .recordHeader .h { margin:0; display:flex; align-items:center; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    /* 學員名稱高亮（石綠色螢光筆畫記效果，字體放大） */
     .name-highlight {
-        font-size: 28px; /* 放大字體 */
+        font-size: 28px;
         font-weight: 950;
-        color: var(--text); /* 黑色字體 */
+        color: var(--text);
         background: linear-gradient(transparent 60%, rgba(18, 122, 105, 0.25) 40%);
         padding: 0 4px;
         border-radius: 0;
@@ -231,7 +228,6 @@
         display: inline-block;
     }
 
-    /* 移除灰色背景框，釋放空間讓清單撐寬 */
     #recordList {
         background: transparent;
         padding: 4px 2px;
@@ -439,7 +435,6 @@
 
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
-  // ★ 處理 Step 1 選擇課程後的下方灰字顯示
   function renderCourseTip() {
       if (state.step !== 1) return;
       if (!state.course || !state.coach) { 
@@ -907,7 +902,7 @@
           const displayDate = (r.date || '').replace(/\//g, '-');
           
           html += `
-          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${originalIndex})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;'}">
+          <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${originalIndex})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;' }">
               <div style="display:flex; align-items:center; gap:10px;">
                   <div class="record-text" style="display:flex; flex-direction:column; gap:4px;">
                       <span class="record-date" style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span>
@@ -1318,6 +1313,7 @@
            
            const result = await res.json();
            
+           // 加入狀態確認，這會讀取到 Webhook Response 回傳的 "status": "success"
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result === 'Accepted';
            
            let successBookings = [];
@@ -1326,7 +1322,7 @@
            if (isSuccess) {
                let parsedList = [];
                let rawResults = result.Results || result.results;
-               if (!rawResults) rawResults = result;
+               if (rawResults === undefined) rawResults = result; // 預防 Make 回傳格式稍微不同
                if (!Array.isArray(rawResults)) rawResults = [rawResults];
 
                function parseItem(item) {
@@ -1349,23 +1345,18 @@
                }
                parseItem(rawResults);
 
-               const hasAnyValidRecord = parsedList.some(res => res.date || res.Date);
-
-               if (hasAnyValidRecord) {
-                   successBookings = state.cart.filter(item => {
-                       const dateSlash = item.date.replace(/-/g, '/');
-                       return parsedList.some(res => {
-                           const rDate = res.date || res.Date;
-                           const rTime = res.time || res.Time;
-                           const rStatus = res.status || res.Status;
-                           const isNotFailed = (rStatus !== 'failed' && rStatus !== 'Failed');
-                           return (rDate === item.date || rDate === dateSlash) && (rTime === item.time) && isNotFailed;
-                       });
+               // 進行精準比對
+               successBookings = state.cart.filter(item => {
+                   const dateSlash = item.date.replace(/-/g, '/');
+                   return parsedList.some(res => {
+                       const rDate = res.date || res.Date;
+                       const rTime = res.time || res.Time;
+                       const rStatus = res.status || res.Status;
+                       const isNotFailed = (rStatus !== 'failed' && rStatus !== 'Failed');
+                       return (rDate === item.date || rDate === dateSlash) && (rTime === item.time) && isNotFailed;
                    });
-                   failedBookings = state.cart.filter(item => !successBookings.includes(item));
-               } else {
-                   successBookings = [...state.cart];
-               }
+               });
+               failedBookings = state.cart.filter(item => !successBookings.includes(item));
            } else {
                failedBookings = [...state.cart];
            }
@@ -1411,10 +1402,20 @@
              liff.closeWindow();
              
            } else if (actualSuccessCount === 0) {
+             // 🎯 修改的「預約失敗（全部撞期）」彈出視窗
+             let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:6px; font-size:16px;">• ${b.date} ${b.time}</div>`).join('');
+
              await Swal.fire({ 
                  icon:'error', 
-                 title:'糟糕！預約失敗！<br>您所選擇的時段已被預約，', 
-                 html:'請選擇其他時段。', 
+                 title: '<span style="font-size: 24px; font-weight: 950;">糟糕！預約失敗！</span>',
+                 html: `
+                    <div style="font-size: 16px; font-weight: bold; color: #111; line-height: 1.5;">
+                        您以下所選時段已被預約，請選擇其他時段。
+                    </div>
+                    <div style="margin-top: 12px; display: inline-block; text-align: left; background: #fef5f5; padding: 10px 20px; border-radius: 8px;">
+                        ${failedListHtml}
+                    </div>
+                 `,
                  confirmButtonColor: '#b23a2b' 
              });
              setStep(2);
