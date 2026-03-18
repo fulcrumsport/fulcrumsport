@@ -1313,7 +1313,6 @@
            
            const result = await res.json();
            
-           // 加入狀態確認，這會讀取到 Webhook Response 回傳的 "status": "success"
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result === 'Accepted';
            
            let successBookings = [];
@@ -1322,7 +1321,7 @@
            if (isSuccess) {
                let parsedList = [];
                let rawResults = result.Results || result.results;
-               if (rawResults === undefined) rawResults = result; // 預防 Make 回傳格式稍微不同
+               if (rawResults === undefined) rawResults = result; 
                if (!Array.isArray(rawResults)) rawResults = [rawResults];
 
                function parseItem(item) {
@@ -1345,7 +1344,6 @@
                }
                parseItem(rawResults);
 
-               // 進行精準比對
                successBookings = state.cart.filter(item => {
                    const dateSlash = item.date.replace(/-/g, '/');
                    return parsedList.some(res => {
@@ -1376,20 +1374,27 @@
                      iconColor: '#127a69'
                  });
              } else {
-                 let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:4px; font-size:15px;">• ${b.date} ${b.time}</div>`).join('');
+                 // 🎯 這裡修改了「部分成功、部分撞期」的彈窗版面
+                 let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:6px; font-size:16px;">• ${b.date} ${b.time}</div>`).join('');
+                 let successListHtml = successBookings.map(b => `<div style="color:#127a69; font-weight:bold; margin-top:6px; font-size:16px;">• ${b.date} ${b.time}</div>`).join('');
 
                  await Swal.fire({ 
                      icon:'warning', 
-                     title:'糟糕！部分時段已被預約！', 
+                     title: '<span style="font-size: 22px; font-weight: 950;">糟糕！部分時段已被預約！</span>', 
                      html: `
-                        <div style="text-align:left; font-size:14px; margin-bottom:15px; color:#111;">
-                          以下時段已被搶先預約：
-                          <div style="margin-top:8px; padding-left:8px;">${failedListHtml}</div>
+                        <div style="font-size: 15px; font-weight: bold; color: #111; line-height: 1.5; margin-top: 10px;">
+                            以下時段已被搶先預約：
                         </div>
-                        <div style="background:#fef5f5; border:1px solid #ffcccc; padding:12px; border-radius:10px; font-size:14px; color:#111; line-height:1.5;">
-                          系統將取消上述衝堂時段預約，<br>並返還 <b>${failedCount} 堂</b> ${state.course}。
+                        <div style="margin-top: 8px; display: inline-block; text-align: left; background: #fef5f5; padding: 10px 20px; border-radius: 8px; margin-bottom: 15px;">
+                            ${failedListHtml}
                         </div>
-                        <div style="margin-top:15px; font-weight:bold; font-size:16px;">成功保留：<span style="color:#127a69; font-size:18px;">${actualSuccessCount} 堂</span></div>
+                        
+                        <div style="font-size: 15px; font-weight: bold; color: #111; line-height: 1.5;">
+                            以下時段成功保留預約：
+                        </div>
+                        <div style="margin-top: 8px; display: inline-block; text-align: left; background: #e5f2f0; padding: 10px 20px; border-radius: 8px;">
+                            ${successListHtml}
+                        </div>
                      `, 
                      confirmButtonColor: '#127a69',
                      iconColor: '#b2682b'
@@ -1402,7 +1407,6 @@
              liff.closeWindow();
              
            } else if (actualSuccessCount === 0) {
-             // 🎯 修改的「預約失敗（全部撞期）」彈出視窗
              let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:bold; margin-top:6px; font-size:16px;">• ${b.date} ${b.time}</div>`).join('');
 
              await Swal.fire({ 
