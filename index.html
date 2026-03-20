@@ -1040,7 +1040,7 @@
             <div style="display: flex; flex-direction: column; align-items: center; padding: 10px 0;">
                 <div class="loader-spinner-red"></div> 
                 <div class="custom-swal-title">正在取消預約...</div>
-                <div class="custom-swal-subtitle">請稍候，系統處理中</div>
+                <div class="custom-swal-subtitle">請稍候，系統處理中。</div>
             </div>
           `,
           allowOutsideClick: false, 
@@ -1074,7 +1074,7 @@
               await Swal.fire({ 
                   icon:'success', 
                   title:'已成功取消', 
-                  html: '您選取的課程已取消並退還堂數',
+                  html: '您選取的課程已取消並返還堂數。',
                   timer:1500, 
                   showConfirmButton:false,
                   iconColor: '#b23a2b' 
@@ -1084,7 +1084,7 @@
               throw new Error('Cancel failed');
           }
       } catch(e) {
-          Swal.fire({ icon:'error', title:'取消失敗', html:'請聯繫客服人員', iconColor: '#d32f2f' });
+          Swal.fire({ icon:'error', title:'取消失敗', html:'請聯繫客服人員。', iconColor: '#d32f2f' });
       }
   }
 
