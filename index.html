@@ -1063,7 +1063,11 @@
           });
           const result = await res.json();
 
-          if(result.status === 'success' || result.Status === 'completed') {
+          // =============== 這裡做了關鍵修改 =================
+          // 讓系統認得 expired 也是成功的一種，並且抓取 Message
+          const isSuccessStatus = result.status === 'success' || result.Status === 'completed' || result.Status === 'expired';
+
+          if(isSuccessStatus) {
               const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
               const canceledCount = bookingsToCancel.length;
 
@@ -1071,18 +1075,23 @@
                   await liff.sendMessages([createCancellationFlexMessage(canceledCount, remaining, bookingsToCancel)]);
               }
 
+              // 動態抓取 Make 的 Message，如果沒有就顯示預設文字
+              const alertMsg = result.Message || result.message || '您選取的課程已取消並返還堂數。';
+
               await Swal.fire({ 
-                  icon:'success', 
-                  title:'已成功取消', 
-                  html: '您選取的課程已取消並返還堂數。',
-                  timer:1500, 
-                  showConfirmButton:false,
-                  iconColor: '#b23a2b' 
+                  icon: result.Status === 'expired' ? 'info' : 'success', // 如果過期不退錢，會顯示藍色的 info icon 
+                  title: '已成功取消', 
+                  html: alertMsg,
+                  timer: 2500, // 時間稍微拉長到 2.5 秒，讓學員看清楚文字
+                  showConfirmButton: false,
+                  iconColor: result.Status === 'expired' ? '#127a69' : '#b23a2b' 
               });
               liff.closeWindow(); 
           } else {
               throw new Error('Cancel failed');
           }
+          // ===============================================
+
       } catch(e) {
           Swal.fire({ icon:'error', title:'取消失敗', html:'請聯繫客服人員。', iconColor: '#d32f2f' });
       }
@@ -1374,7 +1383,6 @@
                      iconColor: '#127a69'
                  });
              } else {
-                 // 🎯 這裡修改了「部分成功、部分撞期」的彈窗版面，完美置中對齊
                  let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:950; font-size:16px; padding: 4px 0;">• ${b.date} ${b.time}</div>`).join('');
                  let successListHtml = successBookings.map(b => `<div style="color:#127a69; font-weight:950; font-size:16px; padding: 4px 0;">• ${b.date} ${b.time}</div>`).join('');
 
@@ -1407,7 +1415,6 @@
              liff.closeWindow();
              
            } else if (actualSuccessCount === 0) {
-             // 🎯 這裡修改了「全撞期」的彈窗版面，完美置中對齊
              let failedListHtml = failedBookings.map(b => `<div style="color:#b23a2b; font-weight:950; font-size:16px; padding: 4px 0;">• ${b.date} ${b.time}</div>`).join('');
 
              await Swal.fire({ 
