@@ -86,36 +86,17 @@
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
     
-    /* 取消紀錄頁面的專屬膠囊 Tabs 樣式 */
     .record-tabs-container {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 12px;
-        background: var(--selBg);
-        padding: 5px;
-        border-radius: 99px;
-        flex: 0 0 auto;
+        display: flex; gap: 6px; margin-bottom: 12px; background: var(--selBg); padding: 5px; border-radius: 99px; flex: 0 0 auto;
     }
     .record-tab {
-        flex: 1;
-        text-align: center;
-        font-weight: 950;
-        font-size: 18px;
-        color: var(--muted);
-        cursor: pointer;
-        padding: 10px 0;
-        border-radius: 99px;
-        transition: all 0.2s ease;
-        user-select: none;
+        flex: 1; text-align: center; font-weight: 950; font-size: 18px; color: var(--muted); cursor: pointer; padding: 10px 0; border-radius: 99px; transition: all 0.2s ease; user-select: none;
     }
     .record-tab.active {
-        color: var(--primary);
-        background: #ffffff;
-        box-shadow: 0 2px 6px rgba(18,122,105,0.15);
+        color: var(--primary); background: #ffffff; box-shadow: 0 2px 6px rgba(18,122,105,0.15);
     }
 
     .slotGrid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; align-content:start;}
-    
     .slot{ padding:8px 0; border-radius:999px; background:#eef2f1; font-weight:950; font-size:13px; text-align:center; cursor:pointer; white-space:nowrap; border:2px solid transparent; transition:all 0.2s;}
     .slot.sel{ background:var(--selBg); color:var(--selText); border-color:rgba(18,122,105,.35); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; }
     .slot.disabled{ opacity:.35; pointer-events:none; }
@@ -123,75 +104,28 @@
     .slotTip{ grid-column:1 / -1; padding:8px 2px; font-size:12px; font-weight:900; color:var(--muted); text-align: left; }
     .slotTip.important{ color:var(--danger); font-size:14px; font-weight:950; }
 
-    .cartWrap {
-      margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 6px; 
-      flex: 1 1 auto; 
-      min-height: 0; 
-    }
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-height: 0; }
     .cartTitle { font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 2px; padding-left: 4px; flex: 0 0 auto;}
-    .cartScrollArea {
-      flex: 1 1 auto; overflow-y: auto; min-height: 0;
-      background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px;
-      display: flex; flex-direction: column; gap: 6px;
-    }
+    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; min-height: 0; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
     
-    .cartItem {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary);
-      border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-      flex: 0 0 auto;
-    }
+    .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text); box-shadow: 0 2px 4px rgba(0,0,0,0.03); flex: 0 0 auto; }
     .cartActions { display: flex; align-items: center; gap: 16px; }
     
-    .repeatBtn {
-      font-size: 11px; padding: 4px 10px; border-radius: 6px;
-      background: #eef2f1; color: var(--primary); border: 1px solid #dcece9;
-      cursor: pointer; font-weight: 900; transition: all 0.2s;
-    }
+    .repeatBtn { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #eef2f1; color: var(--primary); border: 1px solid #dcece9; cursor: pointer; font-weight: 900; transition: all 0.2s; }
     .repeatBtn:active { transform: scale(0.95); background: #dcece9; }
     
-    .delBtn { 
-      width: 28px; height: 28px; font-size: 18px; 
-      display: flex; align-items: center; justify-content: center; 
-      color: var(--danger); 
-      background: #fff5f5;
-      cursor: pointer; 
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
+    .delBtn { width: 28px; height: 28px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
     .delBtn:active { transform: scale(0.9); }
 
     .confirmWrap{ display:flex; flex-direction:column; gap:8px; padding:0; height: 100%; min-height:0; }
     .infoBox { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     .confirmList { display:flex; flex-direction:column; gap:10px; margin-top:4px; flex: 1 1 auto; overflow-y:auto; min-height:0; padding-bottom: 8px; padding-right: 4px;}
     
-    .confirmItem { 
-      background:#fff; 
-      border: 1px solid var(--border); 
-      border-left: 5px solid var(--primary);
-      border-radius: 14px;   
-      padding: 16px; 
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 4px 12px rgba(18,122,105,0.04); 
-      transition: all 0.2s ease;
-      flex: 0 0 auto;
-    }
-    
-    .confirmItem.marked-delete { 
-      background-color: #fff5f5; 
-      border-color: #ffcccc; 
-      border-left: 5px solid var(--danger);
-      box-shadow: 0 4px 12px rgba(178,58,43,0.04);
-    }
+    .confirmItem { background:#fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.04); transition: all 0.2s ease; flex: 0 0 auto; }
+    .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; border-left: 5px solid var(--danger); box-shadow: 0 4px 12px rgba(178,58,43,0.04); }
     .confirmItem.marked-delete .record-text { opacity: 0.6; }
     .confirmItem.marked-delete .record-date { color: var(--text) !important; }
-    .confirmItem.marked-delete .record-text span {
-        text-decoration: line-through;
-        text-decoration-color: var(--danger);
-        text-decoration-thickness: 2px;
-    }
+    .confirmItem.marked-delete .record-text span { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; }
     
     .step3Del { font-size: 18px; margin-left: auto; cursor: pointer; padding: 4px; display: flex; align-items: center; gap: 10px; }
     .icon-trash { color: #d32f2f; }
@@ -220,23 +154,8 @@
     .recordHeader .h { margin:0; display:flex; align-items:center; }
     .recordCount { color: var(--primary); font-weight:900; font-size:14px; background:var(--selBg); padding:4px 10px; border-radius:99px; }
 
-    .name-highlight {
-        font-size: 28px;
-        font-weight: 950;
-        color: var(--text);
-        background: linear-gradient(transparent 60%, rgba(18, 122, 105, 0.25) 40%);
-        padding: 0 4px;
-        border-radius: 0;
-        margin-right: 6px;
-        display: inline-block;
-    }
-
-    #recordList {
-        background: transparent;
-        padding: 4px 2px;
-        border-radius: 0;
-        box-shadow: none;
-    }
+    .name-highlight { font-size: 28px; font-weight: 950; color: var(--text); background: linear-gradient(transparent 60%, rgba(18, 122, 105, 0.25) 40%); padding: 0 4px; border-radius: 0; margin-right: 6px; display: inline-block; }
+    #recordList { background: transparent; padding: 4px 2px; border-radius: 0; box-shadow: none; }
 
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; }
     .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; padding: 0 !important; line-height: 1.4 !important; }
@@ -248,12 +167,7 @@
     .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important;}
 
     .loader-spinner-red { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
-    .loader-spinner-red:after {
-      content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%;
-      border: 3.5px solid var(--danger); 
-      border-color: var(--danger) transparent var(--danger) transparent; 
-      animation: loader-spinner-ring 1s linear infinite;
-    }
+    .loader-spinner-red:after { content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%; border: 3.5px solid var(--danger); border-color: var(--danger) transparent var(--danger) transparent; animation: loader-spinner-ring 1s linear infinite; }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 10px; background: var(--selBg); padding: 8px; border-radius: 8px;}
@@ -562,7 +476,7 @@
   function renderCoaches(){ coachRow.innerHTML=''; COACHES.forEach(c=>{ const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; coachRow.appendChild(div); }); }
   function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
 
-  // 💡 強大的布林值字串判定工具 (無懼大寫 TRUE / 假 JSON)
+  // 💡 【重要修復】：強大布林值字串判定工具 (無懼大寫 TRUE / 假 JSON)
   function isTruthy(val) {
       if (val === true) return true;
       if (typeof val === 'string' && val.trim().toLowerCase() === 'true') return true;
@@ -581,7 +495,7 @@
           const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
           const canCancel = (classTime - new Date()) / 3600000 >= 2;
           
-          // 💡 使用強大的布林值判斷，完美相容 Make 傳來的 "TRUE" 或 true
+          // 💡 使用 isTruthy 防呆判斷過期狀態
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
           const showRescheduleIcon = isExpired && (r.改期狀態 !== 'final');
 
@@ -630,7 +544,7 @@
           const r = state.records[idx]; const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
           if ((classTime - now) / 3600000 < 2) isTimeout = true;
           
-          // 💡 使用防呆判斷
+          // 💡 使用 isTruthy 防呆判斷
           const isExp = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || r.改期狀態 === 'final';
           if (isExp) expiredItems.push(`${r.date.replace(/\//g, '-')} ${r.time}`); else normalItems.push(`${r.date.replace(/\//g, '-')} ${r.time}`);
       });
@@ -688,7 +602,6 @@
          const result = await res.json();
          const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
          
-         // 完全保留的比對邏輯
          let successBookings = []; let failedBookings = [];
          if (isSuccess) {
              let parsedList = []; let rawResults = result.Results || result.results || result;
@@ -714,14 +627,51 @@
     }
   };
 
+  // 💡 【重要修復】：恢復了完整的錯誤捕捉機制
+  async function loadMyRecords() {
+      state.mode = 'record';
+      stepBar.classList.add('hide'); card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide'); cardRecord.classList.remove('hide');
+      btnBack.classList.add('hide'); btnNext.classList.add('hide'); recordBtns.classList.remove('hide'); 
+      $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
+      
+      setStatus("讀取預約紀錄中...");
+      recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
+      state.selectedRecords.clear();
+      
+      try {
+          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
+              method: "POST", headers: {"Content-Type":"application/json"},
+              body: JSON.stringify({ action: "getRecords", userId: state.uid })
+          });
+          const data = await res.json();
+          state.records = data.records || [];
+          if(data["Remaining credits"] !== undefined) state.recordRemaining = data["Remaining credits"];
+          
+          renderRecordList();
+          updateRecordBtns(); 
+          setStatus("");
+      } catch(e) {
+          console.error("載入失敗:", e);
+          recordList.innerHTML = `<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗：請稍後再試</div>`;
+          setStatus("讀取失敗", true);
+      }
+  }
+
   async function init(){
     const params = new URLSearchParams(window.location.search);
     try { 
-        await liff.init({ liffId: LIFF_ID }); if(!liff.isLoggedIn()) { liff.login(); return; }
+        await liff.init({ liffId: LIFF_ID }); 
+        if(!liff.isLoggedIn()) { liff.login(); return; }
         const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
+        
         if (params.get('page') === 'record') { loadMyRecords(); } 
         else { renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); fetchUserCreditsInBackground(); }
-    } catch(err) {}
+    } catch(err) {
+        console.error("LIFF Init Error:", err);
+        setStatus('載入失敗，請重新整理', true);
+        alert('載入失敗，請確認網路連線或重開視窗。');
+    }
+    
     prevWeek.onclick = () => { if(!prevWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, -7); renderWeekStrip(); } };
     nextWeek.onclick = () => { if(!nextWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, 7); renderWeekStrip(); } };
     document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); state.tab=el.dataset.tab; renderSlotsStep2(); });
