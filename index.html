@@ -49,6 +49,7 @@
     
     .chip{ padding:14px 16px; border-radius:16px; background:#eef2f1; font-weight:950; font-size:18px; cursor:pointer; user-select:none; border:2px solid transparent; min-width:140px; text-align:center; flex:1 1 0; transition: all 0.2s;}
     .chip.sel{ background:var(--selBg); border-color:rgba(18,122,105,.45); box-shadow:0 0 0 3px rgba(18,122,105,.14) inset; color:var(--selText);}
+    .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; border-color: transparent; }
     .courseGrid .chip { min-width: 0; padding: 14px 4px; font-size: 16px; }
 
     .subTitle{ margin:12px 0 8px; font-weight:950; font-size:15px; color:var(--text); }
@@ -192,13 +193,12 @@
         text-decoration-thickness: 2px;
     }
     
-    .step3Del { font-size: 18px; margin-left: auto; cursor: pointer; padding: 4px; display: flex; align-items: center; gap: 10px;}
+    .step3Del { font-size: 18px; margin-left: auto; cursor: pointer; padding: 4px; display: flex; align-items: center; gap: 10px; }
     .icon-trash { color: #d32f2f; }
     .icon-undo { color: var(--primary); }
-    
-    /* 💡 [新增] 改期專屬 CSS */
-    .icon-calendar { font-size: 20px; font-weight: bold; cursor: pointer;} 
-    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 10px; background: var(--selBg); padding: 8px; border-radius: 8px;}
+    /* 💡 新增的 SVG 改期按鈕樣式 */
+    .icon-reschedule { color: #b2682b; cursor: pointer; display: flex; align-items: center; padding: 2px; border-radius: 6px; transition: background 0.2s; }
+    .icon-reschedule:active { background: rgba(178, 104, 43, 0.1); }
 
     .remindTitle{ width:100%; font-weight:950; font-size:14px; color:var(--danger); margin-top:8px; margin-bottom: 4px; flex: 0 0 auto; } 
     .remindBox{ width:100%; border-radius:0; background:transparent; padding:0 8px; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
@@ -256,6 +256,9 @@
       animation: loader-spinner-ring 1s linear infinite;
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* 💡 新增改期狀態提示文字 */
+    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 10px; background: var(--selBg); padding: 8px; border-radius: 8px;}
   </style>
 </head>
 
@@ -348,7 +351,7 @@
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
             <ol>
-              <li>「📅」：使用效期已過，取消將不退堂，僅供改期乙次。</li>
+              <li><svg style="vertical-align: middle; margin-right: 2px; width: 16px; height: 16px; color: #b2682b;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg> ：效期已過，取消將不退堂，僅供改期乙次。</li>
               <li>取消或改期，請於開課前 2 小時完成。</li>
               <li>如有任何問題，請於官方 Line 聯繫我們。</li>
             </ol>
@@ -387,9 +390,9 @@
     recordTab: '1對1',
     cart: [],
     optionsRaw: [], availabilityMap: {}, loadingOptions: false,
-    // 💡 [新增] 狀態管理中加入改期模式
+    // 💡 新增的改期模式參數
     mode: 'book', // 'book' 或 'reschedule'
-    rescheduleSource: null, // 用來存那筆舊的紀錄資料
+    rescheduleSource: null, // 用於暫存被改期的舊紀錄
     records: [], 
     selectedRecords: new Set(),
     remainingCredits: 0,
@@ -508,7 +511,7 @@
       btnNext.disabled = state.cart.length === 0;
       updateStatusInStep2();
       renderCart();
-      // 💡 [新增] 若為改期模式，顯示提示條
+      // 💡 改期模式提示條
       $('#rescheduleTipBox').classList.toggle('hide', state.mode !== 'reschedule');
     }
     if(n===3){
@@ -555,7 +558,7 @@
       
       html += `</div>`; 
       
-      // 💡 [新增] 若為改期模式，因為堂數不增減，所以直接隱藏剩餘堂數
+      // 💡 若為改期模式，因為堂數不增減，所以直接隱藏剩餘堂數
       if (state.mode !== 'reschedule') {
           let currentLeft = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
           html += `
@@ -566,10 +569,10 @@
       
       confirmInfo.innerHTML = html;
       
-      // 💡 [新增] 若為改期模式，替換溫馨提醒
+      // 💡 根據模式動態切換 Step 3 的溫馨提醒
       const remindHtml = state.mode === 'reschedule' 
         ? `<div style="color:var(--primary); font-weight:bold; padding: 4px;">這是一次改期操作，確認送出後<span style="color:var(--danger)">不可再次更改</span>，亦無法取消退還。</div>`
-        : `<ol><li>取消或改期，請於開課前 2 小時完成。</li><li>若某時段已被預約，將發出提醒並跳過該時段。</li></ol>`;
+        : `<ol><li>取消或改期，請於開課前 2 小時完成。</li><li>若某時段已被預約，將發出提醒並跳過該時段，僅預約可預約時段。</li></ol>`;
       
       document.getElementById('step3RemindBox').innerHTML = remindHtml;
       setStatus('');
@@ -595,7 +598,7 @@
   };
 
   function renderCart() {
-      // 💡 [新增] 改期模式不顯示動態扣減
+      // 💡 改期模式不顯示動態扣減
       if (state.remainingCredits !== undefined && state.mode !== 'reschedule') {
           const currentLeft = state.remainingCredits - state.cart.length;
           const displayEl = document.getElementById('displayCredits');
@@ -617,7 +620,7 @@
           const wd = weekdayZhFromDateKey(item.date);
           
           let btnHtml = '';
-          // 💡 [新增] 改期模式不能使用「一鍵包月」
+          // 💡 改期模式不能使用「一鍵包月」
           if (state.mode !== 'reschedule') {
               const availableWeeks = getAvailableRecurringWeeks(item.date, item.time);
               const nextWeekDate = ymd(addDays(item.date, 7));
@@ -668,7 +671,7 @@
       if (idx >= 0) {
           state.cart.splice(idx, 1);
       } else { 
-          // 💡 [新增] 改期只能選一堂
+          // 💡 改期只能選一堂
           if (state.mode === 'reschedule' && state.cart.length >= 1) {
               Swal.fire({ icon: 'warning', title: '只能選擇一堂', html: '改期作業一次僅限更改一堂課', confirmButtonColor: '#127a69' });
               return;
@@ -721,7 +724,7 @@
     COACHES.forEach(c=>{
       const div=document.createElement('div');
       div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      // 💡 [新增] 鎖定教練
+      // 💡 鎖定教練
       if(state.mode === 'reschedule') div.classList.add('disabled');
       div.onclick=()=>{ 
           if(state.mode === 'reschedule') return;
@@ -741,7 +744,7 @@
       const div=document.createElement('div');
       div.className = 'chip' + (state.course===n ? ' sel' : ''); 
       div.textContent = n;
-      // 💡 [新增] 鎖定課程
+      // 💡 鎖定課程
       if(state.mode === 'reschedule') div.classList.add('disabled');
       div.onclick=()=>{ 
           if(state.mode === 'reschedule') return;
@@ -907,6 +910,7 @@
       };
   });
 
+  // 💡 [更新] 渲染紀錄清單，支援改期隱藏與 SVG 圖示切換
   function renderRecordList() {
       const records = state.records;
       let filteredCount = 0;
@@ -916,23 +920,24 @@
           const courseDisplay = getCourseName(r.course, r.people);
           if (courseDisplay !== state.recordTab) return; 
 
-          // 💡 [新增] 隱藏舊的作廢課堂
+          // 💡 隱藏已作廢/轉出的舊課堂
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
 
           filteredCount++;
           const isMarked = state.selectedRecords.has(originalIndex);
-          
           const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`);
           const now = new Date();
           const diffHours = (classTime - now) / (1000 * 60 * 60);
           const canCancel = diffHours >= 2;
-          
           const displayDate = (r.date || '').replace(/\//g, '-');
-          
-          // 💡 [新增] 判斷是否顯示改期圖示
-          const isExpired = r.isExpired === true || r.isExpired === "true"; 
+
+          // 💡 判斷是否顯示改期圖示 (同時相容 isExpired 和 isCardExpired)
+          const isExpired = r.isExpired === true || r.isExpired === "true" || r.isCardExpired === true || r.isCardExpired === "true"; 
           const showReschedule = isExpired && (r.改期狀態 !== 'final');
           
+          // SVG 改期圖示 (咖啡色調 日曆+箭頭)
+          const rescheduleIconSVG = `<div class="icon-reschedule" onclick="startReschedule(event, ${originalIndex})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg></div>`;
+
           html += `
           <div class="confirmItem ${isMarked ? 'marked-delete' : ''}" ${canCancel ? `onclick="toggleDeleteMark(${originalIndex})"` : ''} style="${canCancel ? 'cursor:pointer;' : 'opacity:0.8;' }">
               <div style="display:flex; align-items:center; gap:10px;">
@@ -945,7 +950,7 @@
                   ${!canCancel 
                     ? `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>` 
                     : showReschedule 
-                      ? `<div class="icon-calendar" onclick="startReschedule(event, ${originalIndex})">📅</div>` // 💡 顯示改期圖示
+                      ? rescheduleIconSVG
                       : isMarked 
                         ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`
                         : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -991,7 +996,7 @@
       }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule';
-              state.rescheduleSource = record;
+              state.rescheduleSource = record; 
               
               const matchCoach = COACHES.find(c => c.name === record.coach);
               if (matchCoach) state.coach = matchCoach;
@@ -1048,7 +1053,7 @@
       const now = new Date();
       let isTimeout = false;
 
-      // 💡 [更新] 區分取消的課堂狀態 (退堂/不退堂)
+      // 💡 [更新] 區分取消課堂的綠底可退、紅底不可退
       let normalItems = [];
       let expiredItems = [];
 
@@ -1061,7 +1066,7 @@
               isTimeout = true;
           }
           
-          const isExp = r.isExpired === true || r.isExpired === "true" || r.改期狀態 === 'final';
+          const isExp = r.isExpired === true || r.isExpired === "true" || r.isCardExpired === true || r.isCardExpired === "true" || r.改期狀態 === 'final';
           if (isExp) {
               expiredItems.push(`${r.date.replace(/\//g, '-')} ${r.time}`);
           } else {
@@ -1083,7 +1088,7 @@
           return; 
       }
 
-      // 💡 [更新] 衝堂格式的取消確認視窗
+      // 💡 衝堂格式：紅綠底區塊提醒
       let confirmHtml = `<div style="text-align:left; font-size:15px; margin-top:10px;">`;
       if (normalItems.length > 0) {
           confirmHtml += `<div style="color:var(--primary); font-weight:950; margin-bottom:4px;">✅ 可退堂：</div>`;
@@ -1146,6 +1151,7 @@
               const remain = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : null);
               if (remain !== null) latestRemaining = remain;
 
+              // AI 防呆機制：多方判斷是否屬於不可退還
               if (currentStatus === 'expired' || msg.includes('不予退還') || msg.includes('過期') || booking.改期狀態 === 'final') {
                   expiredBookings.push(booking);
               } else if (currentStatus === 'success' || currentStatus === 'completed') {
@@ -1188,7 +1194,7 @@
                       <div style="background:#fef5f5; padding:12px; border-radius:8px; margin-bottom:8px;">
                           ${expiredHtml}
                       </div>
-                      <div style="color:var(--danger); font-weight:950; text-align:center;">提醒您：因課堂已過期，不予退還。</div>
+                      <div style="color:var(--danger); font-weight:950; text-align:center;">提醒您：因課堂無法退還。</div>
                   </div>
               `;
           } else {
@@ -1251,7 +1257,7 @@
 
       if (expiredBookings.length > 0) {
           if (refundedBookings.length > 0) timesBox.contents.push({ type: "separator", margin: "md" });
-          timesBox.contents.push({ type: "text", text: "過期不予退還：", weight: "bold", color: "#b23a2b", size: "sm", margin: "md" });
+          timesBox.contents.push({ type: "text", text: "不退還堂數：", weight: "bold", color: "#b23a2b", size: "sm", margin: "md" });
           expiredBookings.forEach(b => {
               const dateFormatted = b.date.replace(/\//g, '-');
               timesBox.contents.push({
@@ -1316,10 +1322,8 @@
       };
   }
 
-  // 💡 [更新] 讓成功卡片支援改期標題
   function createSuccessFlexMessage(successCount, remainingCount, successBookings, isReschedule = false) {
       const remainText = remainingCount !== undefined && remainingCount !== "--" ? `${remainingCount}` : "-";
-      
       let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
       
       if (successBookings && successBookings.length > 0) {
@@ -1396,33 +1400,19 @@
 
     try { 
         await liff.init({ liffId: LIFF_ID }); 
-        
-        if(!liff.isLoggedIn()) {
-            liff.login(); 
-            return;
-        }
-
-        const p = await liff.getProfile(); 
-        state.uid = p.userId; 
-        state.name = p.displayName; 
+        if(!liff.isLoggedIn()) { liff.login(); return; }
+        const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
 
         if (isRecordMode) {
             document.title = "支點運動空間";
             loadMyRecords();
         } else {
             document.title = "支點運動空間";
-            renderCoaches(); 
-            renderCourse(); 
-            state.weekStart = weekStartMonday(new Date()); 
-            renderWeekStrip();
-            setStep(1);
-            fetchUserCreditsInBackground();
+            renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
+            setStep(1); fetchUserCreditsInBackground();
         }
-        
     } catch(err) { 
-        console.error(err);
-        setStatus('載入失敗，請重新整理', true);
-        alert('LIFF 載入失敗：' + err.message);
+        console.error(err); setStatus('載入失敗，請重新整理', true);
     }
 
     prevWeek.onclick = () => { if(!prevWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, -7); renderWeekStrip(); } };
@@ -1441,15 +1431,10 @@
         
         state.mode = 'book';
         state.rescheduleSource = null;
-        state.cart = []; 
-        state.course = null; 
-        state.coach = null;  
+        state.cart = []; state.course = null; state.coach = null;  
         renderCart(); 
         
-        stepBar.classList.remove('hide'); 
-        cardRecord.classList.add('hide'); 
-        recordBtns.classList.add('hide'); 
-        
+        stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); 
         renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip();
         setStep(1);
     };
@@ -1461,7 +1446,7 @@
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
         try{
-           // 💡 [新增] 根據模式動態切換 Action 並打包 Payload
+           // 💡 [新增] 根據模式發送對應的 Action 與 Payload
            const isReschedule = state.mode === 'reschedule';
            const payload = {
               action: isReschedule ? "reschedule" : "book",
@@ -1470,9 +1455,9 @@
               bookedCount: state.cart.length 
            };
 
-           // 💡 若為改期，附加上舊紀錄資訊供 Make 使用
+           // 如果是改期，把舊紀錄附上供 Make.com 搜尋與替換
            if (isReschedule && state.rescheduleSource) {
-               payload.oldRowNumber = state.rescheduleSource.rowNumber || state.rescheduleSource.rowIndex; // 注意：請確保 getRecords 會回傳 rowNumber 供前端使用
+               payload.oldRowNumber = state.rescheduleSource.rowNumber || state.rescheduleSource.rowIndex; 
                payload.oldDate = state.rescheduleSource.date;
                payload.oldTime = state.rescheduleSource.time;
                payload.newDate = state.cart[0].date;
@@ -1483,7 +1468,7 @@
            const result = await res.json();
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
            
-           // 以下保留你原本全部的 parsedList 成功/失敗比對邏輯
+           // 💡 [完全保留] 你原本的預約結果比對邏輯，一行未刪！
            let successBookings = [];
            let failedBookings = [];
            
@@ -1571,7 +1556,6 @@
              
              if(liff.isInClient()) {
                  try {
-                     // 💡 [更新] 帶入 isReschedule 讓卡片產生改期標題
                      await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings, isReschedule)]);
                  } catch (msgErr) {
                      console.log("LINE 訊息傳送失敗", msgErr);
