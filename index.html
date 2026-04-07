@@ -296,7 +296,7 @@
     recordTab: '1對1',
     cart: [],
     optionsRaw: [], availabilityMap: {}, loadingOptions: false,
-    mode: 'book', // 'book' 或 'reschedule'
+    mode: 'book', 
     rescheduleSource: null, 
     records: [], 
     selectedRecords: new Set(),
@@ -355,6 +355,11 @@
       else if(!hasAnySlots()) setStatus('目前沒有可預約的時段', true);
       else if(state.dateKey) setStatus(`已選日期：${state.dateKey}`);
       else setStatus('請先選擇上方日期');
+  }
+
+  // ==== 補齊：檢查時段是否有空堂 ====
+  function hasAnySlots() {
+      return Object.values(state.availabilityMap).some(arr => arr.length > 0);
   }
 
   function getAvailableRecurringWeeks(startDateKey, timeStr) {
@@ -470,7 +475,122 @@
   function renderCoaches(){ coachRow.innerHTML=''; COACHES.forEach(c=>{ const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; coachRow.appendChild(div); }); }
   function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
 
-  // 💡 【重要防禦】：強大布林值字串判定工具
+  // ==== 補齊：背後抓取使用者堂數 ====
+  async function fetchUserCreditsInBackground() {
+      try {
+          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
+              method: 'POST', headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({ action: 'getCredits', userId: state.uid })
+          });
+          const data = await res.json();
+          state.credits_1on1 = data.credits_1on1 !== undefined ? data.credits_1on1 : '--';
+          state.credits_1on2 = data.credits_1on2 !== undefined ? data.credits_1on2 : '--';
+          state.credits_group = data.credits_group !== undefined ? data.credits_group : '--';
+          renderCourseTip();
+      } catch(e) {
+          console.error("Fetch credits failed", e);
+      }
+  }
+
+  // ==== 補齊：載入教練時段 ====
+  async function loadOptionsForCoach() {
+      setStep(2);
+      state.loadingOptions = true;
+      state.availabilityMap = {};
+      state.cart = [];
+      state.dateKey = null;
+      renderWeekStrip();
+      renderSlotsStep2();
+      updateStatusInStep2();
+      
+      coachName2.textContent = state.coach.name;
+      coachAvatar2.src = state.coach.avatar;
+      coachTags2.innerHTML = state.coach.tags.map(t => `<div class="tag">${t}</div>`).join('');
+      $('#step2CourseName').textContent = state.course;
+      
+      if (state.course === '1對1') state.remainingCredits = state.credits_1on1;
+      else if (state.course === '1對2') state.remainingCredits = state.credits_1on2;
+      else if (state.course === '包班') state.remainingCredits = state.credits_group;
+      
+      renderCart();
+
+      try {
+          const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
+              method: 'POST', headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({ action: 'getAvailability', coachName: state.coach.name, course: state.course })
+          });
+          const data = await res.json();
+          state.optionsRaw = data.availableSlots || data; 
+          
+          if(Array.isArray(state.optionsRaw)) {
+              state.optionsRaw.forEach(slot => {
+                  const d = slot.date.replace(/\//g, '-');
+                  if(!state.availabilityMap[d]) state.availabilityMap[d] = [];
+                  state.availabilityMap[d].push(slot.time);
+              });
+          } else if(typeof state.optionsRaw === 'object') {
+              state.availabilityMap = state.optionsRaw; 
+          }
+      } catch(e) {
+          console.error("載入時段失敗", e);
+          setStatus('載入時段失敗，請重新整理', true);
+      } finally {
+          state.loadingOptions = false;
+          updateStatusInStep2();
+          renderSlotsStep2();
+      }
+  }
+
+  // ==== 補齊：渲染星期條 ====
+  function renderWeekStrip() {
+      monthTitle.textContent = monthYearLabel(state.weekStart);
+      weekStrip.innerHTML = '';
+      for(let i=0; i<7; i++) {
+          const d = addDays(state.weekStart, i);
+          const dKey = ymd(d);
+          const isPast = d < startOfDay(new Date());
+          const div = document.createElement('div');
+          div.className = 'dayCell' + (isPast ? ' disabled' : '') + (state.dateKey === dKey ? ' sel' : '');
+          div.innerHTML = `<div class="dowTxt">${dowLabel(i)}</div><div class="dateDot">${d.getDate()}</div>`;
+          if(!isPast) {
+              div.onclick = () => {
+                  state.dateKey = dKey;
+                  renderWeekStrip();
+                  renderSlotsStep2();
+                  updateStatusInStep2();
+              };
+          }
+          weekStrip.appendChild(div);
+      }
+  }
+
+  // ==== 補齊：渲染下方時段網格 ====
+  function renderSlotsStep2() {
+      if(!state.dateKey) { slotGrid2.innerHTML = '<div class="slotTip">請先選擇日期</div>'; return; }
+      const slots = state.availabilityMap[state.dateKey] || [];
+      let filtered = [];
+      slots.forEach(t => {
+          const h = parseInt(t.split(':')[0], 10);
+          if(state.tab === 'am' && h < 12) filtered.push(t);
+          else if(state.tab === 'pm' && h >= 12 && h < 18) filtered.push(t);
+          else if(state.tab === 'night' && h >= 18) filtered.push(t);
+      });
+      slotGrid2.innerHTML = '';
+      if(filtered.length === 0) {
+          slotGrid2.innerHTML = '<div class="slotTip">此時段無空堂</div>';
+      } else {
+          filtered.forEach(time => {
+              const isValid = canBookNow(state.dateKey, time);
+              const isSel = state.cart.some(c => c.date === state.dateKey && c.time === time);
+              const div = document.createElement('div');
+              div.className = 'slot' + (!isValid ? ' disabled' : '') + (isSel ? ' sel' : '');
+              div.textContent = time;
+              if(isValid) div.onclick = () => toggleCartItem(state.dateKey, time);
+              slotGrid2.appendChild(div);
+          });
+      }
+  }
+
   function isTruthy(val) {
       if (val === true) return true;
       if (typeof val === 'string' && val.trim().toLowerCase() === 'true') return true;
@@ -486,16 +606,13 @@
           filteredCount++;
           
           const isMarked = state.selectedRecords.has(originalIndex);
-          // 防呆：確保 date 不是空值
           const displayDate = (r.date || '').replace(/\//g, '-');
           const classTime = new Date(`${displayDate}T${r.time || '00:00'}:00`);
           const canCancel = (classTime - new Date()) / 3600000 >= 2;
           
-          // 使用 isTruthy 防呆判斷過期狀態
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
           const showRescheduleIcon = isExpired && (r.改期狀態 !== 'final');
 
-          // SVG 改期圖示
           const rescheduleIconSVG = `<div class="icon-reschedule" onclick="startReschedule(event, ${originalIndex})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg></div>`;
 
           html += `
@@ -516,6 +633,26 @@
       });
       $('#myRecordCount').textContent = `共 ${filteredCount} 堂`;
       recordList.innerHTML = html || '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">無預約紀錄</div>';
+  }
+
+  // ==== 補齊：取消選取標記邏輯 ====
+  window.toggleDeleteMark = function(idx) {
+      if (state.selectedRecords.has(idx)) {
+          state.selectedRecords.delete(idx);
+      } else {
+          state.selectedRecords.add(idx);
+      }
+      renderRecordList();
+      updateRecordBtns();
+  };
+
+  // ==== 補齊：更新底下按鈕狀態邏輯 ====
+  function updateRecordBtns() {
+      const count = state.selectedRecords.size;
+      if(btnCancelBatch) {
+          btnCancelBatch.disabled = count === 0;
+          btnCancelBatch.textContent = count > 0 ? `取消預約 (${count})` : '取消預約';
+      }
   }
 
   window.startReschedule = function(e, originalIndex) {
@@ -624,7 +761,6 @@
     }
   };
 
-  // 💡 【最強防禦解析機制】：清楚秀出 Make 傳回來的問題
   async function loadMyRecords() {
       state.mode = 'record';
       stepBar.classList.add('hide'); card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide'); cardRecord.classList.remove('hide');
@@ -641,11 +777,14 @@
               body: JSON.stringify({ action: "getRecords", userId: state.uid })
           });
           
-          // 強制取得純文字並清除隱藏字元
           const rawText = await res.text(); 
           let data;
           try {
               data = JSON.parse(rawText.trim());
+              // ==== 補齊：防呆機制，若 Make 將陣列包裝成字串，強制解析回陣列 ====
+              if (data.records && typeof data.records === 'string') {
+                  try { data.records = JSON.parse(data.records); } catch(e){}
+              }
           } catch(parseErr) {
               throw new Error(`格式錯誤: ${parseErr.message} <br><br> ${rawText.substring(0, 100)}`);
           }
@@ -668,6 +807,19 @@
     try { 
         await liff.init({ liffId: LIFF_ID }); if(!liff.isLoggedIn()) { liff.login(); return; }
         const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
+        
+        // ==== 補齊：紀錄頁籤點擊事件綁定 ====
+        document.querySelectorAll('.record-tab').forEach(el => {
+            el.onclick = () => {
+                document.querySelectorAll('.record-tab').forEach(t => t.classList.remove('active'));
+                el.classList.add('active');
+                state.recordTab = el.dataset.tab;
+                state.selectedRecords.clear(); // 換頁籤清空選取
+                renderRecordList();
+                updateRecordBtns();
+            };
+        });
+
         if (params.get('page') === 'record') { loadMyRecords(); } 
         else { renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); fetchUserCreditsInBackground(); }
     } catch(err) {
