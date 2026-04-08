@@ -319,7 +319,7 @@
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
             <ol>
-              <li><svg style="vertical-align: middle; margin-right: 2px; width: 16px; height: 16px; color: #b2682b;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg> ：該堂購買效期已過，取消不予退堂，僅供改期乙次。</li>
+              <li><svg style="vertical-align: middle; margin-right: 0px; width: 16px; height: 16px; color: #b2682b;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg>：該堂購買效期已過，取消不予退堂，僅供改期乙次。</li>
               <li>取消或改期，請於課堂前 2 小時完成。</li>
               <li>如有任何問題，請於官方 Line 聯繫我們。</li>
             </ol>
@@ -612,7 +612,7 @@
                       showCancelButton: true,
                       confirmButtonText: '加入',
                       confirmButtonColor: '#127a69', 
-                      cancelButtonText: '取消',
+                      cancelButtonText: '返回',
                       iconColor: '#127a69' 
                   }).then((res)=>{
                       if(res.isConfirmed){
@@ -992,8 +992,13 @@
       e.stopPropagation(); 
       const record = state.records[originalIndex];
       Swal.fire({
-          title: '確定更改時間?', html: '該課堂購買效期已過，取消不退堂，僅供修改日期乙次。',
-          icon: 'warning', showCancelButton: true, cancelButtonText: '取消', confirmButtonText: '確定改期', confirmButtonColor: '#127a69'
+          title: '確定更改時間?', 
+          html: '該課堂購買效期已過，取消不退堂，<br>僅供更改日期乙次。',
+          icon: 'warning', 
+          showCancelButton: true, 
+          cancelButtonText: '返回', 
+          confirmButtonText: '確定更改', 
+          confirmButtonColor: '#127a69'
       }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule'; state.rescheduleSource = record;
@@ -1083,7 +1088,7 @@
           showCancelButton: true,
           confirmButtonText: '確定取消',
           confirmButtonColor: '#d33',
-          cancelButtonText: '取消',
+          cancelButtonText: '返回',
           reverseButtons: true,
           focusCancel: true
       }).then((result) => {
@@ -1504,7 +1509,7 @@
                   html: isReschedule ? `已為您更改至新時段！` : `已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
                   confirmButtonText: '確定', 
                   confirmButtonColor: '#127a69',
-                  cancelButtonText: '取消'
+                  cancelButtonText: '返回'
               });
 
               if(liff.isInClient()) {
@@ -1522,14 +1527,14 @@
                   icon:'error', title: '糟糕！失敗！',
                   html: `時段可能已被預約，請選擇其他時段。`,
                   confirmButtonColor: '#b23a2b',
-                  cancelButtonText: '取消' 
+                  cancelButtonText: '返回' 
               });
               setStep(2);
               btnNext.disabled = false; btnNext.textContent = "確認送出";
            }
            
         }catch(e){ 
-           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f', cancelButtonText: '取消' }); 
+           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f', cancelButtonText: '返回' }); 
            btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
       }
