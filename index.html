@@ -86,7 +86,6 @@
     .tab.active{ color:var(--text); }
     .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px; background:var(--primary); border-radius:999px; }
     
-    /* 取消紀錄頁面的專屬膠囊 Tabs 樣式 */
     .record-tabs-container {
         display: flex; gap: 6px; margin-bottom: 12px; background: var(--selBg); padding: 5px; border-radius: 99px; flex: 0 0 auto;
     }
@@ -728,7 +727,6 @@
 
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   
-  // 保留原始的 Make.com 時間解析邏輯
   function buildAvailabilityMap(options){
     const map = {};
     (options||[]).forEach(o=>{
@@ -796,7 +794,6 @@
 
     setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart();
     
-    // 如果是改期，剩餘堂數就不重要，若是預約則抓取剩餘堂數
     if (state.course === '1對1') state.remainingCredits = state.credits_1on1;
     else if (state.course === '1對2') state.remainingCredits = state.credits_1on2;
     else if (state.course === '包班') state.remainingCredits = state.credits_group;
@@ -810,7 +807,6 @@
       let data;
       try { data = JSON.parse(rawText.trim()); } catch(e) { data = rawText; }
       
-      // 確保即使被轉成字串也能順利解析
       if (typeof data.options === 'string') { try { data.options = JSON.parse(data.options); } catch(e) {} }
       
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
@@ -931,7 +927,7 @@
               if (showRescheduleIcon && !isMarked) {
                   actionContent += rescheduleIconSVG;
               }
-              actionContent += `<div style="display:inline-block;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : trashIconSVG) + `</div>`;
+              actionContent += `<div style="display:inline-block; cursor:pointer;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : trashIconSVG) + `</div>`;
           }
           
           html += `
@@ -1464,13 +1460,39 @@
            
            let successBookings = []; let failedBookings = [];
            if (isSuccess) {
-               let parsedList = []; let rawResults = result.Results || result.results || result;
+               let parsedList = []; let rawResults = result.Results || result.results || result.records || result;
                if (!Array.isArray(rawResults)) rawResults = [rawResults];
-               function parseItem(item) { if (Array.isArray(item)) item.forEach(parseItem); else if (typeof item === 'object' && item !== null) parsedList.push(item); else if (typeof item === 'string') { try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} } }
+               
+               function parseItem(item) { 
+                   if (Array.isArray(item)) item.forEach(parseItem); 
+                   else if (typeof item === 'object' && item !== null) parsedList.push(item); 
+                   else if (typeof item === 'string') { 
+                       try { 
+                           let obj = JSON.parse(item); 
+                           if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); 
+                       } catch (e) {} 
+                   } 
+               }
                parseItem(rawResults);
-               successBookings = state.cart.filter(item => { const dateSlash = item.date.replace(/-/g, '/'); return parsedList.some(res => { const rDate = res.date || res.Date; const rTime = res.time || res.Time; return (rDate === item.date || rDate === dateSlash) && (rTime === item.time) && (res.status !== 'failed'); }); });
+               
+               successBookings = state.cart.filter(item => { 
+                   const dateSlash = item.date.replace(/-/g, '/'); 
+                   return parsedList.some(res => { 
+                       const rDate = String(res.date || res.Date || '').trim(); 
+                       const rTime = String(res.time || res.Time || '').trim();
+                       return (rDate === item.date || rDate === dateSlash) && (rTime === item.time) && (res.status !== 'failed'); 
+                   }); 
+               });
+               
+               // 💡【關鍵防呆】：如果 Make 確定回傳 success，但比對日期時間因為格式問題沒對上，我們強制相信 Make 的 success！
+               if (successBookings.length === 0) {
+                   successBookings = [...state.cart];
+               }
+               
                failedBookings = state.cart.filter(item => !successBookings.includes(item));
-           } else { failedBookings = [...state.cart]; }
+           } else { 
+               failedBookings = [...state.cart]; 
+           }
 
            const actualSuccessCount = successBookings.length;
            const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
@@ -1481,7 +1503,8 @@
                   title: isReschedule ? '改期成功' : '預約成功', 
                   html: isReschedule ? `已為您更改至新時段！` : `已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
                   confirmButtonText: '確定', 
-                  confirmButtonColor: '#127a69'
+                  confirmButtonColor: '#127a69',
+                  cancelButtonText: '取消'
               });
 
               if(liff.isInClient()) {
@@ -1498,14 +1521,15 @@
               Swal.fire({ 
                   icon:'error', title: '糟糕！失敗！',
                   html: `時段可能已被預約，請選擇其他時段。`,
-                  confirmButtonColor: '#b23a2b' 
+                  confirmButtonColor: '#b23a2b',
+                  cancelButtonText: '取消' 
               });
               setStep(2);
               btnNext.disabled = false; btnNext.textContent = "確認送出";
            }
            
         }catch(e){ 
-           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f' }); 
+           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f', cancelButtonText: '取消' }); 
            btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
       }
