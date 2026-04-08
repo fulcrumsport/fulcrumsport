@@ -180,9 +180,7 @@
     .icon-reschedule:active { background: rgba(178, 104, 43, 0.1); }
 
     .remindTitle{ width:100%; font-weight:950; font-size:14px; color:var(--danger); margin-top:8px; margin-bottom: 4px; flex: 0 0 auto; } 
-    /* 將 padding 歸零，讓文字直接貼齊外框，釋放最大空間 */
     .remindBox{ width:100%; border-radius:0; background:transparent; padding:0; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
-    /* ol 的縮排也減小到剛好能容納數字 1. */
     .remindBox ol { padding-left: 15px; margin: 0; }
     .remindBox li { margin-bottom: 4px; }
     
@@ -543,7 +541,7 @@
       
       const remindHtml = state.mode === 'reschedule' 
         ? `<div style="color:var(--primary); font-weight:bold; padding: 4px;">這是一次改期操作，確認送出後<span style="color:var(--danger)">不可再次更改</span>，亦無法取消退還。</div>`
-        : `<ol><li>取消或改期，請於開課前 2 小時完成。</li><li>若某時段已被預約，將發出提醒並跳過該時段。</li></ol>`;
+        : `<ol><li>取消或改期，請於課堂前 2 小時完成。</li><li>若某時段已被預約，將發出提醒並跳過該時段。</li></ol>`;
       
       $('#step3RemindBox').innerHTML = remindHtml;
       setStatus('');
@@ -1441,6 +1439,7 @@
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
         try{
+           // ✨ 判斷是否為改期模式，動態切換 action 與欄位
            const isReschedule = state.mode === 'reschedule';
            const payload = {
               action: isReschedule ? "reschedule" : "book", 
@@ -1453,13 +1452,18 @@
               bookedCount: state.cart.length 
            };
 
+           // ✨ 若為改期，補齊 Make 需要的舊資料
            if (isReschedule && state.rescheduleSource) { 
-               payload.oldRowNumber = state.rescheduleSource.rowNumber || state.rescheduleSource.rowIndex; 
+               payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || state.rescheduleSource.__IMTINDEX__ || ""; 
                payload.oldDate = state.rescheduleSource.date; 
                payload.oldTime = state.rescheduleSource.time;
-               payload.newDate = state.cart[0].date; 
-               payload.newTime = state.cart[0].time;
+               if(state.cart.length > 0) {
+                   payload.newDate = state.cart[0].date; 
+                   payload.newTime = state.cart[0].time;
+               }
            }
+           
+           console.log("發送給 Make 的資料:", payload); // 方便你 Debug 使用
 
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            
