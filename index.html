@@ -788,6 +788,11 @@
   }
 
   async function loadOptionsForCoach(){
+    // ✨ 修復點：如果從紀錄頁面直接進入改期，行事曆起始日可能會是空的，需要補上初始化
+    if (!state.weekStart) {
+        state.weekStart = weekStartMonday(new Date());
+    }
+
     state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; 
     
     const s2Name = document.getElementById('step2CourseName');
@@ -800,9 +805,17 @@
     else if (state.course === '包班') state.remainingCredits = state.credits_group;
 
     try{
+      // 這裡發送的是 getOptions
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
-         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:state.course, userId:state.uid })
+         body: JSON.stringify({ 
+             action:"getOptions", 
+             coachName:state.coach.name, 
+             course:state.course, 
+             people:state.course, 
+             userId:state.uid,
+             mode: state.mode // 多送一個 mode 讓 Make 知道現在是 book 還是 reschedule
+         })
       });
       const rawText = await res.text();
       let data;
@@ -1282,7 +1295,7 @@
                 type: "box", layout: "vertical", spacing: "xs", margin: "md",
                 contents: [
                   { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" },
-                  { type: "text", text: "• 取消或改期，請於開課前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
+                  { type: "text", text: "• 取消或改期，請於課堂前 2 小時完成。", size: "xxs", color: "#7a8280", wrap: true },
                   { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true }
                 ]
               },
@@ -1439,7 +1452,7 @@
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
         try{
-           // ✨ 判斷是否為改期模式，動態切換 action 與欄位
+           // 真正送出 action = reschedule 的地方在這！
            const isReschedule = state.mode === 'reschedule';
            const payload = {
               action: isReschedule ? "reschedule" : "book", 
@@ -1452,7 +1465,6 @@
               bookedCount: state.cart.length 
            };
 
-           // ✨ 若為改期，補齊 Make 需要的舊資料
            if (isReschedule && state.rescheduleSource) { 
                payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || state.rescheduleSource.__IMTINDEX__ || ""; 
                payload.oldDate = state.rescheduleSource.date; 
@@ -1463,7 +1475,7 @@
                }
            }
            
-           console.log("發送給 Make 的資料:", payload); // 方便你 Debug 使用
+           console.log("🚀 即將送出給 Make 的資料:", payload);
 
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            
