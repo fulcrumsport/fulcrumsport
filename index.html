@@ -251,7 +251,7 @@
     <div id="card2" class="card hide" style="flex:1; min-height:0;">
       <div class="step2Box">
         <div class="h">Step 2｜選擇日期及時段</div>
-        <div id="rescheduleTipBox" class="reschedule-tip hide">更改日期作業中，請重新選擇時段。</div>
+        <div id="rescheduleTipBox" class="reschedule-tip hide">更改時段作業中...請重新選擇時段。</div>
         <div class="coachIntro">
           <div class="avatar"><img id="coachAvatar2" alt="" /></div>
           <div class="coachMeta">
@@ -924,10 +924,7 @@
           const canCancel = diffHours >= 2;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
-          
-          // ✨ 新增：不論有無過期，只要改期狀態不是 final 就能改期
           const canReschedule = (!isExpired) || (isExpired && r.改期狀態 !== 'final');
-          // ✨ 新增：根據是否過期來決定圖示顏色
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
           
           const displayDate = (r.date || '').replace(/\//g, '-');
@@ -1003,16 +1000,15 @@
       }
   };
 
-  // ✨ 更新：加入 isExpired 判斷，彈出不同的提示
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); 
       const record = state.records[originalIndex];
-      record.isExpiredStatus = isExpired; // 標記狀態供後續使用
+      record.isExpiredStatus = isExpired; 
       
-      const titleText = '確定更改時間?';
+      const titleText = isExpired ? '確定更改時間?' : '確定更改時段?';
       const htmlText = isExpired 
           ? '該課堂購買效期已過，取消不退堂，<br>僅供更改日期乙次。' 
-          : '尚在購買效期內，<br>將為您重新安排此堂課程的時間。';
+          : '將為您重新安排此堂課程的時段。';
       const iconType = isExpired ? 'warning' : 'question';
 
       Swal.fire({
@@ -1149,7 +1145,15 @@
                   method: "POST", headers: {"Content-Type":"application/json"},
                   body: JSON.stringify({ action: "doCancel", userId: state.uid, bookings: [booking] })
               });
-              const result = await res.json();
+              
+              const rawResponseText = await res.text();
+              let result;
+              try {
+                  const safeText = rawResponseText.replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+                  result = JSON.parse(safeText);
+              } catch (e) {
+                  throw new Error("回傳格式異常");
+              }
               
               const currentStatus = result.Status || result.status;
               const msg = result.Message || result.message || ""; 
@@ -1475,14 +1479,12 @@
               bookedCount: state.cart.length 
            };
 
-           // ✨ 處理 Make 所需的改期判斷資訊
            if (isReschedule && state.rescheduleSource) { 
                payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || state.rescheduleSource.__IMTINDEX__ || ""; 
                payload.oldDate = state.rescheduleSource.date; 
                payload.oldTime = state.rescheduleSource.time;
                payload.oldDeductSource = state.rescheduleSource.deductSource || state.rescheduleSource.扣堂來源 || ""; 
                
-               // 傳送狀態給 Make 判斷是否要鎖死新課堂
                payload.rescheduleType = state.rescheduleSource.isExpiredStatus ? 'expired_remedy' : 'normal';
                payload.newRescheduleStatus = state.rescheduleSource.isExpiredStatus ? 'final' : '';
 
@@ -1497,7 +1499,17 @@
 
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            
-           const result = await res.json();
+           // ✨ 強大防呆：修正 Make.com 變數為空時導致的 JSON 格式錯誤
+           const rawResponseText = await res.text();
+           let result;
+           try {
+               const safeText = rawResponseText.replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+               result = JSON.parse(safeText);
+           } catch (e) {
+               console.error("JSON解析失敗，原始字串:", rawResponseText);
+               throw new Error("回傳格式異常");
+           }
+           
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
            
            let successBookings = []; let failedBookings = [];
