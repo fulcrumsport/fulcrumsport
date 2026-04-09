@@ -226,6 +226,7 @@
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
+    /* ✨ 更新：紅條提示改為指定文字 */
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px;}
   </style>
 </head>
@@ -1108,7 +1109,7 @@
           showCancelButton: true,
           confirmButtonText: '確定取消',
           confirmButtonColor: '#d33',
-          cancelButtonText: '取消',
+          cancelButtonText: '返回',
           reverseButtons: true,
           focusCancel: true
       }).then((result) => {
@@ -1339,7 +1340,7 @@
       if (successBookings && successBookings.length > 0) {
           successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
               const dateFormatted = b.date.replace(/\//g, '-');
-              const wd = weekdayZhFromDateKey(b.date);
+              const wd = b.weekday || weekdayZhFromDateKey(b.date);
               timesBox.contents.push({
                   type: "box", layout: "horizontal", spacing: "sm",
                   contents: [
@@ -1348,8 +1349,6 @@
                   ]
               });
           });
-      } else {
-          timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
       }
 
       return {
@@ -1436,7 +1435,6 @@
     } catch(err) { 
         console.error(err);
         setStatus('載入失敗，請重新整理', true);
-        alert('LIFF 載入失敗：' + err.message);
     }
 
     prevWeek.onclick = () => { if(!prevWeek.classList.contains('disabled')) { state.weekStart = addDays(state.weekStart, -7); renderWeekStrip(); } };
@@ -1476,7 +1474,8 @@
               course: state.course, 
               people: state.course,
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
-              bookedCount: state.cart.length 
+              bookedCount: state.cart.length,
+              currentCredits: (state.course === '1對1' ? state.credits_1on1 : (state.course === '1對2' ? state.credits_1on2 : state.credits_group))
            };
 
            if (isReschedule && state.rescheduleSource) { 
@@ -1484,7 +1483,6 @@
                payload.oldDate = state.rescheduleSource.date; 
                payload.oldTime = state.rescheduleSource.time;
                payload.oldDeductSource = state.rescheduleSource.deductSource || state.rescheduleSource.扣堂來源 || ""; 
-               
                payload.rescheduleType = state.rescheduleSource.isExpiredStatus ? 'expired_remedy' : 'normal';
                payload.newRescheduleStatus = state.rescheduleSource.isExpiredStatus ? 'final' : '';
 
@@ -1495,24 +1493,20 @@
                }
            }
            
-           console.log("🚀 即將送出給 Make 的資料:", payload);
-
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            
-           // ✨ 強大防呆：修正 Make.com 變數為空時導致的 JSON 格式錯誤
            const rawResponseText = await res.text();
            let result;
            try {
                const safeText = rawResponseText.replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
                result = JSON.parse(safeText);
            } catch (e) {
-               console.error("JSON解析失敗，原始字串:", rawResponseText);
-               throw new Error("回傳格式異常");
+               throw new Error("格式異常");
            }
            
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
            
-           let successBookings = []; let failedBookings = [];
+           let successBookings = [];
            if (isSuccess) {
                let parsedList = []; let rawResults = result.Results || result.results || result.records || result;
                if (!Array.isArray(rawResults)) rawResults = [rawResults];
@@ -1521,10 +1515,7 @@
                    if (Array.isArray(item)) item.forEach(parseItem); 
                    else if (typeof item === 'object' && item !== null) parsedList.push(item); 
                    else if (typeof item === 'string') { 
-                       try { 
-                           let obj = JSON.parse(item); 
-                           if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); 
-                       } catch (e) {} 
+                       try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} 
                    } 
                }
                parseItem(rawResults);
@@ -1538,13 +1529,7 @@
                    }); 
                });
                
-               if (successBookings.length === 0) {
-                   successBookings = [...state.cart];
-               }
-               
-               failedBookings = state.cart.filter(item => !successBookings.includes(item));
-           } else { 
-               failedBookings = [...state.cart]; 
+               if (successBookings.length === 0) successBookings = [...state.cart];
            }
 
            const actualSuccessCount = successBookings.length;
@@ -1552,35 +1537,22 @@
            
            if (isSuccess && actualSuccessCount > 0) {
               await Swal.fire({ 
-                  icon:'success', 
-                  title: isReschedule ? '改期成功' : '預約成功', 
+                  icon:'success', title: isReschedule ? '改期成功' : '預約成功', 
                   html: isReschedule ? `已為您更改至新時段！` : `已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
-                  confirmButtonText: '確定', 
-                  confirmButtonColor: '#127a69',
-                  cancelButtonText: '返回'
+                  confirmButtonText: '確定', confirmButtonColor: '#127a69', cancelButtonText: '返回'
               });
 
               if(liff.isInClient()) {
                   try {
                       const flexMsg = createSuccessFlexMessage(actualSuccessCount, remaining, successBookings, isReschedule);
                       await liff.sendMessages([flexMsg]);
-                  } catch (msgErr) {
-                      console.error("LINE 卡片傳送失敗:", msgErr);
-                  }
+                  } catch (msgErr) {}
               }
               liff.closeWindow();
-              
            } else {
-              Swal.fire({ 
-                  icon:'error', title: '糟糕！失敗！',
-                  html: `時段可能已被預約，請選擇其他時段。`,
-                  confirmButtonColor: '#b23a2b',
-                  cancelButtonText: '返回' 
-              });
-              setStep(2);
-              btnNext.disabled = false; btnNext.textContent = "確認送出";
+              Swal.fire({ icon:'error', title: '失敗！', html: `時段可能已被預約，請重新選擇。`, confirmButtonColor: '#b23a2b', cancelButtonText: '返回' });
+              setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
            }
-           
         }catch(e){ 
            Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f', cancelButtonText: '返回' }); 
            btnNext.disabled=false; btnNext.textContent="確認送出"; 
