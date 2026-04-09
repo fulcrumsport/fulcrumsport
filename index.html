@@ -176,8 +176,8 @@
     .step3Del { font-size: 18px; margin-left: auto; cursor: pointer; padding: 4px; display: flex; align-items: center; }
     .icon-trash { color: #d32f2f; }
     .icon-undo { color: var(--primary); }
-    .icon-reschedule { color: #b2682b; cursor: pointer; display: flex; align-items: center; padding: 2px; border-radius: 6px; transition: background 0.2s; }
-    .icon-reschedule:active { background: rgba(178, 104, 43, 0.1); }
+    .icon-reschedule { cursor: pointer; display: flex; align-items: center; padding: 2px; border-radius: 6px; transition: background 0.2s; }
+    .icon-reschedule:active { background: rgba(0, 0, 0, 0.05); }
 
     .remindTitle{ width:100%; font-weight:950; font-size:14px; color:var(--danger); margin-top:8px; margin-bottom: 4px; flex: 0 0 auto; } 
     .remindBox{ width:100%; border-radius:0; background:transparent; padding:0; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
@@ -226,7 +226,6 @@
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* ✨ 更新：改期提示條改為紅色系，警示感更強 */
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px;}
   </style>
 </head>
@@ -320,7 +319,7 @@
         <div class="remindTitle">溫馨提醒</div>
         <div class="remindBox">
             <ol>
-              <li><svg style="vertical-align: text-bottom; margin-right: 0px; width: 15px; height: 15px; color: #b2682b;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg>：該堂購買效期已過，取消不予退堂，僅供改期乙次。</li>
+              <li><svg style="vertical-align: text-bottom; margin-right: 0px; width: 15px; height: 15px; color: var(--danger);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg>：該堂購買效期已過，取消不予退堂，僅供改期乙次。</li>
               <li>取消或改期，請於課堂前 2 小時完成。</li>
               <li>如有任何問題，請於官方 Line 聯繫我們。</li>
             </ol>
@@ -925,11 +924,15 @@
           const canCancel = diffHours >= 2;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
-          const showRescheduleIcon = isExpired && (r.改期狀態 !== 'final');
+          
+          // ✨ 新增：不論有無過期，只要改期狀態不是 final 就能改期
+          const canReschedule = (!isExpired) || (isExpired && r.改期狀態 !== 'final');
+          // ✨ 新增：根據是否過期來決定圖示顏色
+          const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
           
           const displayDate = (r.date || '').replace(/\//g, '-');
           
-          const rescheduleIconSVG = `<div class="icon-reschedule" onclick="startReschedule(event, ${originalIndex})" style="margin-right: 6px; display:inline-block;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg></div>`;
+          const rescheduleIconSVG = `<div class="icon-reschedule" onclick="startReschedule(event, ${originalIndex}, ${isExpired})" style="margin-right: 6px; display:inline-block; color: ${iconColor};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M7 15l2 2 4-4"></path></svg></div>`;
           const trashIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
           const undoIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`;
           
@@ -937,7 +940,7 @@
           if (!canCancel) {
               actionContent = `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>`;
           } else {
-              if (showRescheduleIcon && !isMarked) {
+              if (canReschedule && !isMarked) {
                   actionContent += rescheduleIconSVG;
               }
               actionContent += `<div style="display:inline-block; cursor:pointer;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : trashIconSVG) + `</div>`;
@@ -1000,13 +1003,22 @@
       }
   };
 
-  window.startReschedule = function(e, originalIndex) {
+  // ✨ 更新：加入 isExpired 判斷，彈出不同的提示
+  window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); 
       const record = state.records[originalIndex];
+      record.isExpiredStatus = isExpired; // 標記狀態供後續使用
+      
+      const titleText = '確定更改時間?';
+      const htmlText = isExpired 
+          ? '該課堂購買效期已過，取消不退堂，<br>僅供更改日期乙次。' 
+          : '尚在購買效期內，<br>將為您重新安排此堂課程的時間。';
+      const iconType = isExpired ? 'warning' : 'question';
+
       Swal.fire({
-          title: '確定更改時間?', 
-          html: '該課堂購買效期已過，取消不退堂，<br>僅供更改日期乙次。',
-          icon: 'warning', 
+          title: titleText, 
+          html: htmlText,
+          icon: iconType, 
           showCancelButton: true, 
           cancelButtonText: '返回', 
           confirmButtonText: '確定更改', 
@@ -1463,15 +1475,21 @@
               bookedCount: state.cart.length 
            };
 
+           // ✨ 處理 Make 所需的改期判斷資訊
            if (isReschedule && state.rescheduleSource) { 
                payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || state.rescheduleSource.__IMTINDEX__ || ""; 
                payload.oldDate = state.rescheduleSource.date; 
                payload.oldTime = state.rescheduleSource.time;
-               payload.oldDeductSource = state.rescheduleSource.deductSource || state.rescheduleSource.扣堂來源 || ""; // ✨ 多帶回舊的扣堂來源
+               payload.oldDeductSource = state.rescheduleSource.deductSource || state.rescheduleSource.扣堂來源 || ""; 
+               
+               // 傳送狀態給 Make 判斷是否要鎖死新課堂
+               payload.rescheduleType = state.rescheduleSource.isExpiredStatus ? 'expired_remedy' : 'normal';
+               payload.newRescheduleStatus = state.rescheduleSource.isExpiredStatus ? 'final' : '';
+
                if(state.cart.length > 0) {
                    payload.newDate = state.cart[0].date; 
                    payload.newTime = state.cart[0].time;
-                   payload.newWeekday = weekdayZhFromDateKey(state.cart[0].date); // ✨ 多帶回新日期的星期
+                   payload.newWeekday = weekdayZhFromDateKey(state.cart[0].date); 
                }
            }
            
