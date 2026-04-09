@@ -226,7 +226,8 @@
     }
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 10px; background: var(--selBg); padding: 8px; border-radius: 8px;}
+    /* ✨ 更新：改期提示條改為紅色系，警示感更強 */
+    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px;}
   </style>
 </head>
 
@@ -788,7 +789,6 @@
   }
 
   async function loadOptionsForCoach(){
-    // ✨ 修復點：如果從紀錄頁面直接進入改期，行事曆起始日可能會是空的，需要補上初始化
     if (!state.weekStart) {
         state.weekStart = weekStartMonday(new Date());
     }
@@ -805,7 +805,6 @@
     else if (state.course === '包班') state.remainingCredits = state.credits_group;
 
     try{
-      // 這裡發送的是 getOptions
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
          body: JSON.stringify({ 
@@ -814,7 +813,7 @@
              course:state.course, 
              people:state.course, 
              userId:state.uid,
-             mode: state.mode // 多送一個 mode 讓 Make 知道現在是 book 還是 reschedule
+             mode: state.mode 
          })
       });
       const rawText = await res.text();
@@ -1452,7 +1451,6 @@
         btnNext.disabled=true; btnNext.textContent="處理中..."; setStatus("正在送出預約...");
         
         try{
-           // 真正送出 action = reschedule 的地方在這！
            const isReschedule = state.mode === 'reschedule';
            const payload = {
               action: isReschedule ? "reschedule" : "book", 
@@ -1469,9 +1467,11 @@
                payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || state.rescheduleSource.__IMTINDEX__ || ""; 
                payload.oldDate = state.rescheduleSource.date; 
                payload.oldTime = state.rescheduleSource.time;
+               payload.oldDeductSource = state.rescheduleSource.deductSource || state.rescheduleSource.扣堂來源 || ""; // ✨ 多帶回舊的扣堂來源
                if(state.cart.length > 0) {
                    payload.newDate = state.cart[0].date; 
                    payload.newTime = state.cart[0].time;
+                   payload.newWeekday = weekdayZhFromDateKey(state.cart[0].date); // ✨ 多帶回新日期的星期
                }
            }
            
