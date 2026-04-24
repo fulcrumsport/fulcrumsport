@@ -279,6 +279,14 @@
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
 
+  // ✨ 新增：跨平台安全解析日期時間的函數
+  function createSafeDate(dStr, tStr) {
+      if (!dStr || !tStr) return new Date(0);
+      const [y, m, d] = dStr.split(/[\/\-]/).map(Number);
+      const [h, min] = tStr.split(':').map(Number);
+      return new Date(y, m - 1, d, h, min);
+  }
+
   function pad2(n){ return String(n).padStart(2,'0'); }
   function ymd(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
   function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -290,8 +298,8 @@
   function getLimitDate(){ const d = new Date(); d.setMonth(d.getMonth()+2,0); d.setHours(23,59,59,999); return d; }
   function canBookNow(dateKey, timeStr){
     if(!dateKey || !timeStr) return false;
-    const dt = new Date(dateKey+'T00:00:00'); const [hh,mm]=timeStr.split(':');
-    dt.setHours(hh,mm,0); return dt >= new Date(Date.now()+3600000);
+    const dt = createSafeDate(dateKey, timeStr);
+    return dt >= new Date(Date.now()+3600000);
   }
   function getCourseName(course, people) {
       if (course === '1對1' || course === '1對2' || course === '包班') return course;
@@ -397,7 +405,6 @@
               </div>`;
           });
       } else {
-          // 一般預約模式
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
             const wd = weekdayZhFromDateKey(item.date);
             html += `<div class="confirmItem"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div></div>`;
@@ -494,13 +501,13 @@
           if (state.mode !== 'reschedule' && state.cart.length >= state.remainingCredits) {
               Swal.fire({ icon: 'warning', title: '堂數不足', html: `您目前僅剩 <span style="font-weight:950;">${state.remainingCredits} 堂</span> 可預約`, confirmButtonColor: '#127a69', iconColor: '#b2682b' }); return; 
           }
-          const d = new Date(date + 'T' + time); state.cart.push({ date: date, time: time, ts: d.getTime() }); 
+          const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); 
       }
       renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
   }
 
   function addBatchItems(startDateKey, timeStr) {
-      let current = new Date(startDateKey + 'T00:00:00'); const limit = getLimitDate(); let addedCount = 0;
+      let current = createSafeDate(startDateKey, '00:00'); const limit = getLimitDate(); let addedCount = 0;
       while(true) {
           current = addDays(current, 7); if (current > limit) break; 
           const dKey = ymd(current); const exists = state.cart.some(item => item.date === dKey && item.time === timeStr);
@@ -656,10 +663,10 @@
           if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
           state.records = data.records || [];
           
-          // ✨ 關鍵更新：在此將預約紀錄由早到晚自動排序
+          // ✨ 關鍵修正：透過 createSafeDate 解析所有時間，保證跨設備（iOS/Android）都能由近到遠精準排序
           state.records.sort((a, b) => {
-              const timeA = new Date(`${(a.date||'').replace(/\//g, '-')}T${a.time||'00:00'}:00`).getTime() || 0;
-              const timeB = new Date(`${(b.date||'').replace(/\//g, '-')}T${b.time||'00:00'}:00`).getTime() || 0;
+              const timeA = createSafeDate(a.date, a.time).getTime();
+              const timeB = createSafeDate(b.date, b.time).getTime();
               return timeA - timeB;
           });
           
@@ -696,7 +703,8 @@
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
 
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
-          const classTime = new Date(`${r.date.replace(/\//g, '-')}T${r.time}:00`); const now = new Date(); const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 2;
+          // ✨ 這裡也一併套用了跨平台安全的 createSafeDate，保證取消時限判斷正確無誤
+          const classTime = createSafeDate(r.date, r.time); const now = new Date(); const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 2;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
           const isFinal = isExpired && r.改期狀態 === 'final';
@@ -795,7 +803,7 @@
       const count = state.selectedRecords.size; if(count === 0) return;
       const now = new Date(); let isTimeout = false;
       state.selectedRecords.forEach(index => {
-          const classTime = new Date(`${state.records[index].date.replace(/\//g, '-')}T${state.records[index].time}:00`);
+          const classTime = createSafeDate(state.records[index].date, state.records[index].time);
           if (((classTime - now) / (1000 * 60 * 60)) < 2) isTimeout = true;
       });
 
