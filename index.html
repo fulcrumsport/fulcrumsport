@@ -228,7 +228,7 @@
         <div class="remindBox">
             <ol>
               <li>取消或改期，請於上課前 2 小時完成。</li>
-              <li>如有任何疑問，請透過官方Line聯繫教練。</li>
+              <li>如有任何疑問，請用官方Line聯繫教練。</li>
             </ol>
         </div>
     </div>
@@ -370,7 +370,6 @@
 
       let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;"><div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div><div class="recordCount">共 ${state.cart.length} 堂</div></div><div class="confirmList">`;
       
-      // ✨ 修正 2：判斷是否為改期模式，若是則同時顯示新舊時段對比
       if (state.mode === 'reschedule' && state.rescheduleSource) {
           const oldDateFmt = state.rescheduleSource.date.replace(/\//g, '-');
           const oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date);
@@ -384,13 +383,13 @@
               html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;">
                   <div style="display:flex; align-items:center; justify-content: space-between; width: 100%;">
                       <div style="display:flex; align-items:center; gap:8px;">
-                          <span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px;">舊時段</span>
+                          <span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px;">舊</span>
                           <span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span>
                       </div>
                   </div>
                   <div style="display:flex; align-items:center; justify-content: space-between; width: 100%;">
                       <div style="display:flex; align-items:center; gap:8px;">
-                          <span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新時段</span>
+                          <span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span>
                           <span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span>
                       </div>
                       <div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div>
