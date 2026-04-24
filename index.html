@@ -97,7 +97,8 @@
     .icon-undo { color: var(--primary); }
     .icon-reschedule { cursor: pointer; display: flex; align-items: center; padding: 2px; border-radius: 6px; transition: background 0.2s; }
     .icon-reschedule:active { background: rgba(0, 0, 0, 0.05); }
-    .remindTitle{ width:100%; font-weight:950; font-size:14px; color:var(--danger); flex: 0 0 auto; margin:0;} 
+    /* ✨ 修正：拿掉 width: 100%，避免擠壓排版 */
+    .remindTitle{ font-weight:950; font-size:14px; color:var(--danger); flex: 0 0 auto; margin:0;} 
     .remindBox{ width:100%; border-radius:0; background:transparent; padding:0; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
     .remindBox ol { padding-left: 15px; margin: 0; }
     .remindBox li { margin-bottom: 4px; }
@@ -195,9 +196,9 @@
         <div class="h" id="step3Header" style="flex: 0 0 auto;">Step 3｜確認預約內容</div>
         <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
         
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
-            <div class="remindTitle">溫馨提醒</div>
-            <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="step3RemainingType">(1對1)</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
+            <div class="remindTitle" style="margin:0;">溫馨提醒</div>
+            <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text); white-space:nowrap;">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="step3RemainingType">(1對1)</span></div>
         </div>
         
         <div class="remindBox" id="step3RemindBox"></div>
@@ -220,9 +221,9 @@
             <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
         </div>
         
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
-            <div class="remindTitle">溫馨提醒</div>
-            <div id="recordRemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="recordRemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="recordRemainingType">(1對1)</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
+            <div class="remindTitle" style="margin:0;">溫馨提醒</div>
+            <div id="recordRemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text); white-space:nowrap;">剩餘：<span id="recordRemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="recordRemainingType">(1對1)</span></div>
         </div>
         
         <div class="remindBox">
@@ -643,7 +644,6 @@
       el.onclick = () => { document.querySelectorAll('.record-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); state.recordTab = el.dataset.tab; state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); };
   });
 
-  // ✨ 新增：點擊無法改期(X)圖示觸發的警示視窗，加上換行
   window.showCannotReschedule = function(e) {
       e.stopPropagation();
       Swal.fire({
@@ -814,7 +814,7 @@
           await Swal.fire({ icon: alertIcon, title: '處理完成', html: alertHtml, showConfirmButton: true, confirmButtonText: '確定', confirmButtonColor: iconColor });
 
           if(liff.isInClient()) {
-              try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {}
+              try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) { console.error("LINE 卡片傳送失敗:", msgErr); }
           }
           liff.closeWindow(); 
       } else {
