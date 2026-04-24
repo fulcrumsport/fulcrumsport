@@ -656,6 +656,13 @@
           if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
           state.records = data.records || [];
           
+          // ✨ 關鍵更新：在此將預約紀錄由早到晚自動排序
+          state.records.sort((a, b) => {
+              const timeA = new Date(`${(a.date||'').replace(/\//g, '-')}T${a.time||'00:00'}:00`).getTime() || 0;
+              const timeB = new Date(`${(b.date||'').replace(/\//g, '-')}T${b.time||'00:00'}:00`).getTime() || 0;
+              return timeA - timeB;
+          });
+          
           if(data["Remaining credits"] !== undefined || data.remainingCredits !== undefined) state.recordRemaining = data["Remaining credits"] !== undefined ? data["Remaining credits"] : data.remainingCredits;
           if(data.credits_1on1 !== undefined) state.credits_1on1 = data.credits_1on1;
           if(data.credits_1on2 !== undefined) state.credits_1on2 = data.credits_1on2;
