@@ -97,7 +97,6 @@
     .icon-undo { color: var(--primary); }
     .icon-reschedule { cursor: pointer; display: flex; align-items: center; padding: 2px; border-radius: 6px; transition: background 0.2s; }
     .icon-reschedule:active { background: rgba(0, 0, 0, 0.05); }
-    /* ✨ 修正：拿掉 width: 100%，避免擠壓排版 */
     .remindTitle{ font-weight:950; font-size:14px; color:var(--danger); flex: 0 0 auto; margin:0;} 
     .remindBox{ width:100%; border-radius:0; background:transparent; padding:0; font-size:13px; line-height:1.7; font-weight:400; color:var(--text); border: none; flex: 0 0 auto; }
     .remindBox ol { padding-left: 15px; margin: 0; }
@@ -389,11 +388,12 @@
           document.getElementById('step3RemainingContainer').style.display = 'none';
       }
       
+      // ✨ 修正：Step 3 溫馨提醒文字更新
       let remindHtml = '';
       const isExpiredReschedule = state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus;
 
       if (isExpiredReschedule) {
-          remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">更改日期作業確認送出後<span style="color:var(--danger)">不可再次更改</span>，亦無法取消退還。</div>`;
+          remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`;
       } else {
           remindHtml = `<ol><li>取消或改期，請於上課前 2 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
       }
@@ -751,8 +751,7 @@
       
       const remainContainer = document.getElementById('recordRemainingContainer');
       if (remainContainer) {
-          remainContainer.style.display = 'block'; 
-          document.getElementById('recordRemainingType').textContent = `(${state.recordTab})`;
+          remainContainer.style.display = 'flex'; document.getElementById('recordRemainingType').textContent = `(${state.recordTab})`;
           document.getElementById('recordRemainingVal').textContent = baseRemain !== '--' ? parseInt(baseRemain, 10) + currentTabSelectedCount : '--';
       }
   }
