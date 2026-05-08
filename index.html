@@ -279,7 +279,6 @@
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
 
-  // ✨ 新增：跨平台安全解析日期時間的函數
   function createSafeDate(dStr, tStr) {
       if (!dStr || !tStr) return new Date(0);
       const [y, m, d] = dStr.split(/[\/\-]/).map(Number);
@@ -663,7 +662,6 @@
           if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
           state.records = data.records || [];
           
-          // ✨ 關鍵修正：透過 createSafeDate 解析所有時間，保證跨設備（iOS/Android）都能由近到遠精準排序
           state.records.sort((a, b) => {
               const timeA = createSafeDate(a.date, a.time).getTime();
               const timeB = createSafeDate(b.date, b.time).getTime();
@@ -703,7 +701,6 @@
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
 
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
-          // ✨ 這裡也一併套用了跨平台安全的 createSafeDate，保證取消時限判斷正確無誤
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 2;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
@@ -1041,7 +1038,15 @@
            const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
            
            if (isSuccess && actualSuccessCount > 0) {
-              await Swal.fire({ icon:'success', title: '更改成功！', html: `已將預約更改至新時段。`, confirmButtonText: '確定', confirmButtonColor: '#127a69', cancelButtonText: '返回' });
+              // ✨ 修正 3：精準判斷 isReschedule，動態顯示對應文字
+              await Swal.fire({ 
+                  icon: 'success', 
+                  title: isReschedule ? '更改成功！' : '預約成功！', 
+                  html: isReschedule ? `已將預約更改至新時段。` : `已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
+                  confirmButtonText: '確定', 
+                  confirmButtonColor: '#127a69', 
+                  cancelButtonText: '返回' 
+              });
               if(liff.isInClient()) { try { await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings, isReschedule, state.rescheduleSource)]); } catch (msgErr) {} }
               liff.closeWindow();
            } else {
