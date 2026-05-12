@@ -9,66 +9,187 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    :root{--bg:#f2f6f5;--card:#ffffff;--text:#1a2321;--muted:#7a8280;--primary:#127a69;--border:rgba(18,122,105,0.1);--shadow:0 10px 26px rgba(18,122,105,0.06);--radius:18px;--danger:#b23a2b;--safeB:env(safe-area-inset-bottom,0px);--safeT:env(safe-area-inset-top,0px);--selBg:#e5f2f0;--selText:#0d5c4f;--darkBlue:#003366}
-    *{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}.wrap{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative;z-index:1}.top{padding:8px 14px 6px;padding-top:calc(8px + var(--safeT));background:linear-gradient(180deg,var(--bg) 75%,rgba(242,246,245,0));flex:0 0 auto}.steps{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 12px;box-shadow:var(--shadow)}.step{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;min-width:0}.dot{width:30px;height:30px;border-radius:999px;background:#dcece9;color:var(--primary);font-weight:900;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:14px;transition:all 0.3s}.dot.active{background:var(--primary);color:#fff}.label{font-size:15px;font-weight:900;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all 0.3s}.label.active{color:var(--text)}.main{flex:1 1 auto;overflow:hidden;padding:0 14px 4px;display:flex;flex-direction:column;gap:10px;min-height:0}.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:12px 14px;overflow:hidden;display:flex;flex-direction:column}.h{margin:0 0 10px;font-weight:950;font-size:20px;color:var(--text);flex:0 0 auto}.row{display:flex;gap:12px;flex-wrap:wrap}.courseGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}.chip{padding:14px 16px;border-radius:16px;background:#eef2f1;font-weight:950;font-size:18px;cursor:pointer;user-select:none;border:2px solid transparent;min-width:140px;text-align:center;flex:1 1 0;transition:all 0.2s}.chip.sel{background:var(--selBg);border-color:rgba(18,122,105,.45);box-shadow:0 0 0 3px rgba(18,122,105,.14) inset;color:var(--selText)}.chip.disabled{opacity:0.5;pointer-events:none;background:#f0f0f0;color:#999;border-color:transparent}.courseGrid .chip{min-width:0;padding:14px 4px;font-size:16px}.subTitle{margin:12px 0 8px;font-weight:950;font-size:15px;color:var(--text)}.step2Box{display:flex;flex-direction:column;gap:8px;height:100%;min-height:0}.coachIntro{display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:10px;background:#fff;flex:0 0 auto}.avatar{width:48px;height:48px;border-radius:999px;overflow:hidden;background:#ddd;flex:0 0 auto}.avatar img{width:100%;height:100%;object-fit:cover;display:block}.coachMeta{flex:1;min-width:0}.coachName{font-weight:950;font-size:18px;margin:0 0 6px}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{padding:6px 9px;border-radius:999px;background:var(--selBg);color:var(--selText);font-weight:900;font-size:11px}.cal{border-radius:18px;border:1px solid var(--border);padding:10px;background:#fff;flex:0 0 auto}.calHead{display:grid;grid-template-columns:42px 1fr 42px;gap:10px;align-items:center;margin-bottom:6px}.calBtn{width:42px;height:42px;border-radius:14px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;font-weight:950;color:var(--primary);border:1px solid var(--border);transition:all 0.2s}.calBtn.disabled{opacity:0.3;pointer-events:none;background:#f0f0f0;color:#999;box-shadow:none}.monthTitle{text-align:center;font-weight:950;font-size:16px}.weekStrip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dayCell{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0;border-radius:14px;border:1px solid var(--border);background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.05);cursor:pointer;min-height:64px;transition:all 0.2s}.dayCell.disabled{opacity:.35;pointer-events:none}.dayCell.hidden{visibility:hidden;pointer-events:none}.dayCell.sel .dateDot{background:var(--primary);color:#fff;box-shadow:0 0 0 5px rgba(18,122,105,.14)}.dowTxt{font-size:11px;font-weight:900;color:var(--muted)}.dateDot{width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:950;color:var(--text);transition:all 0.2s}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(18,122,105,0.25);border-radius:4px}.slotsArea{flex:0 0 auto;display:flex;flex-direction:column;gap:8px;overflow:visible;padding-bottom:4px}.tabs{display:flex;border-bottom:2px solid var(--border);padding-bottom:6px;flex:0 0 auto}.tab{font-weight:950;font-size:15px;color:var(--muted);cursor:pointer;padding-bottom:8px;position:relative;transition:color 0.2s}.tab.active{color:var(--text)}.tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:4px;background:var(--primary);border-radius:999px}.record-tabs-container{display:flex;gap:6px;margin-bottom:12px;background:var(--selBg);padding:5px;border-radius:99px;flex:0 0 auto}.record-tab{flex:1;text-align:center;font-weight:950;font-size:18px;color:var(--muted);cursor:pointer;padding:10px 0;border-radius:99px;transition:all 0.2s ease;user-select:none}.record-tab.active{color:var(--primary);background:#ffffff;box-shadow:0 2px 6px rgba(18,122,105,0.15)}.slotGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start}.slot{padding:8px 0;border-radius:999px;background:#eef2f1;font-weight:950;font-size:13px;text-align:center;cursor:pointer;white-space:nowrap;border:2px solid transparent;transition:all 0.2s}.slot.sel{background:var(--selBg);color:var(--selText);border-color:rgba(18,122,105,.35);box-shadow:0 0 0 3px rgba(18,122,105,.14) inset}.slot.disabled{opacity:.35;pointer-events:none}.slotTip{grid-column:1 / -1;padding:8px 2px;font-size:12px;font-weight:900;color:var(--muted);text-align:left}.slotTip.important{color:var(--danger);font-size:14px;font-weight:950}.cartWrap{margin-top:4px;padding-top:6px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-height:0}.cartTitle{font-size:12px;font-weight:900;color:var(--muted);margin-bottom:2px;padding-left:4px;flex:0 0 auto}.cartScrollArea{flex:1 1 auto;overflow-y:auto;min-height:0;background:rgba(255,255,255,0.5);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:6px}.cartItem{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:950;color:var(--text);box-shadow:0 2px 4px rgba(0,0,0,0.03);flex:0 0 auto}.cartActions{display:flex;align-items:center;gap:16px}.repeatBtn{font-size:11px;padding:4px 10px;border-radius:6px;background:#eef2f1;color:var(--primary);border:1px solid #dcece9;cursor:pointer;font-weight:900;transition:all 0.2s}.repeatBtn:active{transform:scale(0.95);background:#dcece9}.delBtn{width:28px;height:28px;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--danger);background:#fff5f5;cursor:pointer;border-radius:6px;transition:all 0.2s}.delBtn:active{transform:scale(0.9)}.confirmWrap{display:flex;flex-direction:column;gap:8px;padding:0;height:100%;min-height:0}.infoBox{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}.confirmList{display:flex;flex-direction:column;gap:10px;margin-top:4px;flex:1 1 auto;overflow-y:auto;min-height:0;padding-bottom:8px;padding-right:4px}.confirmItem{background:#fff;border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(18,122,105,0.04);transition:all 0.2s ease;flex:0 0 auto}.confirmItem.marked-delete{background-color:#fff5f5;border-color:#ffcccc;border-left:5px solid var(--danger);box-shadow:0 4px 12px rgba(178,58,43,0.04)}.confirmItem.marked-delete .record-text{opacity:0.6}.confirmItem.marked-delete .record-date{color:var(--text)!important}.confirmItem.marked-delete .record-text span{text-decoration:line-through;text-decoration-color:var(--danger);text-decoration-thickness:2px}.step3Del{font-size:18px;margin-left:auto;cursor:pointer;padding:4px;display:flex;align-items:center}.icon-trash{color:#d32f2f}.icon-undo{color:var(--primary)}.icon-reschedule{cursor:pointer;display:flex;align-items:center;padding:2px;border-radius:6px;transition:background 0.2s}.icon-reschedule:active{background:rgba(0,0,0,0.05)}.remindTitle{font-weight:950;font-size:14px;color:var(--danger);flex:0 0 auto;margin:0}.remindBox{width:100%;border-radius:0;background:transparent;padding:0;font-size:13px;line-height:1.6;color:var(--text);border:none;flex:0 0 auto}
+    :root {
+      --bg: #f2f6f5;
+      --card: #ffffff;
+      --text: #1a2321;
+      --muted: #7a8280;
+      --primary: #127a69;
+      --radius: 22px;
+      --danger: #b23a2b;
+      --selBg: #e5f2f0;
+      --selText: #0d5c4f;
+      --border: rgba(18,122,105,0.1);
+      --safeB: env(safe-area-inset-bottom, 0px);
+      --safeT: env(safe-area-inset-top, 0px);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { height: 100dvh; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
+    .top { padding: 8px 14px 6px; padding-top: calc(8px + var(--safeT)); background: linear-gradient(180deg, var(--bg) 75%, rgba(242,246,245,0)); flex: 0 0 auto; }
+    .steps { display: flex; gap: 10px; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 10px 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+    .step { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; min-width: 0; }
+    .dot { width: 30px; height: 30px; border-radius: 999px; background: #dcece9; color: var(--primary); font-weight: 900; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; font-size: 14px; }
+    .dot.active { background: var(--primary); color: #fff; }
+    .label { font-size: 15px; font-weight: 900; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .label.active { color: var(--text); }
+    .main { flex: 1 1 auto; overflow: hidden; padding: 0 14px 4px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 12px 35px rgba(18,122,105,0.12); padding: 12px 14px; overflow: hidden; display: flex; flex-direction: column; }
+    .h { margin: 0 0 10px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .courseGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+    .chip { padding: 14px 16px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 18px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; transition: all 0.2s; }
+    .chip.sel { background: var(--selBg); border-color: rgba(18,122,105,.45); color: var(--selText); }
+    .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
+    .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); }
+    .step2Box { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; }
+    .coachIntro { display: flex; gap: 10px; align-items: center; border: 1px solid var(--border); border-radius: 16px; padding: 10px; background: #fff; flex: 0 0 auto; }
+    .avatar { width: 48px; height: 48px; border-radius: 999px; overflow: hidden; background: #ddd; flex: 0 0 auto; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cal { border-radius: 18px; border: 1px solid var(--border); padding: 10px; background: #fff; flex: 0 0 auto; }
+    .calHead { display: grid; grid-template-columns: 42px 1fr 42px; gap: 10px; align-items: center; margin-bottom: 6px; }
+    .calBtn { width: 42px; height: 42px; border-radius: 14px; background: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.06); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; font-weight: 950; color: var(--primary); border: 1px solid var(--border); }
+    .calBtn.disabled { opacity: 0.3; pointer-events: none; }
+    .monthTitle { text-align: center; font-weight: 950; font-size: 16px; }
+    .weekStrip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .dayCell { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0; border-radius: 14px; border: 1px solid var(--border); background: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.05); cursor: pointer; min-height: 64px; }
+    .dayCell.disabled { opacity: .35; pointer-events: none; }
+    .dayCell.hidden { visibility: hidden; }
+    .dayCell.sel .dateDot { background: var(--primary); color: #fff; }
+    .dateDot { width: 34px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 950; color: var(--text); }
+    .slotsArea { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
+    .tabs { display: flex; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+    .tab { font-weight: 950; font-size: 15px; color: var(--muted); cursor: pointer; padding-bottom: 8px; position: relative; }
+    .tab.active { color: var(--text); }
+    .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: var(--primary); border-radius: 999px; }
+    .slotGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .slot { padding: 8px 0; border-radius: 999px; background: #eef2f1; font-weight: 950; font-size: 13px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+    .slot.sel { background: var(--selBg); color: var(--selText); border-color: rgba(18,122,105,.35); }
+    .slot.disabled { opacity: .35; pointer-events: none; }
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-height: 0; }
+    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text); }
+    .repeatBtn { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #eef2f1; color: var(--primary); border: 1px solid #dcece9; cursor: pointer; font-weight: 900; }
+    .delBtn { width: 28px; height: 28px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 6px; }
+    .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; flex: 1 1 auto; overflow-y: auto; min-height: 0; padding-bottom: 8px; }
+    .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.04); }
+    .confirmItem.marked-delete { background-color: #fff5f5; border-left: 5px solid var(--danger); }
+    .remindBox { width: 100%; font-size: 13px; line-height: 1.6; color: var(--text); flex: 0 0 auto; }
     .remindBox ol { padding-left: 20px; margin: 4px 0 0 0; }
     .remindBox li { margin-bottom: 6px; font-weight: 700; color: #2b3634; }
-    .footer{flex:0 0 auto;padding:4px 14px calc(4px + var(--safeB));background:linear-gradient(0deg,var(--bg) 75%,rgba(246,247,248,0))}.btnRow{display:flex;gap:12px}.btn{flex:1;border:0;border-radius:16px;padding:14px 12px;font-size:16px;font-weight:950;cursor:pointer;box-shadow:var(--shadow);transition:all 0.2s}.btnPrimary{background:var(--primary);color:#fff}.btnGhost{background:#fff;color:var(--text);border:1px solid rgba(0,0,0,.10)}.btnDanger{background:var(--danger);color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}.status{margin-top:4px;font-size:14px;color:var(--muted);text-align:center;font-weight:900;min-height:20px;white-space:pre-wrap;line-height:1.2}.statusError{color:var(--danger);font-weight:950}.hide{display:none!important}.recordHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.recordHeader .h{margin:0;display:flex;align-items:center}.recordCount{color:var(--primary);font-weight:900;font-size:14px;background:var(--selBg);padding:4px 10px;border-radius:99px}.name-highlight{font-size:28px;font-weight:950;color:var(--text);background:linear-gradient(transparent 60%,rgba(18,122,105,0.25) 40%);padding:0 4px;border-radius:0;margin-right:6px;display:inline-block}#recordList{background:transparent;padding:4px 2px;border-radius:0;box-shadow:none}
-    .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; max-width: 340px !important; }
-    .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; padding: 0 !important; line-height: 1.4 !important; }
-    .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.5 !important; }
-    .custom-swal-title { font-size: 19px; font-weight: 950; color: #111; margin-top: 12px; margin-bottom: 0; text-align: center; line-height: 1.4; }
-    .custom-swal-subtitle { font-size: 15px; font-weight: 600; color: #444; margin-top: 8px; text-align: center; line-height: 1.5; }
-    .swal2-actions { margin-top: 22px !important; gap: 12px; width: 100%; }
-    .swal2-styled.swal2-confirm { border-radius: 14px !important; font-weight: 950 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important; flex: 1; background-color: var(--primary) !important; }
-    .swal2-styled.swal2-cancel { border-radius: 14px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; box-shadow: none !important; font-size: 15px !important; padding: 12px 24px !important; flex: 1; }
-    .loader-spinner-red { display: inline-block; width: 46px; height: 46px; margin-bottom: 6px; }
-    .loader-spinner-red:after { content: " "; display: block; width: 36px; height: 36px; margin: 4px; border-radius: 50%; border: 3.5px solid var(--primary); border-color: var(--primary) transparent var(--primary) transparent; animation: loader-spinner-ring 1s linear infinite; }
-    @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; }
+    .footer { flex: 0 0 auto; padding: 4px 14px calc(4px + var(--safeB)); background: linear-gradient(0deg, var(--bg) 75%, rgba(246,247,248,0)); }
+    .btnRow { display: flex; gap: 12px; }
+    .btn { flex: 1; border: 0; border-radius: 16px; padding: 14px 12px; font-size: 16px; font-weight: 950; cursor: pointer; box-shadow: 0 4px 12px rgba(18,122,105,0.1); transition: all 0.2s; }
+    .btnPrimary { background: var(--primary); color: #fff; }
+    .btnGhost { background: #fff; color: var(--text); border: 1px solid rgba(0,0,0,.10); }
+    .btnDanger { background: var(--danger); color: #fff; }
+    .status { margin-top: 4px; font-size: 14px; color: var(--muted); text-align: center; font-weight: 900; min-height: 20px; }
+    .statusError { color: var(--danger); font-weight: 950; }
+    .hide { display: none !important; }
+    .recordHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .recordHeader .h { margin: 0; display: flex; align-items: center; }
+    .recordCount { color: var(--primary); font-weight: 900; font-size: 14px; background: var(--selBg); padding: 4px 10px; border-radius: 999px; }
+    .name-highlight { font-size: 28px; font-weight: 950; color: var(--text); background: linear-gradient(transparent 60%, rgba(18,122,105,0.25) 40%); padding: 0 4px; margin-right: 6px; display: inline-block; }
+    #recordList { background: transparent; padding: 4px 2px; box-shadow: none; }
 
-    /* ✨ 頂級定製化旗艦名片：融合加粗實線邊框與絕對置中對齊 */
+    /* ✨ 完美修復橫排分類按鈕 */
+    .record-tabs-container {
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: var(--selBg);
+      padding: 5px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+      width: 100%;
+    }
+    .record-tab {
+      flex: 1;
+      text-align: center;
+      font-weight: 950;
+      font-size: 16px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 10px 0;
+      border-radius: 999px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .record-tab.active {
+      color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(18,122,105,0.15);
+    }
+
+    /* ✨ 頂級定製：絕無外框 + 極致微凸懸浮感 + 頭像居左緊密排版 */
     .premium-trainer-card {
-        background: #ffffff;
-        border: 2.5px solid var(--primary);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 12px 32px rgba(18, 122, 105, 0.08);
-        border-radius: 22px;
-        padding: 24px 16px 20px;
-        overflow: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        transition: all 0.3s ease;
+      background: #ffffff;
+      border: none; /* 嚴格移除外框 */
+      /* 運用擬物雙重陰影打造強烈浮凸與立體質感 */
+      box-shadow: 8px 8px 24px rgba(18,122,105,0.12), -4px -4px 12px rgba(255,255,255,0.9);
+      border-radius: 26px;
+      padding: 24px 18px 20px;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .premium-trainer-card:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04), 0 16px 40px rgba(18, 122, 105, 0.12);
-        transform: translateY(-2px);
+    .premium-classic-layout {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start; /* 完美靠左對齊 */
+      gap: 18px;
+      padding-left: 6px;
     }
-    /* 絕對置中整合式排版容器 (將頭像與文字包覆在一起) */
-    .premium-center-layout {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
+    .premium-avatar-frame {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      padding: 2px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(18,122,105,0.15);
+      flex-shrink: 0;
     }
-    .premium-avatar-wrap {
-        width: 76px;
-        height: 76px;
-        border-radius: 50%;
-        border: 2px solid var(--primary);
-        padding: 2px;
-        background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(18, 122, 105, 0.08);
+    .premium-meta-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 讓職稱精準置中於名字正下方 */
+      gap: 4px;
     }
-    .premium-meta-center {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
+    .premium-job-title {
+      font-size: 13px;
+      font-weight: 950;
+      color: var(--primary);
+      letter-spacing: 1px;
+      background: var(--selBg);
+      padding: 2px 12px;
+      border-radius: 999px;
     }
+    /* 專長圖示「微凸/浮凸」質感專門設定 */
+    .raised-icon-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* 經典 Neumorphism 浮凸陰影 */
+      box-shadow: 5px 5px 12px rgba(18,122,105,0.1), -3px -3px 8px rgba(255,255,255,1);
+      border: 1px solid rgba(18,122,105,0.03);
+    }
+    .raised-icon-circle svg { filter: drop-shadow(1px 1px 1px rgba(18,122,105,0.1)); }
+
+    /* Swal2 高質感外觀 */
+    .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; max-width: 340px !important; }
+    .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; }
+    .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.5 !important; }
+    .swal2-actions { margin-top: 22px !important; gap: 12px; width: 100%; }
+    .swal2-styled.swal2-confirm { border-radius: 14px !important; background-color: var(--primary) !important; font-weight: 950 !important; padding: 12px 24px !important; flex: 1; font-size: 15px !important; box-shadow: none !important; }
+    .swal2-styled.swal2-cancel { border-radius: 14px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; padding: 12px 24px !important; flex: 1; font-size: 15px !important; box-shadow: none !important; }
   </style>
 </head>
 
@@ -91,61 +212,38 @@
       
       <div id="trainerCardWrap" class="hide" style="margin-top: 16px; flex: 1 1 auto;">
           <div class="premium-trainer-card">
-              
-              <div class="premium-center-layout">
-                  <div class="premium-avatar-wrap">
+              <div class="premium-classic-layout">
+                  <div class="premium-avatar-frame">
                       <img id="tcAvatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                   </div>
-                  <div class="premium-meta-center">
-                      <div id="tcName" style="font-size: 24px; font-weight: 950; color: var(--text); letter-spacing: 2px; line-height: 1.15; text-align: center;">--</div>
-                      <div style="font-size: 13px; font-weight: 950; color: var(--primary); letter-spacing: 1px; opacity: 0.95; background: var(--selBg); padding: 2px 10px; border-radius: 99px; margin-top: 2px;">資深教練</div>
+                  <div class="premium-meta-left">
+                      <div id="tcName" style="font-size: 25px; font-weight: 950; color: var(--text); letter-spacing: 1.5px; line-height: 1.15;">--</div>
+                      <div class="premium-job-title">資深教練</div>
                   </div>
               </div>
               
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px;">
-                  
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 24px;">
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--selBg); border: 1px solid rgba(18,122,105,0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="15" cy="5" r="2"></circle>
-                              <path d="M15 7l-3 5l-4 1"></path>
-                              <path d="M12 12l4 3l1 4"></path>
-                              <path d="M15 7l3 1l3 -2"></path>
-                              <path d="M5 10l3 -1"></path>
-                          </svg>
+                      <div class="raised-icon-circle">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="5" r="2"></circle><path d="M15 7l-3 5l-4 1"></path><path d="M12 12l4 3l1 4"></path><path d="M15 7l3 1l3 -2"></path><path d="M5 10l3 -1"></path></svg>
                       </div>
-                      <span style="font-size: 13px; font-weight: 950; color: var(--text); letter-spacing: 0.5px;">青少年體能</span>
+                      <span style="font-size: 12px; font-weight: 950; color: var(--text);">青少年體能</span>
                   </div>
-                  
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--selBg); border: 1px solid rgba(18,122,105,0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="12" cy="4" r="2"></circle>
-                              <path d="M12 7v7"></path>
-                              <path d="M12 7c-2.5 -2 -4.5 -1 -2 -5"></path>
-                              <path d="M12 7c2.5 -2 4.5 -1 2 -5"></path>
-                              <path d="M6 17l6 -3l6 3"></path>
-                          </svg>
+                      <div class="raised-icon-circle">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"></circle><path d="M12 7v7"></path><path d="M12 7c-2.5 -2 -4.5 -1 -2 -5"></path><path d="M12 7c2.5 -2 4.5 -1 2 -5"></path><path d="M6 17l6 -3l6 3"></path></svg>
                       </div>
-                      <span style="font-size: 13px; font-weight: 950; color: var(--text); letter-spacing: 0.5px;">樂齡運動</span>
+                      <span style="font-size: 12px; font-weight: 950; color: var(--text);">樂齡運動</span>
                   </div>
-                  
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--selBg); border: 1px solid rgba(18,122,105,0.2); display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                          </svg>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                              <line x1="5" y1="12" x2="19" y2="12"/>
-                              <line x1="7" y1="7" x2="7" y2="17"/>
-                              <line x1="4" y1="9" x2="4" y2="15"/>
-                              <line x1="17" y1="7" x2="17" y2="17"/>
-                              <line x1="20" y1="9" x2="20" y2="15"/>
-                          </svg>
+                      <div class="raised-icon-circle">
+                          <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 4px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: -10px;"><line x1="6" y1="12" x2="18" y2="12"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="17" y1="8" x2="17" y2="16"/></svg>
+                          </div>
                       </div>
-                      <span style="font-size: 13px; font-weight: 950; color: var(--text); letter-spacing: 0.5px;">肌力&體能</span>
+                      <span style="font-size: 12px; font-weight: 950; color: var(--text);">肌力&體能</span>
                   </div>
-                  
               </div>
           </div>
       </div>
@@ -170,7 +268,6 @@
           </div>
           <div id="weekStrip" class="weekStrip"></div>
         </div>
-        
         <div class="slotsArea">
           <div class="tabs" style="justify-content: space-between; align-items: flex-end;">
             <div style="display:flex; gap:22px;">
@@ -184,9 +281,8 @@
           </div>
           <div id="slotGrid2" class="slotGrid"></div>
         </div>
-        
         <div class="cartWrap">
-            <div class="cartTitle">已選擇時段</div>
+            <div class="cartTitle" style="font-size:16px; font-weight:950; color:#aaa; text-align:center; padding:10px 0;">已選擇時段</div>
             <div id="cartList" class="cartScrollArea"></div>
         </div>
       </div>
@@ -194,14 +290,12 @@
 
     <div id="card3" class="card hide" style="flex:1; min-height:0;">
       <div class="confirmWrap">
-        <div class="h" id="step3Header" style="flex: 0 0 auto;">Step 3｜確認預約內容</div>
-        <div class="infoBox" id="confirmInfo" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;"></div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
-            <div class="remindTitle" style="margin:0;">溫馨提醒</div>
-            <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text); white-space:nowrap;">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="step3RemainingType">(1對1)</span></div>
+        <div class="h" id="step3Header">Step 3｜確認預約內容</div>
+        <div class="infoBox" id="confirmInfo"></div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px;">
+            <div class="remindTitle">溫馨提醒</div>
+            <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px;">--</span> 堂</div>
         </div>
-        
         <div class="remindBox" id="step3RemindBox"></div>
       </div>
     </div>
@@ -211,22 +305,12 @@
             <div class="h" id="recordListTitle">預約清單</div>
             <div id="myRecordCount" class="recordCount">共 0 堂</div>
         </div>
-        
         <div class="record-tabs-container">
             <div class="record-tab active" data-tab="1對1">1對1</div>
             <div class="record-tab" data-tab="1對2">1對2</div>
             <div class="record-tab" data-tab="包班">包班</div>
         </div>
-        
-        <div id="recordList" class="confirmList" style="flex:1;">
-            <div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>
-        </div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
-            <div class="remindTitle" style="margin:0;">溫馨提醒</div>
-            <div id="recordRemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text); white-space:nowrap;">剩餘：<span id="recordRemainingVal" style="color: var(--primary); font-size:18px; margin:0 2px;">--</span> 堂<span id="recordRemainingType">(1對1)</span></div>
-        </div>
-        
+        <div id="recordList" class="confirmList" style="flex:1;"></div>
         <div class="remindBox">
             <ol>
               <li>取消或改期，請於上課前 3 小時完成。</li>
@@ -240,7 +324,6 @@
     <div class="btnRow">
       <button id="btnBack" class="btn btnGhost hide">上一步</button>
       <button id="btnNext" class="btn btnPrimary" disabled>下一步</button>
-      
       <div id="recordBtns" class="btnRow hide" style="width:100%;">
           <button id="btnHome" class="btn" style="background:#fff; color:var(--primary); border:2px solid var(--primary);">新增預約</button>
           <button id="btnCancelBatch" class="btn btnDanger" disabled>取消預約</button>
@@ -285,9 +368,9 @@
 
   function createSafeDate(dStr, tStr) {
       if (!dStr || !tStr) return new Date(0);
-      const cleanD = dStr.replace(/[\/\.]/g, '-');
+      const cleanD = String(dStr).replace(/[\/\.]/g, '-');
       const [y, m, d] = cleanD.split('-').map(Number);
-      const [h, min] = tStr.split(':').map(Number);
+      const [h, min] = String(tStr).split(':').map(Number);
       return new Date(y, m - 1, d, h, min);
   }
 
@@ -300,7 +383,7 @@
   function dowLabel(idx){ return ['一','二','三','四','五','六','日'][idx] || ''; }
   function weekdayZhFromDateKey(dateKey){ 
       if(!dateKey) return '';
-      return ['日','一','二','三','四','五','六'][new Date(dateKey.replace(/-/g,'/')).getDay()]||''; 
+      return ['日','一','二','三','四','五','六'][new Date(String(dateKey).replace(/-/g,'/')).getDay()]||''; 
   }
   function getLimitDate(){ const d = new Date(); d.setMonth(d.getMonth()+2,0); d.setHours(23,59,59,999); return d; }
   
@@ -312,9 +395,9 @@
   
   function getCourseName(course, people) {
       if (course === '1對1' || course === '1對2' || course === '包班') return course;
-      if (people == 1 || people == '1') return '1對1';
-      if (people == 2 || people == '2') return '1對2';
-      if (people >= 6 || people === '6') return '包班';
+      if (String(people) === '1') return '1對1';
+      if (String(people) === '2') return '1對2';
+      if (Number(people) >= 6 || String(people) === '6') return '包班';
       return course || '1對1';
   }
   
@@ -324,11 +407,14 @@
       return 1; 
   }
 
+  // ✨ 終極過期捕捉引擎：精確涵蓋字串模糊包含與各種資料型態
   function isTruthy(val) {
-      if (val === true) return true;
-      if (typeof val === 'string' && val.trim().toLowerCase() === 'true') return true;
-      return false;
+      if (val === true || val === 1) return true;
+      if (!val) return false;
+      const s = String(val).trim().toLowerCase();
+      return s.includes('true') || s.includes('yes') || s.includes('過期') || s.includes('到期');
   }
+
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
   function renderCourseTip() {
@@ -345,9 +431,9 @@
   }
 
   function getAvailableRecurringWeeks(startDateKey, timeStr) {
-      let count = 0; let current = new Date(startDateKey.replace(/-/g,'/')); const limit = getLimitDate();
+      let count = 0; let current = new Date(String(startDateKey).replace(/-/g,'/'));
       for (let i = 1; i <= 12; i++) {
-          current = addDays(current, 7); if (current > limit) break; 
+          current = addDays(current, 7); if (current > getLimitDate()) break; 
           const dKey = ymd(current); const slotsForDay = state.availabilityMap[dKey];
           if (slotsForDay && slotsForDay.includes(timeStr) && canBookNow(dKey, timeStr)) count++;
       }
@@ -360,7 +446,6 @@
     [lab1,lab2,lab3].forEach((l,i)=>l.classList.toggle('active', i+1===n));
     card1.classList.toggle('hide', n!==1); card2.classList.toggle('hide', n!==2); card3.classList.toggle('hide', n!==3);
     cardRecord.classList.add('hide'); status.classList.remove('statusError'); recordBtns.classList.add('hide'); 
-    
     if(n===1){
       btnBack.classList.add('hide'); btnNext.classList.remove('hide'); btnNext.textContent='下一步';
       btnNext.disabled = !(state.coach && state.course); renderCourseTip();
@@ -377,323 +462,30 @@
       btnNext.disabled = state.cart.length === 0; renderStep3Content(); 
     }
   }
-  
-  function renderStep3Content() {
-      if (state.cart.length === 0) {
-          btnNext.disabled = true; confirmInfo.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">預約清單已空</div>'; return;
-      }
-      btnNext.disabled = false;
-      const step3Header = document.getElementById('step3Header');
-      if (step3Header) step3Header.textContent = state.mode === 'reschedule' ? 'Step 3｜確認更改時段內容' : 'Step 3｜確認預約內容';
 
-      let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;"><div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div><div class="recordCount">共 ${state.cart.length} 堂</div></div><div class="confirmList">`;
-      
-      if (state.mode === 'reschedule' && state.rescheduleSource) {
-          const oldDateFmt = state.rescheduleSource.date.replace(/\//g, '-');
-          const oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date);
-          const oldTime = state.rescheduleSource.time;
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
-              const newDateFmt = item.date.replace(/\//g, '-');
-              const newWd = weekdayZhFromDateKey(item.date);
-              const newTime = item.time;
-              html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; align-items:center; width: 100%;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center; justify-content: space-between; width: 100%;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`;
-          });
-      } else {
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
-            const wd = weekdayZhFromDateKey(item.date);
-            html += `<div class="confirmItem"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`;
-          });
-      }
-      html += `</div>`; 
-      confirmInfo.innerHTML = html;
-      
-      if (state.mode !== 'reschedule') {
-          document.getElementById('step3RemainingContainer').style.display = 'block';
-          document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
-          document.getElementById('step3RemainingType').textContent = `(${state.course || '1對1'})`;
-      } else {
-          document.getElementById('step3RemainingContainer').style.display = 'none';
-      }
-      
-      let remindHtml = '';
-      if (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) {
-          remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`;
-      } else {
-          remindHtml = `<ol><li>取消或改期，請於上課前 3 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
-      }
-      $('#step3RemindBox').innerHTML = remindHtml; setStatus('');
-  }
-
-  window.deleteFromStep3 = function(date, time) {
-      const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) {
-          state.cart.splice(idx, 1); renderStep3Content(); 
-          if (state.cart.length === 0) {
-             Swal.fire({ icon:'info', title:'清單已空', html:'請重新選擇預約時段', confirmButtonColor: '#127a69' });
-             setStep(2);
-          }
-      }
-  };
-
-  function renderCart() {
-      if (state.remainingCredits !== undefined && state.mode !== 'reschedule') {
-          const currentLeft = state.remainingCredits - state.cart.length;
-          const displayEl = document.getElementById('displayCredits');
-          if (displayEl) { displayEl.textContent = currentLeft; displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)'; }
-      }
-      cartList.innerHTML = '';
-      if (state.cart.length === 0) { 
-          cartList.innerHTML = '<div style="font-size:16px; font-weight:950; color:#aaa; text-align:center; padding:16px 10px;">尚未選擇時段</div>'; 
-          return; 
-      }
-      
-      const sorted = [...state.cart].sort((a,b) => a.ts - b.ts);
-      sorted.forEach(item => {
-          const el = document.createElement('div'); el.className = 'cartItem';
-          const wd = weekdayZhFromDateKey(item.date);
-          let btnHtml = '';
-          if (state.mode !== 'reschedule') {
-              const availableWeeks = getAvailableRecurringWeeks(item.date, item.time);
-              const nextWeekDate = ymd(addDays(new Date(item.date.replace(/-/g,'/')), 7));
-              const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time);
-              if (availableWeeks > 0 && !isNextWeekInCart) btnHtml = `<div class="repeatBtn">+包月</div>`;
-          }
-
-          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions">${btnHtml}<div class="delBtn">×</div></div>`;
-          
-          if(el.querySelector('.repeatBtn')) {
-              el.querySelector('.repeatBtn').onclick = (e) => {
-                  e.stopPropagation();
-                  const cleanDate = item.date.replace(/[\/\.]/g, '-');
-                  const [yyyy, mm, dd] = cleanDate.split('-'); 
-                  const month = parseInt(mm, 10); 
-                  const day = parseInt(dd, 10);
-                  const availableWeeks = getAvailableRecurringWeeks(cleanDate, item.time);
-                  
-                  Swal.fire({
-                      title: '一鍵包月排排看', 
-                      html: `是否自動排入 ${month}月${day}日 起，後續 ${availableWeeks} 週<br>(每週${wd} ${item.time}) 的常態預約？`,
-                      icon: 'question', showCancelButton: true, confirmButtonText: '確定加入', confirmButtonColor: '#127a69', cancelButtonText: '取消返回', iconColor: '#127a69' 
-                  }).then((res)=>{
-                      if(res.isConfirmed){
-                          const c = addBatchItems(cleanDate, item.time);
-                          renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
-                          if(c > 0) Swal.fire({ icon:'success', title:'成功排入', html:`已成功預排後續 <span style="font-weight:950;">${c} 堂</span> 常態課！`, confirmButtonColor: '#127a69' });
-                      }
-                  });
-              };
-          }
-          el.querySelector('.delBtn').onclick = (e) => { e.stopPropagation(); toggleCartItem(item.date, item.time); };
-          cartList.appendChild(el);
-      });
-  }
-
-  function toggleCartItem(date, time) {
-      const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) {
-          state.cart.splice(idx, 1);
-      } else { 
-          if (state.mode === 'reschedule' && state.cart.length >= 1) {
-              Swal.fire({ icon: 'warning', title: '只能挑選一堂', text: '更改日期一次僅限調整一堂', confirmButtonColor: '#127a69' }); return;
-          }
-          if (state.mode !== 'reschedule' && state.cart.length >= state.remainingCredits) {
-              Swal.fire({ icon: 'warning', title: '額度不足', html: `您目前僅剩 <span style="font-weight:950;">${state.remainingCredits} 堂</span> 可用`, confirmButtonColor: '#127a69' }); return; 
-          }
-          const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); 
-      }
-      renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
-  }
-
-  function addBatchItems(startDateKey, timeStr) {
-      let current = createSafeDate(startDateKey, '00:00'); const limit = getLimitDate(); let addedCount = 0;
-      while(true) {
-          current = addDays(current, 7); if (current > limit) break; 
-          const dKey = ymd(current); const exists = state.cart.some(item => item.date === dKey && item.time === timeStr);
-          const slotsForDay = state.availabilityMap[dKey]; const isAvailable = slotsForDay && slotsForDay.includes(timeStr);
-          if (!exists && isAvailable && canBookNow(dKey, timeStr)) {
-             if (state.cart.length >= state.remainingCredits) {
-                 Swal.fire({ icon: 'info', title: '額度已滿', html: `已幫您排入 <span style="font-weight:950;">${addedCount} 堂</span>，剩餘額度已全數用畢`, confirmButtonColor: '#127a69' }); break; 
-             }
-             state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 }); addedCount++;
-          }
-      }
-      return addedCount;
-  }
-
-  function renderCoaches(){
-    coachRow.innerHTML='';
-    COACHES.forEach(c=>{
-      const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name;
-      if(state.mode === 'reschedule') div.classList.add('disabled');
-      div.onclick=()=>{ 
-          if(state.mode === 'reschedule') return; 
-          state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); 
-      };
-      coachRow.appendChild(div);
-    });
-    const cardWrap = document.getElementById('trainerCardWrap');
-    if(cardWrap) {
-        if(state.coach) {
-            cardWrap.classList.remove('hide');
-            document.getElementById('tcAvatar').src = state.coach.avatar;
-            document.getElementById('tcName').textContent = state.coach.name;
-        } else { cardWrap.classList.add('hide'); }
-    }
-  }
-  
-  function renderCourse(){
-    courseRow.innerHTML='';
-    ['1對1','1對2','包班'].forEach(n=>{
-      const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n;
-      if(state.mode === 'reschedule') div.classList.add('disabled');
-      div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); };
-      courseRow.appendChild(div);
-    });
-  }
-
-  function renderCoachIntro(){
-    if(!state.coach) return;
-    coachAvatar2.src = state.coach.avatar; coachName2.textContent = state.coach.name; coachTags2.innerHTML='';
-    state.coach.tags.forEach(t=>{ const el=document.createElement('div'); el.className='tag'; el.textContent=t; coachTags2.appendChild(el); });
-  }
-
-  function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
-  
-  function buildAvailabilityMap(options){
-    const map = {};
-    (options||[]).forEach(o=>{
-      const raw = (o.value || o.label || '').toString();
-      const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/);
-      if(!m) return;
-      const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4];
-      if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t);
-    });
-    Object.keys(map).forEach(k=>map[k].sort()); return map;
-  }
-  
-  function renderWeekStrip(){
-    const ws = state.weekStart; monthTitle.textContent = monthYearLabel(ws); weekStrip.innerHTML='';
-    const today0 = startOfDay(new Date()); const limitDate = getLimitDate();
-    prevWeek.classList.toggle('disabled', ws <= weekStartMonday(new Date()));
-    nextWeek.classList.toggle('disabled', addDays(ws,7) > limitDate);
-    for(let i=0;i<7;i++){
-      const d = addDays(ws, i); const key = ymd(d);
-      const cell=document.createElement('div'); cell.className='dayCell';
-      const isOver = d > limitDate;
-      if((startOfDay(d) < today0) || !state.availabilityMap[key] || isOver || state.loadingOptions) cell.classList.add('disabled');
-      if(isOver) cell.classList.add('hidden');
-      if(state.dateKey===key) cell.classList.add('sel');
-      const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i);
-      const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate();
-      cell.append(dow, dot);
-      cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } };
-      weekStrip.appendChild(cell);
-    }
-  }
-
-  function renderSlotsStep2(){
-    slotGrid2.innerHTML='';
-    if(state.loadingOptions){ slotGrid2.innerHTML='<div class="slotTip important">讀取可預約時段中…</div>'; return; }
-    if(!hasAnySlots()){ slotGrid2.innerHTML='<div class="slotTip error">目前沒有可預約的時段</div>'; return; }
-    if(!state.dateKey){ slotGrid2.innerHTML='<div class="slotTip important">請先選擇上方日期</div>'; return; }
-    const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{
-      const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18);
-    });
-    if(list.length===0){ slotGrid2.innerHTML='<div class="slotTip important">此時段無可預約時間</div>'; return; }
-    list.forEach(t=>{
-      const disabled = !canBookNow(state.dateKey, t);
-      const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t);
-      const div=document.createElement('div'); 
-      div.className='slot'+(disabled?' disabled':'')+(isSelected?' sel':''); div.textContent=t;
-      div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div);
-    });
-  }
-
-  async function loadOptionsForCoach(){
-    if (!state.weekStart) state.weekStart = weekStartMonday(new Date());
-    state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; 
-    const s2Name = document.getElementById('step2CourseName'); if(s2Name) s2Name.textContent = `(${state.course})`;
-    setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart();
-    try{
-      const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
-         method: "POST", headers: {"Content-Type":"application/json"},
-         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:getPeopleCount(state.course), userId:state.uid, mode: state.mode })
-      });
-      const rawText = await res.text(); let data;
-      try { 
-          const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
-          data = JSON.parse(safeText); 
-      } catch(e) { data = {}; }
-      if (typeof data.options === 'string') { try { data.options = JSON.parse(data.options); } catch(e) {} }
-      state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
-      state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
-      
-      // 同步取得正確堂數上限
-      const remain = data["Remaining credits"] ?? data.remainingCredits;
-      if (remain !== undefined) state.remainingCredits = parseInt(remain, 10);
-      renderCart(); 
-    }catch(e){ console.error(e); }
-    state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
-  }
-
-  async function loadMyRecords() {
-      state.mode = 'record';
-      stepBar.classList.add('hide'); card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
-      cardRecord.classList.remove('hide'); btnBack.classList.add('hide'); btnNext.classList.add('hide'); recordBtns.classList.remove('hide'); 
-      $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
-      setStatus("讀取預約紀錄中..."); recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
-      try {
-          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
-              method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "getRecords", userId: state.uid })
-          });
-          const rawText = await res.text(); 
-          const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
-          let data = JSON.parse(safeText);
-          if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
-          state.records = data.records || [];
-          state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
-          
-          const remain = data["Remaining credits"] ?? data.remainingCredits;
-          if(remain !== undefined) state.recordRemaining = remain;
-          if(data.credits_1on1 !== undefined) state.credits_1on1 = data.credits_1on1;
-          if(data.credits_1on2 !== undefined) state.credits_1on2 = data.credits_1on2;
-          if(data.credits_group !== undefined) state.credits_group = data.credits_group;
-          renderRecordList(); updateRecordBtns(); setStatus("");
-      } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
-  }
-
-  document.querySelectorAll('.record-tab').forEach(el => {
-      el.onclick = () => { document.querySelectorAll('.record-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); state.recordTab = el.dataset.tab; state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); };
-  });
-
-  window.showCannotReschedule = function(e) {
-      e.stopPropagation();
-      Swal.fire({ icon: 'error', title: '無法改期', text: '該課程購買效期已過，且已更改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' });
-  };
-
-  // ✨ 完美相容過期判定，實現驚嘆號行事曆專屬按鈕與單次改期攔截
+  // ✨ 完美呈現過期驚嘆號 SVG 與單次改期攔截防線
   function renderRecordList() {
       const records = state.records; let filteredCount = 0; let html = '';
       records.forEach((r, originalIndex) => {
-          const courseDisplay = getCourseName(r.course, r.people); if (courseDisplay !== state.recordTab) return; 
+          const courseDisplay = getCourseName(r.course, r.people); 
+          if (courseDisplay !== state.recordTab) return; 
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
 
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
           const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 3;
           
-          // ✨ 完美相容試算表各類過期欄位命名
-          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || r.isExpired === "過期";
+          // 支援捕捉各種後端傳來的過期欄位狀態
+          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
           
-          // ✨ 只要過期且已經改過一次 (yes 或 final)，立刻封鎖二次改期
+          // 過期只要曾發動改期即判定為最終封鎖狀態
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
           const canReschedule = (!isExpired) || (isExpired && !isFinal);
           
-          // 依據是否過期，動態套用專屬視覺顏色
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
-          const displayDate = (r.date || '').replace(/\//g, '-');
+          const displayDate = String(r.date || '').replace(/\//g, '-');
           
-          // ✨ 量身打造驚嘆號行事曆專屬 SVG 結構
+          // ✨ 渲染專屬驚嘆號 + 行事曆 SVG 圖示
           const innerSVGPath = isExpired 
               ? `<path d="M12 13v4"></path><path d="M12 20h.01"></path>` 
               : `<path d="M7 15l2 2 4-4"></path>`;
@@ -708,14 +500,10 @@
           if (!canCancel) {
               actionContent = `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">已鎖定</span>`;
           } else {
-              if (canReschedule && !isMarked) {
-                  actionContent += rescheduleIconSVG;
-              } else if (isFinal && !isMarked) {
-                  actionContent += finalIconSVG; 
-              }
+              if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } 
+              else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
               actionContent += `<div style="display:inline-block; cursor:pointer;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
           }
-          
           html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div style="display:flex; align-items:center; gap:10px;"><div class="record-text" style="display:flex; flex-direction:column; gap:4px;"><span class="record-date" style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span><span style="font-size:14px; font-weight:900; color:var(--muted); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${courseDisplay}</span></div></div><div class="step3Del">${actionContent}</div></div>`;
       });
       $('#myRecordCount').textContent = `共 ${filteredCount} 堂`;
@@ -728,7 +516,7 @@
           state.selectedRecords.delete(originalIndex); renderRecordList(); updateRecordBtns();
       } else {
           const r = state.records[originalIndex]; 
-          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || r.isExpired === "過期";
+          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
           if (isExpired) {
               Swal.fire({
                   title: '確認取消？', html: '該課堂購買效期已過，系統取消後無法自動退還堂數，確定要取消嗎？', icon: 'warning',
@@ -740,10 +528,12 @@
       }
   };
 
+  // ✨ 完美替換過期警示視窗的專屬指定文案
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); 
       const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
-      const htmlText = isExpired ? '該課堂購買效期已過，取消無法自動退堂，僅供更改日期乙次。' : '即將為您重新安排預約時段。';
+      // 精準替換文案
+      const htmlText = isExpired ? '該課堂購買效期已過，取消無法退堂，僅供更改日期乙次。' : '即將為您重新安排預約時段。';
       
       Swal.fire({
           title: '確認更改時段？', html: `${htmlText}<br>是否確定要調整這堂課？`, icon: 'question', 
@@ -765,182 +555,147 @@
       });
   }
 
-  function updateRecordBtns() {
-      const count = state.selectedRecords.size;
-      if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} 堂)`; btnCancelBatch.disabled = false; } 
-      else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; }
-      
-      const remainContainer = document.getElementById('recordRemainingContainer');
-      if (remainContainer) {
-          remainContainer.style.display = 'block'; 
-          document.getElementById('recordRemainingType').textContent = `(${state.recordTab})`;
-          document.getElementById('recordRemainingVal').textContent = (state.recordTab === '1對1' ? state.credits_1on1 : (state.recordTab === '1對2' ? state.credits_1on2 : state.credits_group)) || '--';
+  function renderStep3Content() {
+      if (state.cart.length === 0) { btnNext.disabled = true; confirmInfo.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">預約清單已空</div>'; return; }
+      btnNext.disabled = false;
+      const step3Header = document.getElementById('step3Header');
+      if (step3Header) step3Header.textContent = state.mode === 'reschedule' ? 'Step 3｜確認更改時段內容' : 'Step 3｜確認預約內容';
+
+      let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;"><div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div><div class="recordCount">共 ${state.cart.length} 堂</div></div><div class="confirmList">`;
+      if (state.mode === 'reschedule' && state.rescheduleSource) {
+          const oldDateFmt = String(state.rescheduleSource.date).replace(/\//g, '-');
+          const oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date);
+          const oldTime = state.rescheduleSource.time;
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
+              const newDateFmt = String(item.date).replace(/\//g, '-'); const newWd = weekdayZhFromDateKey(item.date); const newTime = item.time;
+              html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; align-items:center; width: 100%;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center; justify-content: space-between; width: 100%;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`;
+          });
+      } else {
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
       }
+      html += `</div>`; confirmInfo.innerHTML = html;
+      
+      if (state.mode !== 'reschedule') {
+          document.getElementById('step3RemainingContainer').style.display = 'block';
+          document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
+          document.getElementById('step3RemainingType').textContent = `(${state.course || '1對1'})`;
+      } else { document.getElementById('step3RemainingContainer').style.display = 'none'; }
+      
+      let remindHtml = '';
+      if (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) { remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`; } 
+      else { remindHtml = `<ol><li>取消或改期，請於上課前 3 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`; }
+      $('#step3RemindBox').innerHTML = remindHtml; setStatus('');
+  }
+
+  window.deleteFromStep3 = function(date, time) {
+      const idx = state.cart.findIndex(i => i.date === date && i.time === time);
+      if (idx >= 0) { state.cart.splice(idx, 1); renderStep3Content(); if (state.cart.length === 0) { Swal.fire({ icon:'info', title:'清單已空', html:'請重新選擇預約時段', confirmButtonColor: '#127a69' }); setStep(2); } }
+  };
+
+  function renderCart() {
+      if (state.remainingCredits !== undefined && state.mode !== 'reschedule') { const currentLeft = state.remainingCredits - state.cart.length; const displayEl = document.getElementById('displayCredits'); if (displayEl) { displayEl.textContent = currentLeft; displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)'; } }
+      cartList.innerHTML = '';
+      if (state.cart.length === 0) { cartList.innerHTML = '<div style="font-size:16px; font-weight:950; color:#aaa; text-align:center; padding:16px 10px;">尚未選擇時段</div>'; return; }
+      state.cart.sort((a,b) => a.ts - b.ts).forEach(item => {
+          const el = document.createElement('div'); el.className = 'cartItem'; const wd = weekdayZhFromDateKey(item.date); let btnHtml = '';
+          if (state.mode !== 'reschedule') { const availableWeeks = getAvailableRecurringWeeks(item.date, item.time); const nextWeekDate = ymd(addDays(new Date(String(item.date).replace(/-/g,'/')), 7)); const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time); if (availableWeeks > 0 && !isNextWeekInCart) btnHtml = `<div class="repeatBtn">+包月</div>`; }
+          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions">${btnHtml}<div class="delBtn">×</div></div>`;
+          if(el.querySelector('.repeatBtn')) {
+              el.querySelector('.repeatBtn').onclick = (e) => {
+                  e.stopPropagation(); const cleanDate = String(item.date).replace(/[\/\.]/g, '-'); const [yyyy, mm, dd] = cleanDate.split('-'); const month = parseInt(mm, 10); const day = parseInt(dd, 10); const availableWeeks = getAvailableRecurringWeeks(cleanDate, item.time);
+                  Swal.fire({ title: '一鍵包月排排看', html: `是否自動排入 ${month}月${day}日 起，後續 ${availableWeeks} 週<br>(每週${wd} ${item.time}) 的常態預約？`, icon: 'question', showCancelButton: true, confirmButtonText: '確定加入', confirmButtonColor: '#127a69', cancelButtonText: '取消返回', iconColor: '#127a69' }).then((res)=>{ if(res.isConfirmed){ const c = addBatchItems(cleanDate, item.time); renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2(); if(c > 0) Swal.fire({ icon:'success', title:'成功排入', html:`已成功預排後續 <span style="font-weight:950;">${c} 堂</span> 常態課！`, confirmButtonColor: '#127a69' }); } });
+              };
+          }
+          el.querySelector('.delBtn').onclick = (e) => { e.stopPropagation(); toggleCartItem(item.date, item.time); }; cartList.appendChild(el);
+      });
+  }
+
+  function toggleCartItem(date, time) {
+      const idx = state.cart.findIndex(i => i.date === date && i.time === time);
+      if (idx >= 0) { state.cart.splice(idx, 1); } else { if (state.mode === 'reschedule' && state.cart.length >= 1) { Swal.fire({ icon: 'warning', title: '只能挑選一堂', text: '更改日期一次僅限調整一堂', confirmButtonColor: '#127a69' }); return; } if (state.mode !== 'reschedule' && state.cart.length >= state.remainingCredits) { Swal.fire({ icon: 'warning', title: '額度不足', html: `您目前僅剩 <span style="font-weight:950;">${state.remainingCredits} 堂</span> 可用`, confirmButtonColor: '#127a69' }); return; } const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
+      renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
+  }
+
+  function addBatchItems(startDateKey, timeStr) {
+      let current = createSafeDate(startDateKey, '00:00'); const limit = getLimitDate(); let addedCount = 0;
+      while(true) { current = addDays(current, 7); if (current > limit) break; const dKey = ymd(current); const exists = state.cart.some(item => item.date === dKey && item.time === timeStr); const slotsForDay = state.availabilityMap[dKey]; const isAvailable = slotsForDay && slotsForDay.includes(timeStr); if (!exists && isAvailable && canBookNow(dKey, timeStr)) { if (state.cart.length >= state.remainingCredits) { Swal.fire({ icon: 'info', title: '額度已滿', html: `已幫您排入 <span style="font-weight:950;">${addedCount} 堂</span>，剩餘額度已全數用畢`, confirmButtonColor: '#127a69' }); break; } state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 }); addedCount++; } }
+      return addedCount;
+  }
+
+  function updateRecordBtns() {
+      const count = state.selectedRecords.size; if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} 堂)`; btnCancelBatch.disabled = false; } else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; }
+      const remainContainer = document.getElementById('recordRemainingContainer');
+      if (remainContainer) { remainContainer.style.display = 'block'; document.getElementById('recordRemainingType').textContent = `(${state.recordTab})`; document.getElementById('recordRemainingVal').textContent = (state.recordTab === '1對1' ? state.credits_1on1 : (state.recordTab === '1對2' ? state.credits_1on2 : state.credits_group)) || '--'; }
   }
 
   btnCancelBatch.onclick = function() {
-      const count = state.selectedRecords.size; if(count === 0) return;
-      const now = new Date(); let isTimeout = false;
-      state.selectedRecords.forEach(index => {
-          const classTime = createSafeDate(state.records[index].date, state.records[index].time);
-          if (((classTime - now) / (1000 * 60 * 60)) < 3) isTimeout = true;
-      });
-
-      if (isTimeout) {
-          Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 3 小時的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' });
-          state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); return; 
-      }
-      Swal.fire({
-          title: '確認取消預約', html: `即將為您取消勾選的 ${count} 堂課？`, icon: 'warning',
-          showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回'
-      }).then((result) => { if (result.isConfirmed) executeBatchCancel(); });
+      const count = state.selectedRecords.size; if(count === 0) return; const now = new Date(); let isTimeout = false;
+      state.selectedRecords.forEach(index => { const classTime = createSafeDate(state.records[index].date, state.records[index].time); if (((classTime - now) / (1000 * 60 * 60)) < 3) isTimeout = true; });
+      if (isTimeout) { Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 3 小時的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' }); state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); return; }
+      Swal.fire({ title: '確認取消預約', html: `即將為您取消勾選的 ${count} 堂課？`, icon: 'warning', showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回' }).then((result) => { if (result.isConfirmed) executeBatchCancel(); });
   };
 
   async function executeBatchCancel() {
-      setStatus("正在取消預約...");
-      const bookingsToCancel = []; state.selectedRecords.forEach(index => { bookingsToCancel.push(state.records[index]); });
+      setStatus("正在取消預約..."); const bookingsToCancel = []; state.selectedRecords.forEach(index => { bookingsToCancel.push(state.records[index]); });
       let refundedBookings = []; let expiredBookings = []; let failedBookings = []; let latestRemaining = "--";
-
       for (const booking of bookingsToCancel) {
           try {
               const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "doCancel", userId: state.uid, bookings: [booking] }) });
               const rawResponseText = await res.text(); let result;
               try { const safeText = rawResponseText.replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); result = JSON.parse(safeText); } catch (e) { throw new Error("回傳格式異常"); }
-              
-              const currentStatus = result.Status || result.status; const msg = result.Message || result.message || ""; 
-              const remain = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : null);
+              const currentStatus = result.Status || result.status; const msg = result.Message || result.message || ""; const remain = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : null);
               if (remain !== null) latestRemaining = remain;
-
               if (currentStatus === 'expired' || msg.includes('不予退還') || msg.includes('過期') || booking.改期狀態 === 'final') expiredBookings.push(booking);
               else if (currentStatus === 'success' || currentStatus === 'completed') refundedBookings.push(booking);
               else failedBookings.push(booking);
           } catch (e) { failedBookings.push(booking); }
       }
-
       const totalProcessed = refundedBookings.length + expiredBookings.length;
       if (totalProcessed > 0) {
           await Swal.fire({ icon: 'success', title: '處理完畢', html: `已成功為您取消 ${totalProcessed} 堂預約。`, confirmButtonColor: '#127a69' });
-          if(liff.isInClient()) {
-              try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) { console.error("LINE 卡片傳送失敗:", msgErr); }
-          }
+          if(liff.isInClient()) { try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {} }
           liff.closeWindow(); 
-      } else {
-          Swal.fire({ icon: 'error', title: '取消失敗', text: '連線異常，請重新操作或聯繫教練確認狀態。', confirmButtonColor: '#b23a2b' });
-          setStatus("");
-      }
+      } else { Swal.fire({ icon: 'error', title: '取消失敗', text: '連線異常，請重新操作或聯繫教練確認狀態。', confirmButtonColor: '#b23a2b' }); setStatus(""); }
   }
 
-  function createCancellationFlexMessage(refundedBookings, expiredBookings, remainingCount) {
-      const remainText = remainingCount !== undefined && remainingCount !== "--" ? `${remainingCount}` : "-";
-      let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
-      let coachName = "無"; let courseName = "1對1";
+  window.showCannotReschedule = function(e) { e.stopPropagation(); Swal.fire({ icon: 'error', title: '無法改期', text: '該課程購買效期已過，且已更改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' }); };
+  function renderCourseTip() { if (state.step !== 1) return; setStatus('請選擇教練與課程'); }
+  function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
+  function buildAvailabilityMap(options){ const map = {}; (options||[]).forEach(o=>{ const raw = (o.value || o.label || '').toString(); const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4]; if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t); }); Object.keys(map).forEach(k=>map[k].sort()); return map; }
+  function renderCoachIntro(){ if(!state.coach) return; coachAvatar2.src = state.coach.avatar; coachName2.textContent = state.coach.name; coachTags2.innerHTML=''; state.coach.tags.forEach(t=>{ const el=document.createElement('div'); el.className='tag'; el.textContent=t; coachTags2.appendChild(el); }); }
+  function renderSlotsStep2(){ slotGrid2.innerHTML=''; if(!state.dateKey){ slotGrid2.innerHTML='<div class="slotTip important">請先選擇上方日期</div>'; return; } const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{ const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18); }); if(list.length===0){ slotGrid2.innerHTML='<div class="slotTip important">此時段無可預約時間</div>'; return; } list.forEach(t=>{ const disabled = !canBookNow(state.dateKey, t); const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t); const div=document.createElement('div'); div.className='slot'+(disabled?' disabled':'')+(isSelected?' sel':''); div.textContent=t; div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div); }); }
+  function renderWeekStrip(){ const ws = state.weekStart; monthTitle.textContent = monthYearLabel(ws); weekStrip.innerHTML=''; prevWeek.classList.toggle('disabled', ws <= weekStartMonday(new Date())); nextWeek.classList.toggle('disabled', addDays(ws,7) > getLimitDate()); for(let i=0;i<7;i++){ const d = addDays(ws, i); const key = ymd(d); const cell=document.createElement('div'); cell.className='dayCell'; if((startOfDay(d) < startOfDay(new Date())) || !state.availabilityMap[key] || d > getLimitDate() || state.loadingOptions) cell.classList.add('disabled'); if(state.dateKey===key) cell.classList.add('sel'); const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i); const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate(); cell.append(dow, dot); cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } }; weekStrip.appendChild(cell); } }
+  function renderCoaches(){ coachRow.innerHTML=''; COACHES.forEach(c=>{ const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; coachRow.appendChild(div); }); if(state.coach) { $('#trainerCardWrap').classList.remove('hide'); $('#tcAvatar').src = state.coach.avatar; $('#tcName').textContent = state.coach.name; } else { $('#trainerCardWrap').classList.add('hide'); } }
+  function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
 
-      const allCanceled = [...refundedBookings, ...expiredBookings];
-      if (allCanceled.length > 0) { coachName = allCanceled[0].coach || "無"; courseName = getCourseName(allCanceled[0].course, allCanceled[0].people); }
-
-      if (refundedBookings.length > 0) {
-          timesBox.contents.push({ type: "text", text: "已退還堂數：", weight: "bold", color: "#127a69", size: "sm" });
-          refundedBookings.forEach(b => {
-              timesBox.contents.push({ type: "box", layout: "horizontal", spacing: "sm", contents: [ { type: "text", text: "✅", size: "sm", flex: 0 }, { type: "text", text: `${b.date.replace(/\//g, '-')} (${b.weekday}) ${b.time}`, size: "sm", color: "#1a2321", weight: "bold", flex: 1 } ] });
-          });
-      }
-
-      if (expiredBookings.length > 0) {
-          if (refundedBookings.length > 0) timesBox.contents.push({ type: "separator", margin: "md" });
-          timesBox.contents.push({ type: "text", text: "過期不予退還：", weight: "bold", color: "#b23a2b", size: "sm", margin: "md" });
-          expiredBookings.forEach(b => {
-              timesBox.contents.push({ type: "box", layout: "horizontal", spacing: "sm", contents: [ { type: "text", text: "⚠️", size: "sm", flex: 0 }, { type: "text", text: `${b.date.replace(/\//g, '-')} (${b.weekday}) ${b.time}`, size: "sm", color: "#b23a2b", weight: "bold", flex: 1 } ] });
-          });
-      }
-
-      return {
-        type: "flex", altText: "私課取消通知",
-        contents: {
-          type: "bubble", size: "mega", 
-          header: {
-            type: "box", layout: "vertical", backgroundColor: expiredBookings.length > 0 && refundedBookings.length === 0 ? "#127a69" : "#b23a2b", paddingAll: "16px",
-            contents: [ { type: "text", text: "私課取消成功", weight: "bold", size: "xl", color: "#ffffff" }, { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } ]
-          },
-          body: {
-            type: "box", layout: "vertical", paddingAll: "20px",
-            contents: [
-              timesBox,
-              { type: "box", layout: "vertical", margin: "md", spacing: "sm", contents: [ { type: "text", text: `教練：${coachName}`, size: "sm", color: "#1a2321" }, { type: "text", text: `課程：${courseName}`, size: "sm", color: "#1a2321" }, { type: "text", text: `剩餘：${remainText}堂(${courseName})`, size: "sm", color: "#1a2321" } ] },
-              { type: "separator", margin: "md", color: "#e5e5e5" }, 
-              { type: "box", layout: "vertical", spacing: "xs", margin: "md", contents: [ { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" }, { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", size: "xxs", color: "#7a8280", wrap: true }, { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true } ] },
-              { type: "box", layout: "vertical", margin: "md", contents: [ { type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "12px", paddingAll: "12px", action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" }, contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ] } ] }
-            ]
-          },
-          styles: { footer: { separator: false } }
-        }
-      };
-  }
-
-  function createSuccessFlexMessage(successCount, remainingCount, successBookings, isReschedule = false, oldRecord = null) {
-      const remainText = remainingCount !== undefined && remainingCount !== "--" ? `${remainingCount}` : "-";
-      let timesBox = { type: "box", layout: "vertical", margin: "none", spacing: "sm", contents: [] };
-      
-      if (isReschedule && oldRecord && successBookings.length > 0) {
-          const b = successBookings[0];
-          const oldDateFmt = oldRecord.date.replace(/\//g, '-');
-          const oldWd = oldRecord.weekday || weekdayZhFromDateKey(oldRecord.date);
-          const newDateFmt = b.date.replace(/\//g, '-');
-          const newWd = b.weekday || weekdayZhFromDateKey(b.date);
-
-          timesBox.contents.push({
-              type: "box", layout: "horizontal", spacing: "sm",
-              contents: [
-                  { type: "text", text: "舊：", size: "md", color: "#b23a2b", weight: "bold", flex: 0 },
-                  { type: "text", text: `${oldDateFmt} (${oldWd}) ${oldRecord.time}`, size: "md", color: "#7a8280", weight: "bold", flex: 1, decoration: "line-through" }
-              ]
-          });
-          timesBox.contents.push({
-              type: "box", layout: "horizontal", spacing: "sm",
-              contents: [
-                  { type: "text", text: "新：", size: "md", color: "#127a69", weight: "bold", flex: 0 },
-                  { type: "text", text: `${newDateFmt} (${newWd}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold", flex: 1 }
-              ]
-          });
-      } else if (successBookings && successBookings.length > 0) {
-          successBookings.sort((a,b)=>a.ts - b.ts).forEach(b => {
-              timesBox.contents.push({ type: "box", layout: "horizontal", spacing: "sm", contents: [ { type: "text", text: "•", size: "md", color: "#1a2321", weight: "bold", flex: 0 }, { type: "text", text: `${b.date.replace(/\//g, '-')} (${b.weekday || weekdayZhFromDateKey(b.date)}) ${b.time}`, size: "md", color: "#1a2321", weight: "bold", flex: 1 } ] });
-          });
-      } else {
-          timesBox.contents.push({ type: "text", text: "詳情請查看預約紀錄", size: "md", color: "#7a8280" });
-      }
-
-      return {
-        type: "flex", altText: isReschedule ? "私課更改時段成功通知" : "私課預約成功通知",
-        contents: {
-          type: "bubble", size: "mega", 
-          header: {
-            type: "box", layout: "vertical", backgroundColor: "#127a69", paddingAll: "16px",
-            contents: [ { type: "text", text: isReschedule ? "私課更改時段成功" : "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" }, { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } ]
-          },
-          body: {
-            type: "box", layout: "vertical", paddingAll: "20px",
-            contents: [
-              timesBox,
-              { type: "box", layout: "vertical", margin: "md", spacing: "sm", contents: [ { type: "text", text: `教練：${state.coach.name}`, size: "sm", color: "#1a2321" }, { type: "text", text: `課程：${state.course}`, size: "sm", color: "#1a2321" }, { type: "text", text: `剩餘：${remainText}堂(${state.course})`, size: "sm", color: "#1a2321" } ] },
-              { type: "separator", margin: "md", color: "#e5e5e5" }, 
-              { type: "box", layout: "vertical", spacing: "xs", margin: "md", contents: [ { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" }, { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", size: "xxs", color: "#7a8280", wrap: true }, { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", size: "xxs", color: "#7a8280", wrap: true } ] },
-              { type: "box", layout: "vertical", margin: "md", contents: [ { type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "12px", paddingAll: "12px", action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" }, contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ] } ] }
-            ]
-          },
-          styles: { footer: { separator: false } }
-        }
-      };
-  }
+  async function loadOptionsForCoach(){ state.weekStart = weekStartMonday(new Date()); state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); try{ const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:getPeopleCount(state.course), userId:state.uid, mode: state.mode }) }); const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const data = JSON.parse(safeText); state.optionsRaw = Array.isArray(data.options)?data.options:[]; state.availabilityMap = buildAvailabilityMap(state.optionsRaw); const remain = data["Remaining credits"] ?? data.remainingCredits; if (remain !== undefined) state.remainingCredits = parseInt(remain, 10); renderCart(); }catch(e){} state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); }
 
   function bindTabListeners() {
-      document.querySelectorAll('.tab').forEach(el => {
-          el.onclick = () => { 
-              document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
-              el.classList.add('active'); 
-              state.tab = el.dataset.tab; 
-              renderSlotsStep2(); 
-          };
-      });
+      document.querySelectorAll('.tab').forEach(el => { el.onclick = () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); state.tab = el.dataset.tab; renderSlotsStep2(); }; });
+      document.querySelectorAll('.record-tab').forEach(el => { el.onclick = () => { document.querySelectorAll('.record-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); state.recordTab = el.dataset.tab; state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); }; });
+  }
+
+  async function loadMyRecords() {
+      state.mode = 'record';
+      stepBar.classList.add('hide'); card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
+      cardRecord.classList.remove('hide'); btnBack.classList.add('hide'); btnNext.classList.add('hide'); recordBtns.classList.remove('hide'); 
+      $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
+      setStatus("讀取預約紀錄中..."); recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
+      try {
+          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "getRecords", userId: state.uid }) });
+          const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+          let data = JSON.parse(safeText);
+          if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
+          state.records = data.records || [];
+          state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
+          
+          const remain = data["Remaining credits"] ?? data.remainingCredits;
+          if(remain !== undefined) state.recordRemaining = remain;
+          if(data.credits_1on1 !== undefined) state.credits_1on1 = data.credits_1on1;
+          if(data.credits_1on2 !== undefined) state.credits_1on2 = data.credits_1on2;
+          if(data.credits_group !== undefined) state.credits_group = data.credits_group;
+          renderRecordList(); updateRecordBtns(); setStatus("");
+      } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
   async function init(){
@@ -948,9 +703,7 @@
         await liff.init({ liffId: LIFF_ID }); 
         if(!liff.isLoggedIn()) { liff.login(); return; }
         const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
-        
         bindTabListeners();
-
         const params = new URLSearchParams(window.location.search);
         if (params.get('page') === 'record') loadMyRecords(); 
         else { renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); }
@@ -970,65 +723,32 @@
         try{
            const isReschedule = state.mode === 'reschedule';
            const firstSelectedSlot = state.cart[0] || {};
-           
            const payload = {
-              action: isReschedule ? "reschedule" : "book", 
-              userId: state.uid, 
-              displayName: state.name, 
-              coachName: state.coach.name, 
-              course: state.course,
-              people: getPeopleCount(state.course),
-              newDate: isReschedule ? firstSelectedSlot.date : undefined,
-              newTime: isReschedule ? firstSelectedSlot.time : undefined,
-              newWeekday: isReschedule ? weekdayZhFromDateKey(firstSelectedSlot.date) : undefined,
+              action: isReschedule ? "reschedule" : "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, course: state.course, people: getPeopleCount(state.course),
+              newDate: isReschedule ? firstSelectedSlot.date : undefined, newTime: isReschedule ? firstSelectedSlot.time : undefined, newWeekday: isReschedule ? weekdayZhFromDateKey(firstSelectedSlot.date) : undefined,
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
            };
-           
-           if (isReschedule && state.rescheduleSource) { 
-               payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || ""; 
-               payload.oldDate = state.rescheduleSource.date; payload.oldTime = state.rescheduleSource.time;
-           }
+           if (isReschedule && state.rescheduleSource) { payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || ""; payload.oldDate = state.rescheduleSource.date; payload.oldTime = state.rescheduleSource.time; }
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-           const rawResponseText = await res.text(); 
-           const safeResText = rawResponseText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+           const rawText = await res.text(); 
+           const safeResText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
            let result = JSON.parse(safeResText);
-           
            if (result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled') {
-              // ✨ 強制提取並回寫最新算出的剩餘堂數，保證同步傳遞至 LINE 卡片引擎
               const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
-              
-              // ✨ 依據是否為改期模式，動態切換您指定的尊榮版成功彈窗文字
               const alertTitle = isReschedule ? '更改成功' : '預約成功';
               const alertHtml = isReschedule ? '已成功更改私課預約時段！' : `已成功完成您的預約安排！`;
-              
-              await Swal.fire({ 
-                  icon: 'success', 
-                  title: alertTitle, 
-                  html: alertHtml, 
-                  confirmButtonColor: '#127a69' 
-              });
-              
+              await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
               if(liff.isInClient()) {
-                  try {
-                      const successBookingsData = state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }));
-                      const flexMsg = createSuccessFlexMessage(state.cart.length, actualRemain, successBookingsData, isReschedule, state.rescheduleSource);
-                      await liff.sendMessages([flexMsg]);
-                  } catch (msgErr) {
-                      console.error("LINE 成功卡片傳送失敗:", msgErr);
-                  }
+                  try { await liff.sendMessages([createSuccessFlexMessage(state.cart.length, actualRemain, state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })), isReschedule, state.rescheduleSource)]); } catch (msgErr) {}
               }
               liff.closeWindow();
-           } else {
-              Swal.fire({ icon:'error', title: '糟糕！失敗', text: '時段已被佔走，請重新選擇時段。', confirmButtonColor: '#b23a2b' });
-              setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
-           }
-        }catch(e){ Swal.fire({ icon:'error', title: '系統異常', text: '請確認網路狀態或聯繫教練。', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
+           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', text: '時段可能已被佔走，請重新選擇時段。', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
+        }catch(e){ Swal.fire({ icon:'error', title: '系統異常', text: '請稍後再試。' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
   }
   
-  bindTabListeners();
   init();
 </script>
 </body>
