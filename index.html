@@ -32,51 +32,52 @@
       <div id="courseRow" class="courseGrid"></div>
       
       <div id="trainerCardWrap" class="hide" style="margin-top: 16px; flex: 1 1 auto;">
-          <div class="card" style="background: linear-gradient(135deg, #165346, #0d362d); border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 12px 30px rgba(13, 54, 45, 0.25); border-radius: 20px; padding: 22px 14px 18px; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="card" style="background: #ffffff; border: 2.5px solid var(--primary); box-shadow: 0 12px 30px rgba(18, 122, 105, 0.12); border-radius: 20px; padding: 22px 14px 18px; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
               
-              <div style="display: flex; align-items: center; gap: 26px; padding-left: 12px;">
-                  <div class="avatar" style="width: 72px; height: 72px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.9); padding: 2px; background: rgba(255,255,255,0.15); box-shadow: 0 4px 14px rgba(0,0,0,0.3); flex: 0 0 auto;">
+              <div style="display: flex; align-items: center; gap: 26px; padding-left: 10px;">
+                  <div class="avatar" style="width: 72px; height: 72px; border-radius: 50%; border: 2.5px solid var(--primary); padding: 2px; background: var(--selBg); box-shadow: 0 4px 14px rgba(18,122,105,0.15); flex: 0 0 auto;">
                       <img id="tcAvatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                   </div>
-                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 0px;">
-                      <div id="tcName" style="font-size: 26px; font-weight: 950; color: #ffffff; letter-spacing: 2px; line-height: 1.1;">--</div>
-                      <div style="font-size: 14px; font-weight: 950; color: #d4af37; letter-spacing: 1px; opacity: 0.95;">資深教練</div>
+                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+                      <div id="tcName" style="font-size: 26px; font-weight: 950; color: var(--text); letter-spacing: 2px; line-height: 1.1;">--</div>
+                      <div style="font-size: 14px; font-weight: 950; color: var(--primary); letter-spacing: 1px; opacity: 0.95;">資深教練</div>
                   </div>
               </div>
               
               <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px;">
                   
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="13" cy="4" r="2"></circle>
-                              <path d="M13 7l-2 5l-4 1"></path>
-                              <path d="M11 12l4 3l1 5"></path>
-                              <path d="M13 7l3 2l4 -1"></path>
+                      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--selBg); border: 1.5px solid rgba(18,122,105,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="14" cy="5" r="2"></circle>
+                              <path d="M14 7l-2 5l-4 1"></path>
+                              <path d="M12 12l4 3l1 5"></path>
+                              <path d="M14 7l3 2l4 -1"></path>
+                              <path d="M6 9l4 1"></path>
                           </svg>
                       </div>
-                      <span style="font-size: 13px; font-weight: 950; color: rgba(255,255,255,0.95); letter-spacing: 0.5px;">青少年體能</span>
+                      <span style="font-size: 13px; font-weight: 950; color: var(--text); letter-spacing: 0.5px;">青少年體能</span>
                   </div>
                   
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="12" cy="4" r="2"></circle>
-                              <path d="M12 7c-2 2 -3 5 -2 8l-2 6"></path>
-                              <path d="M10 15l4 6"></path>
-                              <path d="M12 7c2 1 4 2 5 1c1 -1 1 -3 -1 -5"></path>
-                              <path d="M12 7c-2 1 -4 2 -4 4"></path>
+                      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--selBg); border: 1.5px solid rgba(18,122,105,0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="12" cy="5" r="2"></circle>
+                              <path d="M12 8v6"></path>
+                              <path d="M12 8c-2 -2 -4 -4 -2 -6"></path>
+                              <path d="M12 8c2 -2 4 -4 2 -6"></path>
+                              <path d="M7 17l5 -3l5 3"></path>
                           </svg>
                       </div>
-                      <span style="font-size: 13px; font-weight: 950; color: rgba(255,255,255,0.95); letter-spacing: 0.5px;">樂齡運動</span>
+                      <span style="font-size: 13px; font-weight: 950; color: var(--text); letter-spacing: 0.5px;">樂齡運動</span>
                   </div>
                   
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.25); display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--selBg); border: 1.5px solid rgba(18,122,105,0.25); display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                           </svg>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                               <line x1="5" y1="12" x2="19" y2="12"/>
                               <line x1="7" y1="7" x2="7" y2="17"/>
                               <line x1="4" y1="9" x2="4" y2="15"/>
@@ -84,7 +85,7 @@
                               <line x1="20" y1="9" x2="20" y2="15"/>
                           </svg>
                       </div>
-                      <span style="font-size: 13px; font-weight: 950; color: rgba(255,255,255,0.95); letter-spacing: 0.5px;">肌力&體能</span>
+                      <span style="font-size: 13px; font-weight: 950; color: var(--text); letter-spacing: 0.5px;">肌力&體能</span>
                   </div>
                   
               </div>
@@ -259,7 +260,6 @@
   }
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
-  // 完美對應「只要顯示：請選擇教練與課程就好」的純粹指示設計
   function renderCourseTip() {
       if (state.step !== 1) return;
       setStatus('請選擇教練與課程');
@@ -389,6 +389,7 @@
       }
   };
 
+  // ✨ 精確落實 Step 2 的「尚未選擇時段」文字大幅放大加粗要求
   function renderCart() {
       if (state.remainingCredits !== undefined && state.mode !== 'reschedule') {
           const currentLeft = state.remainingCredits - state.cart.length;
@@ -396,7 +397,10 @@
           if (displayEl) { displayEl.textContent = currentLeft; displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)'; }
       }
       cartList.innerHTML = '';
-      if (state.cart.length === 0) { cartList.innerHTML = '<div style="font-size:12px; color:#aaa; text-align:center; padding:10px;">尚未選擇時段</div>'; return; }
+      if (state.cart.length === 0) { 
+          cartList.innerHTML = '<div style="font-size:16px; font-weight:950; color:#aaa; text-align:center; padding:16px 10px;">尚未選擇時段</div>'; 
+          return; 
+      }
       
       const sorted = [...state.cart].sort((a,b) => a.ts - b.ts);
       sorted.forEach(item => {
@@ -572,20 +576,24 @@
     const s2Name = document.getElementById('step2CourseName'); if(s2Name) s2Name.textContent = `(${state.course})`;
     setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart();
     
-    // 進入第二步時發送請求獲取時段與正確堂數上限
     try{
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
-         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:state.course, userId:state.uid, mode: state.mode })
+         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, userId:state.uid, mode: state.mode })
       });
-      const rawText = await res.text(); let data; try { data = JSON.parse(rawText.trim()); } catch(e) { data = rawText; }
+      const rawText = await res.text(); let data;
+      try { 
+          const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+          data = JSON.parse(safeText); 
+      } catch(e) { data = {}; console.error("JSON解析容錯處理"); }
+      
       if (typeof data.options === 'string') { try { data.options = JSON.parse(data.options); } catch(e) {} }
       
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
       
-      if (data["Remaining credits"] !== undefined) state.remainingCredits = parseInt(data["Remaining credits"], 10);
-      else if (data.remainingCredits !== undefined) state.remainingCredits = parseInt(data.remainingCredits, 10);
+      const remain = data["Remaining credits"] ?? data.remainingCredits;
+      if (remain !== undefined) state.remainingCredits = parseInt(remain, 10);
       renderCart(); 
     }catch(e){ console.error(e); }
     state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2();
@@ -597,30 +605,26 @@
       cardRecord.classList.remove('hide'); btnBack.classList.add('hide'); btnNext.classList.add('hide'); recordBtns.classList.remove('hide'); 
       $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
       setStatus("讀取預約紀錄中..."); recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">讀取中...</div>';
-      state.selectedRecords.clear(); updateRecordBtns();
-
       try {
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, {
               method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "getRecords", userId: state.uid })
           });
-          const rawText = await res.text(); let data = JSON.parse(rawText.trim());
+          const rawText = await res.text(); 
+          const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+          let data = JSON.parse(safeText);
           if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
           state.records = data.records || [];
+          state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           
-          state.records.sort((a, b) => {
-              const timeA = createSafeDate(a.date, a.time).getTime();
-              const timeB = createSafeDate(b.date, b.time).getTime();
-              return timeA - timeB;
-          });
-          
-          if(data["Remaining credits"] !== undefined || data.remainingCredits !== undefined) state.recordRemaining = data["Remaining credits"] !== undefined ? data["Remaining credits"] : data.remainingCredits;
+          const remain = data["Remaining credits"] ?? data.remainingCredits;
+          if(remain !== undefined) state.recordRemaining = remain;
           if(data.credits_1on1 !== undefined) state.credits_1on1 = data.credits_1on1;
           if(data.credits_1on2 !== undefined) state.credits_1on2 = data.credits_1on2;
           if(data.credits_group !== undefined) state.credits_group = data.credits_group;
 
           renderRecordList(); updateRecordBtns(); setStatus("");
-      } catch(e) {
-          console.error(e); recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus("讀取失敗", true);
+      } catch(e) { 
+          recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請確認網路連線或聯繫教練</div>'; setStatus(""); 
       }
   }
 
@@ -932,7 +936,6 @@
             state.weekStart = weekStartMonday(new Date()); 
             renderWeekStrip(); 
             setStep(1); 
-            // 徹底移除第一步背景預先讀取剩餘堂數，維持單淨呈現
         }
     } catch(err) { console.error(err); setStatus('載入失敗，請重新整理', true); }
 
@@ -943,7 +946,7 @@
     btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
     
     btnHome.onclick = () => {
-        window.history.replaceState({}, document.title, window.location.pathname); document.title = "支點運動空間"; state.mode = 'book'; state.rescheduleSource = null; state.cart = []; state.course = null; state.coach = null;  
+        window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; state.rescheduleSource = null; state.cart = []; state.course = null; state.coach = null;  
         renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1);
     };
 
@@ -956,64 +959,31 @@
            const isReschedule = state.mode === 'reschedule';
            
            const payload = {
-              action: isReschedule ? "reschedule" : "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, course: state.course, people: state.course,
-              bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })),
-              remainingCredits: (state.course === '1對1' ? state.credits_1on1 : (state.course === '1對2' ? state.credits_1on2 : state.credits_group))
+              action: isReschedule ? "reschedule" : "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, course: state.course,
+              bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
            };
 
            if (isReschedule && state.rescheduleSource) { 
-               payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || state.rescheduleSource.__IMTINDEX__ || ""; 
+               payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || ""; 
                payload.oldDate = state.rescheduleSource.date; 
                payload.oldTime = state.rescheduleSource.time;
-               payload.oldWeekday = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date); 
-               payload.oldDeductSource = state.rescheduleSource.deductSource || state.rescheduleSource.扣堂來源 || ""; 
-               payload.rescheduleType = state.rescheduleSource.isExpiredStatus ? 'expired_remedy' : 'normal';
-               payload.newRescheduleStatus = state.rescheduleSource.isExpiredStatus ? 'final' : '';
-
-               if(state.cart.length > 0) {
-                   payload.newDate = state.cart[0].date; 
-                   payload.newTime = state.cart[0].time;
-                   payload.newWeekday = weekdayZhFromDateKey(state.cart[0].date); 
-               }
            }
 
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-           const rawResponseText = await res.text(); let result;
-           try { const safeText = rawResponseText.replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); result = JSON.parse(safeText); } catch (e) { throw new Error("格式異常"); }
+           const rawResponseText = await res.text(); 
+           const safeResText = rawResponseText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+           let result = JSON.parse(safeResText);
            
-           const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
-           let successBookings = []; let failedBookings = [];
+           const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled';
            if (isSuccess) {
-               let parsedList = []; let rawResults = result.Results || result.results || result.records || result;
-               if (!Array.isArray(rawResults)) rawResults = [rawResults];
-               function parseItem(item) { if (Array.isArray(item)) item.forEach(parseItem); else if (typeof item === 'object' && item !== null) parsedList.push(item); else if (typeof item === 'string') { try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} } }
-               parseItem(rawResults);
-               
-               successBookings = state.cart.filter(item => { const dateSlash = item.date.replace(/-/g, '/'); return parsedList.some(res => { const rDate = String(res.date || res.Date || '').trim(); const rTime = String(res.time || res.Time || '').trim(); return (rDate === item.date || rDate === dateSlash) && (rTime === item.time) && (res.status !== 'failed'); }); });
-               if (successBookings.length === 0) successBookings = [...state.cart];
-               failedBookings = state.cart.filter(item => !successBookings.includes(item));
-           } else { failedBookings = [...state.cart]; }
-
-           const actualSuccessCount = successBookings.length;
-           const remaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
-           
-           if (isSuccess && actualSuccessCount > 0) {
-              await Swal.fire({ 
-                  icon: 'success', 
-                  title: isReschedule ? '更改成功！' : '預約成功！', 
-                  html: isReschedule ? `已將預約更改至新時段。` : `已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`, 
-                  confirmButtonText: '確定', 
-                  confirmButtonColor: '#127a69', 
-                  cancelButtonText: '返回' 
-              });
-              if(liff.isInClient()) { try { await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, remaining, successBookings, isReschedule, state.rescheduleSource)]); } catch (msgErr) {} }
+              await Swal.fire({ icon: 'success', title: isReschedule ? '更改成功！' : '預約成功！', html: isReschedule ? `已將預約更改至新時段。` : `已成功預約 <span style="font-weight:950;">${state.cart.length} 堂</span> 私課！`, confirmButtonText: '確定', confirmButtonColor: '#127a69' });
               liff.closeWindow();
            } else {
-              Swal.fire({ icon:'error', title: '糟糕！失敗！', html: `時段可能已被預約，請選擇其他時段。`, confirmButtonColor: '#b23a2b', cancelButtonText: '返回' });
+              Swal.fire({ icon:'error', title: '糟糕！失敗！', html: `時段可能已被預約，請重新選擇時段。`, confirmButtonColor: '#b23a2b' });
               setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
            }
         }catch(e){ 
-           Swal.fire({ icon:'error', title:'系統異常', html:'請聯繫教練。', iconColor: '#d32f2f', cancelButtonText: '返回' }); btnNext.disabled=false; btnNext.textContent="確認送出"; 
+           Swal.fire({ icon:'error', title:'系統異常', html:'請確認網路或聯繫教練。' }); btnNext.disabled=false; btnNext.textContent="確認送出"; 
         }
       }
     };
