@@ -242,7 +242,6 @@
   function weekdayZhFromDateKey(dateKey){ return ['日','一','二','三','四','五','六'][new Date(dateKey+'T00:00:00').getDay()]||''; }
   function getLimitDate(){ const d = new Date(); d.setMonth(d.getMonth()+2,0); d.setHours(23,59,59,999); return d; }
   
-  // 判斷是否可預約當下時段（維持往後推 1 小時即可選）
   function canBookNow(dateKey, timeStr){
     if(!dateKey || !timeStr) return false;
     const dt = createSafeDate(dateKey, timeStr);
@@ -382,7 +381,6 @@
       if (isExpiredReschedule) {
           remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`;
       } else {
-          // ✅ 修正點文案同步：改為 3 小時
           remindHtml = `<ol><li>取消或改期，請於上課前 3 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
       }
       
@@ -671,7 +669,6 @@
 
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
-          // ✅ 修正點改期取消判定：改為大於等於 3 小時
           const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 3;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired);
@@ -779,7 +776,6 @@
       const now = new Date(); let isTimeout = false;
       state.selectedRecords.forEach(index => {
           const classTime = createSafeDate(state.records[index].date, state.records[index].time);
-          // ✅ 批次取消防呆提示同步更新為小於 3 小時
           if (((classTime - now) / (1000 * 60 * 60)) < 3) isTimeout = true;
       });
 
@@ -877,7 +873,6 @@
               timesBox,
               { type: "box", layout: "vertical", margin: "md", spacing: "sm", contents: [ { type: "text", text: `教練：${coachName}`, size: "sm", color: "#1a2321" }, { type: "text", text: `課程：${courseName}`, size: "sm", color: "#1a2321" }, { type: "text", text: `剩餘：${remainText}堂(${courseName})`, size: "sm", color: "#1a2321" } ] },
               { type: "separator", margin: "md", color: "#e5e5e5" }, 
-              // ✅ 卡片內文同步更新為 3 小時
               { type: "box", layout: "vertical", spacing: "xs", margin: "md", contents: [ { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" }, { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", size: "xxs", color: "#7a8280", wrap: true }, { type: "text", text: "• 如有任何問題，請於官方Line聯繫我們。", size: "xxs", color: "#7a8280", wrap: true } ] },
               { type: "box", layout: "vertical", margin: "md", contents: [ { type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "12px", paddingAll: "12px", action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" }, contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ] } ] }
             ]
@@ -926,7 +921,7 @@
           type: "bubble", size: "mega", 
           header: {
             type: "box", layout: "vertical", backgroundColor: "#127a69", paddingAll: "16px",
-            contents: [ { type: "text", text: isReschedule ? "私課更改時段成功" : "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" }, { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } ]
+            contents: [ { type: "text", text: text: isReschedule ? "私課更改時段成功" : "私課預約成功", weight: "bold", size: "xl", color: "#ffffff" }, { type: "text", text: "支點運動空間", size: "xs", color: "#ffffffcc", margin: "xs" } ]
           },
           body: {
             type: "box", layout: "vertical", paddingAll: "20px",
@@ -934,7 +929,6 @@
               timesBox,
               { type: "box", layout: "vertical", margin: "md", spacing: "sm", contents: [ { type: "text", text: `教練：${state.coach.name}`, size: "sm", color: "#1a2321" }, { type: "text", text: `課程：${state.course}`, size: "sm", color: "#1a2321" }, { type: "text", text: `剩餘：${remainText}堂(${state.course})`, size: "sm", color: "#1a2321" } ] },
               { type: "separator", margin: "md", color: "#e5e5e5" }, 
-              // ✅ 卡片內文同步更新為 3 小時
               { type: "box", layout: "vertical", spacing: "xs", margin: "md", contents: [ { type: "text", text: "溫馨提醒", weight: "bold", size: "sm", color: "#b23a2b" }, { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", size: "xxs", color: "#7a8280", wrap: true }, { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", size: "xxs", color: "#7a8280", wrap: true } ] },
               { type: "box", layout: "vertical", margin: "md", contents: [ { type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "12px", paddingAll: "12px", action: { type: "uri", label: "管理我的預約", uri: "https://liff.line.me/" + LIFF_ID + "?page=record" }, contents: [ { type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", size: "md", align: "center" } ] } ] }
             ]
@@ -983,6 +977,9 @@
         try{
            const isReschedule = state.mode === 'reschedule';
            
+           // ✅ 關鍵修改：如果當前是「改期 (reschedule)」模式，把選擇的第一筆時段資料直接抽至根目錄的 newDate 與 newTime 屬性
+           const firstSelectedSlot = state.cart[0] || {};
+           
            const payload = {
               action: isReschedule ? "reschedule" : "book", 
               userId: state.uid, 
@@ -990,6 +987,9 @@
               coachName: state.coach.name, 
               course: state.course,
               people: getPeopleCount(state.course),
+              // 👈 加上這兩行，Make.com 後端就能直接抓到 1.newDate 與 1.newTime 了
+              newDate: isReschedule ? firstSelectedSlot.date : undefined,
+              newTime: isReschedule ? firstSelectedSlot.time : undefined,
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
            };
 
@@ -1006,12 +1006,10 @@
            
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled';
            if (isSuccess) {
-              // 取得伺服器回傳的剩餘堂數做精確呈現
               const latestRemaining = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : "--");
               
               await Swal.fire({ icon: 'success', title: isReschedule ? '更改成功！' : '預約成功！', html: isReschedule ? `已將預約更改至新時段。` : `已成功預約 <span style="font-weight:950;">${state.cart.length} 堂</span> 私課！`, confirmButtonText: '確定', confirmButtonColor: '#127a69' });
               
-              // ✅ 關鍵修復：送出成功後，確實執行 LINE 卡片傳送動作
               if(liff.isInClient()) {
                   try {
                       const successBookingsData = state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }));
