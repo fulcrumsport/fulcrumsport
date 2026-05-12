@@ -27,11 +27,11 @@
     @keyframes loader-spinner-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; }
 
-    /* ✨ 頂級定製化旗艦名片：融合加粗實線邊框與絕對置中對齊 */
+    /* ✨ 頂級視覺重塑：取消邊框，極致強化立體浮凸陰影，頭像完美回歸左側排版 */
     .premium-trainer-card {
         background: #ffffff;
-        border: 2.5px solid var(--primary);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 12px 32px rgba(18, 122, 105, 0.08);
+        border: none;
+        box-shadow: 0 10px 30px rgba(18, 122, 105, 0.15), 0 2px 8px rgba(0, 0, 0, 0.06);
         border-radius: 22px;
         padding: 24px 16px 20px;
         overflow: hidden;
@@ -42,32 +42,32 @@
         transition: all 0.3s ease;
     }
     .premium-trainer-card:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04), 0 16px 40px rgba(18, 122, 105, 0.12);
+        box-shadow: 0 14px 40px rgba(18, 122, 105, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
         transform: translateY(-2px);
     }
-    /* 絕對置中整合式排版容器 (將頭像與文字包覆在一起) */
-    .premium-center-layout {
+    /* 經典左側頭像排版結構 */
+    .premium-classic-layout {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 10px;
+        gap: 20px;
+        padding-left: 8px;
     }
     .premium-avatar-wrap {
-        width: 76px;
-        height: 76px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
         border: 2px solid var(--primary);
         padding: 2px;
         background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(18, 122, 105, 0.08);
+        box-shadow: 0 4px 12px rgba(18, 122, 105, 0.12);
+        flex: 0 0 auto;
     }
-    .premium-meta-center {
+    .premium-meta-left {
+        flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
-        gap: 3px;
     }
   </style>
 </head>
@@ -92,13 +92,13 @@
       <div id="trainerCardWrap" class="hide" style="margin-top: 16px; flex: 1 1 auto;">
           <div class="premium-trainer-card">
               
-              <div class="premium-center-layout">
+              <div class="premium-classic-layout">
                   <div class="premium-avatar-wrap">
                       <img id="tcAvatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                   </div>
-                  <div class="premium-meta-center">
-                      <div id="tcName" style="font-size: 24px; font-weight: 950; color: var(--text); letter-spacing: 2px; line-height: 1.15; text-align: center;">--</div>
-                      <div style="font-size: 13px; font-weight: 950; color: var(--primary); letter-spacing: 1px; opacity: 0.95; background: var(--selBg); padding: 2px 10px; border-radius: 99px; margin-top: 2px;">資深教練</div>
+                  <div class="premium-meta-left">
+                      <div id="tcName" style="font-size: 25px; font-weight: 950; color: var(--text); letter-spacing: 1.5px; line-height: 1.2;">--</div>
+                      <div style="display:inline-block; align-self: flex-start; font-size: 13px; font-weight: 950; color: var(--primary); letter-spacing: 1px; background: var(--selBg); padding: 2px 10px; border-radius: 99px; margin-top: 4px;">資深教練</div>
                   </div>
               </div>
               
@@ -628,7 +628,6 @@
       state.optionsRaw = (data&&Array.isArray(data.options))?data.options:[];
       state.availabilityMap = buildAvailabilityMap(state.optionsRaw);
       
-      // 同步取得正確堂數上限
       const remain = data["Remaining credits"] ?? data.remainingCredits;
       if (remain !== undefined) state.remainingCredits = parseInt(remain, 10);
       renderCart(); 
@@ -671,7 +670,7 @@
       Swal.fire({ icon: 'error', title: '無法改期', text: '該課程購買效期已過，且已更改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' });
   };
 
-  // ✨ 完美相容過期判定，實現驚嘆號行事曆專屬按鈕與單次改期攔截
+  // ✨ 完美攔截過期邏輯：支援廣泛鍵值對齊，渲染專屬驚嘆號 SVG 圖標與單次改期封鎖
   function renderRecordList() {
       const records = state.records; let filteredCount = 0; let html = '';
       records.forEach((r, originalIndex) => {
@@ -682,18 +681,20 @@
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
           const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 3;
           
-          // ✨ 完美相容試算表各類過期欄位命名
-          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || r.isExpired === "過期";
+          // ✨ 滴水不漏覆蓋布林值、各類字串與中文欄位名稱
+          const isExpired = 
+              r.isExpired === true || r.isExpired === "true" || r.isExpired === "yes" || r.isExpired === "過期" ||
+              r.isCardExpired === true || r.isCardExpired === "true" || r.isCardExpired === "yes" ||
+              r["扣堂來源是否到期"] === "到期" || r["扣堂來源是否到期"] === "過期" || r["扣堂來源是否到期"] === true;
           
-          // ✨ 只要過期且已經改過一次 (yes 或 final)，立刻封鎖二次改期
+          // ✨ 只要過期且具備任何改期紀錄(yes/final)，封鎖二次改動
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
           const canReschedule = (!isExpired) || (isExpired && !isFinal);
           
-          // 依據是否過期，動態套用專屬視覺顏色
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
           const displayDate = (r.date || '').replace(/\//g, '-');
           
-          // ✨ 量身打造驚嘆號行事曆專屬 SVG 結構
+          // ✨ 精準渲染驚嘆號 + 行事曆 SVG
           const innerSVGPath = isExpired 
               ? `<path d="M12 13v4"></path><path d="M12 20h.01"></path>` 
               : `<path d="M7 15l2 2 4-4"></path>`;
@@ -728,7 +729,11 @@
           state.selectedRecords.delete(originalIndex); renderRecordList(); updateRecordBtns();
       } else {
           const r = state.records[originalIndex]; 
-          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || r.isExpired === "過期";
+          const isExpired = 
+              r.isExpired === true || r.isExpired === "true" || r.isExpired === "yes" || r.isExpired === "過期" ||
+              r.isCardExpired === true || r.isCardExpired === "true" || r.isCardExpired === "yes" ||
+              r["扣堂來源是否到期"] === "到期" || r["扣堂來源是否到期"] === "過期" || r["扣堂來源是否到期"] === true;
+              
           if (isExpired) {
               Swal.fire({
                   title: '確認取消？', html: '該課堂購買效期已過，系統取消後無法自動退還堂數，確定要取消嗎？', icon: 'warning',
@@ -994,11 +999,11 @@
            let result = JSON.parse(safeResText);
            
            if (result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled') {
-              // ✨ 強制提取並回寫最新算出的剩餘堂數，保證同步傳遞至 LINE 卡片引擎
+              // 強制回寫堂數以確保同步至 LINE 成功卡片
               const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
               
-              // ✨ 依據是否為改期模式，動態切換您指定的尊榮版成功彈窗文字
+              // ✨ 依據是否為改期，動態輸出客製化彈窗文字
               const alertTitle = isReschedule ? '更改成功' : '預約成功';
               const alertHtml = isReschedule ? '已成功更改私課預約時段！' : `已成功完成您的預約安排！`;
               
