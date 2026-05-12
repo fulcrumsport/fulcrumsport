@@ -92,7 +92,7 @@
     .name-highlight { font-size: 28px; font-weight: 950; color: var(--text); background: linear-gradient(transparent 60%, rgba(18,122,105,0.25) 40%); padding: 0 4px; margin-right: 6px; display: inline-block; }
     #recordList { background: transparent; padding: 4px 2px; box-shadow: none; }
 
-    /* ✨ 完美修復橫排分類按鈕 */
+    /* ✨ 完美橫排按鈕分類容器 */
     .record-tabs-container {
       display: flex;
       flex-direction: row;
@@ -122,11 +122,11 @@
       box-shadow: 0 2px 6px rgba(18,122,105,0.15);
     }
 
-    /* ✨ 頂級定製：絕無外框 + 極致微凸懸浮感 + 頭像居左緊密排版 */
+    /* ✨ 頂級無框浮凸名片：嚴格移除邊框 + 雙重懸浮立體擬物影 + 頭像緊靠左側排版 */
     .premium-trainer-card {
       background: #ffffff;
-      border: none; /* 嚴格移除外框 */
-      /* 運用擬物雙重陰影打造強烈浮凸與立體質感 */
+      border: none; /* 嚴格移除邊框 */
+      /* 精密 Neumorphism 雙重浮凸陰影 (右下立體柔影 + 左上亮光反射) */
       box-shadow: 8px 8px 24px rgba(18,122,105,0.12), -4px -4px 12px rgba(255,255,255,0.9);
       border-radius: 26px;
       padding: 24px 18px 20px;
@@ -139,7 +139,7 @@
     .premium-classic-layout {
       display: flex;
       align-items: center;
-      justify-content: flex-start; /* 完美靠左對齊 */
+      justify-content: flex-start; /* 保證頭像安放於左邊 */
       gap: 18px;
       padding-left: 6px;
     }
@@ -156,7 +156,7 @@
     .premium-meta-left {
       display: flex;
       flex-direction: column;
-      align-items: center; /* 讓職稱精準置中於名字正下方 */
+      align-items: center; /* 讓職稱完美置中於名字正下方 */
       gap: 4px;
     }
     .premium-job-title {
@@ -168,7 +168,7 @@
       padding: 2px 12px;
       border-radius: 999px;
     }
-    /* 專長圖示「微凸/浮凸」質感專門設定 */
+    /* 專長圖示專門「微凸/浮凸」立體效果 */
     .raised-icon-circle {
       width: 60px;
       height: 60px;
@@ -177,7 +177,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      /* 經典 Neumorphism 浮凸陰影 */
+      /* 經典微凸雙重影 */
       box-shadow: 5px 5px 12px rgba(18,122,105,0.1), -3px -3px 8px rgba(255,255,255,1);
       border: 1px solid rgba(18,122,105,0.03);
     }
@@ -528,15 +528,15 @@
       }
   };
 
-  // ✨ 完美替換過期警示視窗的專屬指定文案
+  // ✨ 精確淨化彈窗文案：完全移除了多餘的問句拼接
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); 
       const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
-      // 精準替換文案
+      // 乾淨簡潔的指定文字
       const htmlText = isExpired ? '該課堂購買效期已過，取消無法退堂，僅供更改日期乙次。' : '即將為您重新安排預約時段。';
       
       Swal.fire({
-          title: '確認更改時段？', html: `${htmlText}<br>是否確定要調整這堂課？`, icon: 'question', 
+          title: '確認更改時段？', html: htmlText, icon: 'question', 
           showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定改期', confirmButtonColor: '#127a69'
       }).then((res) => {
           if (res.isConfirmed) {
