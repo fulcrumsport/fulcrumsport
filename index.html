@@ -246,13 +246,23 @@
     const dt = createSafeDate(dateKey, timeStr);
     return dt >= new Date(Date.now()+3600000);
   }
+  
+  // ✅ 修正點 1：修正 item 未定義的 ReferenceError
   function getCourseName(course, people) {
       if (course === '1對1' || course === '1對2' || course === '包班') return course;
       if (people == 1 || people == '1') return '1對1';
       if (people == 2 || people == '2') return '1對2';
-      if (people >= 6 || item === '6') return '包班';
+      if (people >= 6 || people === '6') return '包班';
       return course || '1對1';
   }
+  
+  // ✅ 輔助函數：由課程反推人數給 Webhook 使用
+  function getPeopleCount(courseName) {
+      if (courseName === '1對2') return 2;
+      if (courseName === '包班') return 6;
+      return 1; // 預設 1對1
+  }
+
   function isTruthy(val) {
       if (val === true) return true;
       if (typeof val === 'string' && val.trim().toLowerCase() === 'true') return true;
@@ -389,7 +399,7 @@
       }
   };
 
-  // ✨ 精確落實 Step 2 的「尚未選擇時段」文字大幅放大加粗要求
+  // ✅ 修正點 2：將 availableWeeks 拉到 if 外部宣告，徹底根除 ReferenceError
   function renderCart() {
       if (state.remainingCredits !== undefined && state.mode !== 'reschedule') {
           const currentLeft = state.remainingCredits - state.cart.length;
@@ -406,9 +416,12 @@
       sorted.forEach(item => {
           const el = document.createElement('div'); el.className = 'cartItem';
           const wd = weekdayZhFromDateKey(item.date);
+          
           let btnHtml = '';
+          let availableWeeks = 0; // 👈 關鍵修正：在作用域最外層建立變數
+
           if (state.mode !== 'reschedule') {
-              const availableWeeks = getAvailableRecurringWeeks(item.date, item.time);
+              availableWeeks = getAvailableRecurringWeeks(item.date, item.time);
               const nextWeekDate = ymd(addDays(item.date, 7));
               const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time);
               if (availableWeeks > 0 && !isNextWeekInCart) btnHtml = `<div class="repeatBtn">+包月</div>`;
@@ -421,6 +434,7 @@
                   e.stopPropagation();
                   const [yyyy, mm, dd] = item.date.split('-'); const month = parseInt(mm, 10); const day = parseInt(dd, 10);
                   Swal.fire({
+                      // 👈 現在這裡就能安全取用 availableWeeks 了
                       title: '一鍵包月', html: `是否加入 ${month}月${day}日 起，後續 ${availableWeeks} 週<br>(每週${wd} ${item.time}) 的預約？`,
                       icon: 'question', showCancelButton: true, confirmButtonText: '加入', confirmButtonColor: '#127a69', cancelButtonText: '取消', iconColor: '#127a69' 
                   }).then((res)=>{
@@ -569,6 +583,7 @@
     });
   }
 
+  // ✅ 修正點 3：在 POST 給 Webhook 時，一併附上由 course 反推計算的 people 參數
   async function loadOptionsForCoach(){
     if (!state.weekStart) state.weekStart = weekStartMonday(new Date());
     state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; 
@@ -579,7 +594,14 @@
     try{
       const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, {
          method: "POST", headers: {"Content-Type":"application/json"},
-         body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, userId:state.uid, mode: state.mode })
+         body: JSON.stringify({ 
+             action: "getOptions", 
+             coachName: state.coach.name, 
+             course: state.course, 
+             people: getPeopleCount(state.course), // 👈 加上這行，Make.com 結構就不會丟失 people
+             userId: state.uid, 
+             mode: state.mode 
+         })
       });
       const rawText = await res.text(); let data;
       try { 
@@ -950,6 +972,7 @@
         renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1);
     };
 
+    // ✅ 修正點 3 加強版：送出最終預約時，也帶出正確的 people 參數
     btnNext.onclick=async ()=>{
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
@@ -959,7 +982,12 @@
            const isReschedule = state.mode === 'reschedule';
            
            const payload = {
-              action: isReschedule ? "reschedule" : "book", userId: state.uid, displayName: state.name, coachName: state.coach.name, course: state.course,
+              action: isReschedule ? "reschedule" : "book", 
+              userId: state.uid, 
+              displayName: state.name, 
+              coachName: state.coach.name, 
+              course: state.course,
+              people: getPeopleCount(state.course), // 👈 確保預約端也送出人數參數
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
            };
 
