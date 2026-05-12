@@ -13,7 +13,7 @@
     *{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}.wrap{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative;z-index:1}.top{padding:8px 14px 6px;padding-top:calc(8px + var(--safeT));background:linear-gradient(180deg,var(--bg) 75%,rgba(242,246,245,0));flex:0 0 auto}.steps{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 12px;box-shadow:0 4px 15px rgba(0,0,0,0.04)}.step{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;min-width:0}.dot{width:30px;height:30px;border-radius:999px;background:#dcece9;color:var(--primary);font-weight:900;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:14px}.dot.active{background:var(--primary);color:#fff}.label{font-size:15px;font-weight:900;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.label.active{color:var(--text)}.main{flex:1 1 auto;overflow:hidden;padding:0 14px 4px;display:flex;flex-direction:column;gap:10px;min-height:0}.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:12px 14px;overflow:hidden;display:flex;flex-direction:column}.h{margin:0 0 10px;font-weight:950;font-size:20px;color:var(--text);flex:0 0 auto}.row{display:flex;gap:12px;flex-wrap:wrap}.courseGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}.chip{padding:14px 16px;border-radius:16px;background:#eef2f1;font-weight:950;font-size:18px;cursor:pointer;border:2px solid transparent;text-align:center;flex:1 1 0;transition:all 0.2s}.chip.sel{background:var(--selBg);border-color:rgba(18,122,105,.45);color:var(--selText)}.chip.disabled{opacity:0.5;pointer-events:none;background:#f0f0f0;color:#999}.subTitle{margin:12px 0 8px;font-weight:950;font-size:15px;color:var(--text)}.step2Box{display:flex;flex-direction:column;gap:8px;height:100%;min-height:0}.coachIntro{display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:10px;background:#fff;flex:0 0 auto}.avatar{width:48px;height:48px;border-radius:999px;overflow:hidden;background:#ddd;flex:0 0 auto}.avatar img{width:100%;height:100%;object-fit:cover;display:block}.cal{border-radius:18px;border:1px solid var(--border);padding:10px;background:#fff;flex:0 0 auto}.calHead{display:grid;grid-template-columns:42px 1fr 42px;gap:10px;align-items:center;margin-bottom:6px}.calBtn{width:42px;height:42px;border-radius:14px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;font-weight:950;color:var(--primary);border:1px solid var(--border)}.calBtn.disabled{opacity:0.3;pointer-events:none}.monthTitle{text-align:center;font-weight:950;font-size:16px}.weekStrip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dayCell{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0;border-radius:14px;border:1px solid var(--border);background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.05);cursor:pointer;min-height:64px}.dayCell.disabled{opacity:.35;pointer-events:none}.dayCell.hidden{visibility:hidden}.dayCell.sel .dateDot{background:var(--primary);color:#fff}.dateDot{width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:950;color:var(--text)}.slotsArea{flex:0 0 auto;display:flex;flex-direction:column;gap:8px;padding-bottom:4px}.tabs{display:flex;border-bottom:2px solid var(--border);padding-bottom:6px}.tab{font-weight:950;font-size:15px;color:var(--muted);cursor:pointer;padding-bottom:8px;position:relative}.tab.active{color:var(--text)}.tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:4px;background:var(--primary);border-radius:999px}.slotGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.slot{padding:8px 0;border-radius:999px;background:#eef2f1;font-weight:950;font-size:13px;text-align:center;cursor:pointer;border:2px solid transparent}.slot.sel{background:var(--selBg);color:var(--selText);border-color:rgba(18,122,105,.35)}.slot.disabled{opacity:.35;pointer-events:none}.cartWrap{margin-top:4px;padding-top:6px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-height:0}.cartScrollArea{flex:1 1 auto;overflow-y:auto;background:rgba(255,255,255,0.5);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:6px}.cartItem{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:950;color:var(--text)}.repeatBtn{font-size:11px;padding:4px 10px;border-radius:6px;background:#eef2f1;color:var(--primary);border:1px solid #dcece9;cursor:pointer;font-weight:900}.delBtn{width:28px;height:28px;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--danger);background:#fff5f5;cursor:pointer;border-radius:6px}.confirmList{display:flex;flex-direction:column;gap:10px;margin-top:4px;flex:1 1 auto;overflow-y:auto;min-height:0;padding-bottom:8px}.confirmItem{background:#fff;border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(18,122,105,0.04)}.confirmItem.marked-delete{background-color:#fff5f5;border-left:5px solid var(--danger)}.remindBox{width:100%;font-size:13px;line-height:1.6;color:var(--text);flex:0 0 auto}.remindBox ol { padding-left: 20px; margin: 4px 0 0 0; }.remindBox li { margin-bottom: 6px; font-weight: 700; color: #2b3634; }
     .footer{flex:0 0 auto;padding:4px 14px calc(4px + var(--safeB));background:linear-gradient(0deg,var(--bg) 75%,rgba(246,247,248,0))}.btnRow{display:flex;gap:12px}.btn{flex:1;border:0;border-radius:16px;padding:14px 12px;font-size:16px;font-weight:950;cursor:pointer;box-shadow:var(--shadow);transition:all 0.2s}.btnPrimary{background:var(--primary);color:#fff}.btnGhost{background:#fff;color:var(--text);border:1px solid rgba(0,0,0,.10)}.btnDanger{background:var(--danger);color:#fff}.status{margin-top:4px;font-size:14px;color:var(--muted);text-align:center;font-weight:900;min-height:20px}.hide{display:none!important}
 
-    /* ✨ 頂級名片美學：雙重立體懸浮感 + 經典靠中緊密排版 */
+    /* ✨ 名片頂級設計：微光浮島 + 絕對置中整合式排版 */
     .premium-trainer-card {
         background: #ffffff;
         border: none;
@@ -29,8 +29,8 @@
     .premium-centering-group {
         display: flex;
         align-items: center;
-        justify-content: center; /* 讓頭像和文字整體向中間靠攏 */
-        gap: 18px; /* 維持適度不擁擠的精緻間距 */
+        justify-content: center; /* 名片核心組件置中 */
+        gap: 18px;
         width: 100%;
     }
     .premium-avatar-frame {
@@ -46,7 +46,7 @@
     .premium-meta-box {
         display: flex;
         flex-direction: column;
-        align-items: center; /* 讓職稱完美對齊名字正下方 */
+        align-items: center; /* 名字職稱垂直置中 */
         gap: 4px;
     }
     .premium-job-title {
@@ -58,7 +58,7 @@
         padding: 2px 12px;
         border-radius: 99px;
     }
-    /* 專長圖示「Neumorphism 新擬物化」立體浮凸質感 */
+    /* 專長圖示「浮凸感」專屬樣式 */
     .raised-icon-circle {
         width: 62px;
         height: 62px;
@@ -67,6 +67,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        /* 雙重陰影製造浮凸擬物感 */
         box-shadow: 6px 6px 14px rgba(18, 122, 105, 0.1), 
                     -4px -4px 10px rgba(255, 255, 255, 1);
         border: 1px solid rgba(18, 122, 105, 0.05);
@@ -273,15 +274,11 @@
       if(!dateKey) return '';
       return ['日','一','二','三','四','五','六'][new Date(dateKey.replace(/-/g,'/')).getDay()]||''; 
   }
-  
-  // ✨ 終極過期捕捉函數升級：完全包容字串包含判讀，不遺漏任何「已過期」字樣
   function isTruthy(val) {
-      if (val === true || val === 1) return true;
-      if (!val) return false;
+      if (val === true) return true;
       const s = String(val).trim().toLowerCase();
-      return s.includes('true') || s.includes('yes') || s.includes('過期') || s.includes('到期');
+      return s === 'true' || s === 'yes' || s === '過期' || s === '到期';
   }
-  
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
   function renderCourseTip() {
@@ -329,7 +326,7 @@
     }
   }
 
-  // ✨ 精準套用強大判定引擎，完美產出紅色驚嘆號圖標並執行單次封鎖防呆
+  // ✨ 強化過期標示與改期圖示邏輯：判讀驚嘆號+行事曆，並限制過期課程僅限改期一次
   function renderRecordList() {
       const records = state.records; let filteredCount = 0; let html = '';
       records.forEach((r, originalIndex) => {
@@ -340,16 +337,17 @@
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
           const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 3;
           
-          // 全域相容捕捉後端 P 欄對應狀態變數
+          // ✨ 關鍵判讀邏輯：對齊試算表 P 欄 (扣堂來源是否到期)
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
           
+          // ✨ 過期課程只要改過一次 (yes) 或標記為 final，立刻判定為最終狀態不可再動
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
           const canReschedule = (!isExpired) || (isExpired && !isFinal);
           
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
           const displayDate = (r.date || '').replace(/\//g, '-');
           
-          // ✨ 動態輸出專門的紅色驚嘆號 + 行事曆 SVG
+          // ✨ 精準渲染驚嘆號 + 行事曆 SVG (針對過期課程)
           const innerSVGPath = isExpired 
               ? `<path d="M12 13v4"></path><path d="M12 20h.01"></path>` 
               : `<path d="M7 15l2 2 4-4"></path>`;
@@ -374,7 +372,7 @@
       recordList.innerHTML = filteredCount === 0 ? '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>' : html;
   }
 
-  // 其他函數閉環維持完整...
+  // 其他初始化與按鈕邏輯維持穩定運作...
   function bindTabListeners() {
       document.querySelectorAll('.tab').forEach(el => {
           el.onclick = () => { 
@@ -422,11 +420,9 @@
            if (result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled') {
               const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
-              
               const alertTitle = isReschedule ? '更改成功' : '預約成功';
               const alertHtml = isReschedule ? '已成功更改私課預約時段！' : `已成功完成您的預約安排！`;
               await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
-              
               if(liff.isInClient()) {
                   try { await liff.sendMessages([createSuccessFlexMessage(state.cart.length, actualRemain, state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })), isReschedule, state.rescheduleSource)]); } catch (msgErr) {}
               }
@@ -437,7 +433,7 @@
     };
   }
   
-  // 維持名片與時段渲染渲染更新機制
+  // 剩餘函數維持邏輯穩定...
   function renderCoaches(){ coachRow.innerHTML=''; COACHES.forEach(c=>{ const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; coachRow.appendChild(div); }); if(state.coach) { $('#trainerCardWrap').classList.remove('hide'); $('#tcAvatar').src = state.coach.avatar; $('#tcName').textContent = state.coach.name; } else { $('#trainerCardWrap').classList.add('hide'); } }
   function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
   function renderWeekStrip(){ const ws = state.weekStart; monthTitle.textContent = monthYearLabel(ws); weekStrip.innerHTML=''; prevWeek.classList.toggle('disabled', ws <= weekStartMonday(new Date())); nextWeek.classList.toggle('disabled', addDays(ws,7) > getLimitDate()); for(let i=0;i<7;i++){ const d = addDays(ws, i); const key = ymd(d); const cell=document.createElement('div'); cell.className='dayCell'; if((startOfDay(d) < startOfDay(new Date())) || !state.availabilityMap[key] || d > getLimitDate() || state.loadingOptions) cell.classList.add('disabled'); if(state.dateKey===key) cell.classList.add('sel'); const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i); const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate(); cell.append(dow, dot); cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } }; weekStrip.appendChild(cell); } }
