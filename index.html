@@ -43,8 +43,9 @@
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); }
     
-    /* ✨ 修正點：補上 overflow-y: auto 讓 Step2 手機小螢幕能順暢往下滾動，不互擠 */
-    .step2Box { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; overflow-y: auto; padding-bottom: 8px; }
+    /* ✨ 完美修復 Step 2 版面：恢復 Flex 原始伸縮邏輯，僅讓中間內容區域安全捲動，不再擠壓下方容器 */
+    .step2Box { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; }
+    .step2ScrollArea { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 0; padding-right: 2px; }
     
     .coachIntro { display: flex; gap: 10px; align-items: center; border: 1px solid var(--border); border-radius: 16px; padding: 10px; background: #fff; flex: 0 0 auto; }
     .avatar { width: 48px; height: 48px; border-radius: 999px; overflow: hidden; background: #ddd; flex: 0 0 auto; }
@@ -69,17 +70,29 @@
     .slot { padding: 8px 0; border-radius: 999px; background: #eef2f1; font-weight: 950; font-size: 13px; text-align: center; cursor: pointer; border: 2px solid transparent; }
     .slot.sel { background: var(--selBg); color: var(--selText); border-color: rgba(18,122,105,.35); }
     .slot.disabled { opacity: .35; pointer-events: none; }
-    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-height: 0; }
-    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    
+    /* 購物車區域完美固定下方高度，不再被上方捲動推擠變形 */
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; max-height: 140px; }
+    .cartScrollArea { overflow-y: auto; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; max-height: 100px; }
     .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text); }
     .repeatBtn { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #eef2f1; color: var(--primary); border: 1px solid #dcece9; cursor: pointer; font-weight: 900; }
+    
+    /* ✨ 垃圾桶改回原始設計：微紅底色配上朱紅色字體 */
     .delBtn { width: 28px; height: 28px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 6px; }
+    
+    /* 確認及清單頁面修復 */
+    .confirmWrap { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+    .infoBox { flex: 1 1 auto; overflow-y: auto; min-height: 0; }
     .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; flex: 1 1 auto; overflow-y: auto; min-height: 0; padding-bottom: 8px; }
-    .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.04); }
+    .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.04); flex: 0 0 auto; }
     .confirmItem.marked-delete { background-color: #fff5f5; border-left: 5px solid var(--danger); }
+    
+    /* 確保溫馨提醒區塊標題與內容正確顯現 */
+    .remindTitle { font-weight: 950; font-size: 15px; color: var(--text); }
     .remindBox { width: 100%; font-size: 13px; line-height: 1.6; color: var(--text); flex: 0 0 auto; }
     .remindBox ol { padding-left: 20px; margin: 4px 0 0 0; }
     .remindBox li { margin-bottom: 6px; font-weight: 700; color: #2b3634; }
+    
     .footer { flex: 0 0 auto; padding: 4px 14px calc(4px + var(--safeB)); background: linear-gradient(0deg, var(--bg) 75%, rgba(246,247,248,0)); }
     .btnRow { display: flex; gap: 12px; }
     .btn { flex: 1; border: 0; border-radius: 16px; padding: 14px 12px; font-size: 16px; font-weight: 950; cursor: pointer; box-shadow: 0 4px 12px rgba(18,122,105,0.1); transition: all 0.2s; }
@@ -95,41 +108,15 @@
     .name-highlight { font-size: 28px; font-weight: 950; color: var(--text); background: linear-gradient(transparent 60%, rgba(18,122,105,0.25) 40%); padding: 0 4px; margin-right: 6px; display: inline-block; }
     #recordList { background: transparent; padding: 4px 2px; box-shadow: none; }
 
-    /* ✨ 完美橫排按鈕分類容器 */
-    .record-tabs-container {
-      display: flex;
-      flex-direction: row;
-      gap: 6px;
-      margin-bottom: 12px;
-      background: var(--selBg);
-      padding: 5px;
-      border-radius: 999px;
-      flex: 0 0 auto;
-      width: 100%;
-    }
-    .record-tab {
-      flex: 1;
-      text-align: center;
-      font-weight: 950;
-      font-size: 16px;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 10px 0;
-      border-radius: 999px;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .record-tab.active {
-      color: var(--primary);
-      background: #ffffff;
-      box-shadow: 0 2px 6px rgba(18,122,105,0.15);
-    }
+    .record-tabs-container { display: flex; flex-direction: row; gap: 6px; margin-bottom: 12px; background: var(--selBg); padding: 5px; border-radius: 999px; flex: 0 0 auto; width: 100%; }
+    .record-tab { flex: 1; text-align: center; font-weight: 950; font-size: 16px; color: var(--muted); cursor: pointer; padding: 10px 0; border-radius: 999px; transition: all 0.2s ease; user-select: none; }
+    .record-tab.active { color: var(--primary); background: #ffffff; box-shadow: 0 2px 6px rgba(18,122,105,0.15); }
 
-    /* ✨ 修正點：頂級無框浮凸名片，換上莫蘭迪綠漸層底色 + 雙重懸浮立體擬物影 */
+    /* ✨ 名片底色調成帶有「灰墨綠調性」的高級淺色漸層，低調耐看 */
     .premium-trainer-card {
-      background: linear-gradient(135deg, #eaf3f0 0%, #dbe7e2 100%);
-      border: 1px solid rgba(255,255,255,0.6);
-      box-shadow: 8px 8px 24px rgba(18,122,105,0.12), -4px -4px 12px rgba(255,255,255,0.9);
+      background: linear-gradient(135deg, #f0f5f3 0%, #e1ebe7 100%);
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: 8px 8px 24px rgba(18,122,105,0.1), -4px -4px 12px rgba(255,255,255,0.9);
       border-radius: 26px;
       padding: 24px 18px 20px;
       overflow: hidden;
@@ -138,49 +125,11 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    .premium-classic-layout {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 18px;
-      padding-left: 6px;
-    }
-    .premium-avatar-frame {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 2px solid var(--primary);
-      padding: 2px;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(18,122,105,0.15);
-      flex-shrink: 0;
-    }
-    .premium-meta-left {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-    .premium-job-title {
-      font-size: 13px;
-      font-weight: 950;
-      color: var(--primary);
-      letter-spacing: 1px;
-      background: var(--selBg);
-      padding: 2px 12px;
-      border-radius: 999px;
-    }
-    .raised-icon-circle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 5px 5px 12px rgba(18,122,105,0.1), -3px -3px 8px rgba(255,255,255,1);
-      border: 1px solid rgba(18,122,105,0.03);
-    }
+    .premium-classic-layout { display: flex; align-items: center; justify-content: flex-start; gap: 18px; padding-left: 6px; }
+    .premium-avatar-frame { width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--primary); padding: 2px; background: #fff; box-shadow: 0 4px 12px rgba(18,122,105,0.15); flex-shrink: 0; }
+    .premium-meta-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .premium-job-title { font-size: 13px; font-weight: 950; color: var(--primary); letter-spacing: 1px; background: var(--selBg); padding: 2px 12px; border-radius: 999px; }
+    .raised-icon-circle { width: 60px; height: 60px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 5px 5px 12px rgba(18,122,105,0.08), -3px -3px 8px rgba(255,255,255,1); border: 1px solid rgba(18,122,105,0.03); }
     .raised-icon-circle svg { filter: drop-shadow(1px 1px 1px rgba(18,122,105,0.1)); }
 
     /* Swal2 高質感外觀 */
@@ -225,19 +174,35 @@
               <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 24px;">
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2.5"></circle><path d="M13 9l-2 4.5l-3.5 1"></path><path d="M11 13.5l3 3.5l1.5 4"></path><path d="M13 9h4l2 3"></path><path d="M5.5 16l3.5 -2.5"></path></svg>
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="13" cy="5" r="2.2"></circle>
+                              <path d="M13 9.5l-2 4l-3 1"></path>
+                              <path d="M11 13.5l2.5 3.5l1 3.5"></path>
+                              <path d="M13 9.5h3.5l1.5 2.5"></path>
+                              <path d="M6 15l3 -2"></path>
+                          </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">青少年體能</span>
                   </div>
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="5" r="2.5"></circle><path d="M8 21l3 -7l1 -5.5c-.5 -2.5 1.5 -4 4 -3.5c1 .5 2 2 1.5 4l-1.5 5.5"></path><path d="M11 14l4 7"></path><path d="M5 10c1.5 -3 4 -5 7 -5"></path></svg>
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="14" cy="5" r="2.2"></circle>
+                              <path d="M8 20l2.5 -6l1 -5c-.5 -2 1 -3.5 3 -3.5c1 .5 1.5 2 1 3.5l-1 5"></path>
+                              <path d="M11.5 14l3.5 6"></path>
+                              <path d="M6 10c1 -2 3 -3.5 5.5 -3.5"></path>
+                          </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">樂齡運動</span>
                   </div>
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.566z" fill="rgba(18,122,105,0.08)"></path><line x1="6" y1="11" x2="18" y2="11" stroke-width="2.5"/><line x1="8" y1="8" x2="8" y2="14" stroke-width="2.5"/><line x1="16" y1="8" x2="16" y2="14" stroke-width="2.5"/></svg>
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.566z" fill="rgba(18,122,105,0.08)"></path>
+                              <line x1="6" y1="11" x2="18" y2="11" stroke-width="2.5"/>
+                              <line x1="8" y1="8" x2="8" y2="14" stroke-width="2.5"/>
+                              <line x1="16" y1="8" x2="16" y2="14" stroke-width="2.5"/>
+                          </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">肌力&體能</span>
                   </div>
@@ -250,36 +215,40 @@
       <div class="step2Box">
         <div class="h">Step 2｜選擇日期及時段</div>
         <div id="rescheduleTipBox" class="reschedule-tip hide">更改時段作業中...請重新選擇時段。</div>
-        <div class="coachIntro">
-          <div class="avatar"><img id="coachAvatar2" alt="" /></div>
-          <div class="coachMeta">
-            <div id="coachName2" class="coachName">—</div>
-            <div id="coachTags2" class="tags"></div>
-          </div>
-        </div>
-        <div class="cal">
-          <div class="calHead">
-            <div id="prevWeek" class="calBtn">‹</div>
-            <div id="monthTitle" class="monthTitle">—</div>
-            <div id="nextWeek" class="calBtn">›</div>
-          </div>
-          <div id="weekStrip" class="weekStrip"></div>
-        </div>
-        <div class="slotsArea">
-          <div class="tabs" style="justify-content: space-between; align-items: flex-end;">
-            <div style="display:flex; gap:22px;">
-              <div class="tab active" data-tab="am">上午</div>
-              <div class="tab" data-tab="pm">下午</div>
-              <div class="tab" data-tab="night">晚上</div>
-            </div>
-            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
-              可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂<span id="step2CourseName"></span>
+        
+        <div class="step2ScrollArea">
+          <div class="coachIntro">
+            <div class="avatar"><img id="coachAvatar2" alt="" /></div>
+            <div class="coachMeta">
+              <div id="coachName2" class="coachName">—</div>
+              <div id="coachTags2" class="tags"></div>
             </div>
           </div>
-          <div id="slotGrid2" class="slotGrid"></div>
+          <div class="cal">
+            <div class="calHead">
+              <div id="prevWeek" class="calBtn">‹</div>
+              <div id="monthTitle" class="monthTitle">—</div>
+              <div id="nextWeek" class="calBtn">›</div>
+            </div>
+            <div id="weekStrip" class="weekStrip"></div>
+          </div>
+          <div class="slotsArea">
+            <div class="tabs" style="justify-content: space-between; align-items: flex-end;">
+              <div style="display:flex; gap:22px;">
+                <div class="tab active" data-tab="am">上午</div>
+                <div class="tab" data-tab="pm">下午</div>
+                <div class="tab" data-tab="night">晚上</div>
+              </div>
+              <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
+                可用 <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂<span id="step2CourseName"></span>
+              </div>
+            </div>
+            <div id="slotGrid2" class="slotGrid"></div>
+          </div>
         </div>
+
         <div class="cartWrap">
-            <div class="cartTitle" style="font-size:16px; font-weight:950; color:#aaa; text-align:center; padding:10px 0;">已選擇時段</div>
+            <div class="cartTitle" style="font-size:14px; font-weight:950; color:#aaa; text-align:center; padding:2px 0;">已選擇時段</div>
             <div id="cartList" class="cartScrollArea"></div>
         </div>
       </div>
@@ -289,7 +258,7 @@
       <div class="confirmWrap">
         <div class="h" id="step3Header">Step 3｜確認預約內容</div>
         <div class="infoBox" id="confirmInfo"></div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
             <div class="remindTitle">溫馨提醒</div>
             <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px;">--</span> 堂</div>
         </div>
@@ -307,7 +276,10 @@
             <div class="record-tab" data-tab="1對2">1對2</div>
             <div class="record-tab" data-tab="包班">包班</div>
         </div>
-        <div id="recordList" class="confirmList" style="flex:1;"></div>
+        <div id="recordList" class="confirmList"></div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; flex:0 0 auto;">
+            <div class="remindTitle">溫馨提醒</div>
+        </div>
         <div class="remindBox">
             <ol>
               <li>取消或改期，請於上課前 3 小時完成。</li>
@@ -336,7 +308,6 @@
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
   const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
 
-  // ✨ 修正點：替換為你自訂的照片路徑 ./images/weiming.jpg
   const COACHES = [
     { id:'coachA', name:'偉銘', avatar:'./images/weiming.jpg', tags:['肌力訓練','樂齡運動','青少年體能'] },
     { id:'coachB', name:'教練 B', avatar:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&q=80', tags:['肌力訓練','姿勢調整','初學友善'] },
@@ -362,7 +333,8 @@
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
 
-  const TRASH_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+  // ✨ 垃圾桶圖示：配合 CSS delBtn 的微紅底色，使用乾淨且置中的原始比例
+  const TRASH_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
 
   function createSafeDate(dStr, tStr) {
       if (!dStr || !tStr) return new Date(0);
@@ -494,7 +466,7 @@
           } else {
               if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } 
               else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
-              actionContent += `<div style="display:inline-block; cursor:pointer;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
+              actionContent += `<div style="display:inline-block; cursor:pointer;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : `<div class="delBtn">${TRASH_SVG}</div>`) + `</div>`;
           }
           html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div style="display:flex; align-items:center; gap:10px;"><div class="record-text" style="display:flex; flex-direction:column; gap:4px;"><span class="record-date" style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span><span style="font-size:14px; font-weight:900; color:var(--muted); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${courseDisplay}</span></div></div><div class="step3Del">${actionContent}</div></div>`;
       });
@@ -558,10 +530,10 @@
           const oldTime = state.rescheduleSource.time;
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
               const newDateFmt = String(item.date).replace(/\//g, '-'); const newWd = weekdayZhFromDateKey(item.date); const newTime = item.time;
-              html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; align-items:center; width: 100%;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center; justify-content: space-between; width: 100%;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`;
+              html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; align-items:center; width: 100%;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center; justify-content: space-between; width: 100%;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')"><div class="delBtn">${TRASH_SVG}</div></div></div></div>`;
           });
       } else {
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; align-items:center; gap:10px;"><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')"><div class="delBtn">${TRASH_SVG}</div></div></div>`; });
       }
       html += `</div>`; confirmInfo.innerHTML = html;
       
@@ -584,11 +556,11 @@
   function renderCart() {
       if (state.remainingCredits !== undefined && state.mode !== 'reschedule') { const currentLeft = state.remainingCredits - state.cart.length; const displayEl = document.getElementById('displayCredits'); if (displayEl) { displayEl.textContent = currentLeft; displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)'; } }
       cartList.innerHTML = '';
-      if (state.cart.length === 0) { cartList.innerHTML = '<div style="font-size:16px; font-weight:950; color:#aaa; text-align:center; padding:16px 10px;">尚未選擇時段</div>'; return; }
+      if (state.cart.length === 0) { cartList.innerHTML = '<div style="font-size:13px; font-weight:950; color:#aaa; text-align:center; padding:12px 10px;">尚未選擇時段</div>'; return; }
       state.cart.sort((a,b) => a.ts - b.ts).forEach(item => {
           const el = document.createElement('div'); el.className = 'cartItem'; const wd = weekdayZhFromDateKey(item.date); let btnHtml = '';
           if (state.mode !== 'reschedule') { const availableWeeks = getAvailableRecurringWeeks(item.date, item.time); const nextWeekDate = ymd(addDays(new Date(String(item.date).replace(/-/g,'/')), 7)); const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time); if (availableWeeks > 0 && !isNextWeekInCart) btnHtml = `<div class="repeatBtn">+包月</div>`; }
-          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions">${btnHtml}<div class="delBtn">×</div></div>`;
+          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions" style="display:flex; align-items:center; gap:6px;">${btnHtml}<div class="delBtn">×</div></div>`;
           if(el.querySelector('.repeatBtn')) {
               el.querySelector('.repeatBtn').onclick = (e) => {
                   e.stopPropagation(); const cleanDate = String(item.date).replace(/[\/\.]/g, '-'); const [yyyy, mm, dd] = cleanDate.split('-'); const month = parseInt(mm, 10); const day = parseInt(dd, 10); const availableWeeks = getAvailableRecurringWeeks(cleanDate, item.time);
@@ -694,7 +666,6 @@
         const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
         bindTabListeners();
         
-        // ✨ 修正點：補上行事曆切換按鈕綁定，讓週曆可以真正左右點擊切換
         prevWeek.onclick = () => {
             if (prevWeek.classList.contains('disabled')) return;
             state.weekStart = addDays(state.weekStart, -7);
