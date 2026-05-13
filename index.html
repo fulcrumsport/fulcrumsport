@@ -16,7 +16,7 @@
       --muted: #7a8280;
       --primary: #127a69;
       --radius: 22px;
-      --danger: #b23a2b; /* 朱紅色 */
+      --danger: #b23a2b;
       --selBg: #e5f2f0;
       --selText: #0d5c4f;
       --border: rgba(18,122,105,0.1);
@@ -42,15 +42,11 @@
     .chip.sel { background: var(--selBg); border-color: rgba(18,122,105,.45); color: var(--selText); }
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); }
-    
-    /* ✨ 完美解決手機版面壓縮/重疊問題：維持原本單一外框結構，啟動垂直滾動並保護子層不被擠壓 */
-    .step2Box { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; overflow-y: auto; padding-right: 2px; }
-    .step2Box > * { flex: 0 0 auto; } /* 強制保護所有子區塊維持應有的自然完整高度 */
-    
-    .coachIntro { display: flex; gap: 10px; align-items: center; border: 1px solid var(--border); border-radius: 16px; padding: 10px; background: #fff; }
+    .step2Box { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; }
+    .coachIntro { display: flex; gap: 10px; align-items: center; border: 1px solid var(--border); border-radius: 16px; padding: 10px; background: #fff; flex: 0 0 auto; }
     .avatar { width: 48px; height: 48px; border-radius: 999px; overflow: hidden; background: #ddd; flex: 0 0 auto; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .cal { border-radius: 18px; border: 1px solid var(--border); padding: 10px; background: #fff; }
+    .cal { border-radius: 18px; border: 1px solid var(--border); padding: 10px; background: #fff; flex: 0 0 auto; }
     .calHead { display: grid; grid-template-columns: 42px 1fr 42px; gap: 10px; align-items: center; margin-bottom: 6px; }
     .calBtn { width: 42px; height: 42px; border-radius: 14px; background: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.06); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; font-weight: 950; color: var(--primary); border: 1px solid var(--border); }
     .calBtn.disabled { opacity: 0.3; pointer-events: none; }
@@ -61,7 +57,7 @@
     .dayCell.hidden { visibility: hidden; }
     .dayCell.sel .dateDot { background: var(--primary); color: #fff; }
     .dateDot { width: 34px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 950; color: var(--text); }
-    .slotsArea { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
+    .slotsArea { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
     .tabs { display: flex; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
     .tab { font-weight: 950; font-size: 15px; color: var(--muted); cursor: pointer; padding-bottom: 8px; position: relative; }
     .tab.active { color: var(--text); }
@@ -70,25 +66,17 @@
     .slot { padding: 8px 0; border-radius: 999px; background: #eef2f1; font-weight: 950; font-size: 13px; text-align: center; cursor: pointer; border: 2px solid transparent; }
     .slot.sel { background: var(--selBg); color: var(--selText); border-color: rgba(18,122,105,.35); }
     .slot.disabled { opacity: .35; pointer-events: none; }
-    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
-    .cartScrollArea { max-height: 120px; overflow-y: auto; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-height: 0; }
+    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; background: rgba(255,255,255,0.5); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
     .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-weight: 950; color: var(--text); }
     .repeatBtn { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: #eef2f1; color: var(--primary); border: 1px solid #dcece9; cursor: pointer; font-weight: 900; }
     .delBtn { width: 28px; height: 28px; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 6px; }
-    
-    /* 確認及清單頁面安全滾動設定 */
-    .confirmWrap { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-    .infoBox { flex: 1 1 auto; overflow-y: auto; min-height: 0; }
     .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; flex: 1 1 auto; overflow-y: auto; min-height: 0; padding-bottom: 8px; }
-    .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.04); flex: 0 0 auto; }
+    .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.04); }
     .confirmItem.marked-delete { background-color: #fff5f5; border-left: 5px solid var(--danger); }
-    
-    /* ✨ 完美補上溫馨提醒字體顏色設定：明確呈現朱紅色 */
-    .remindTitle { font-weight: 950; font-size: 15px; color: var(--danger); }
     .remindBox { width: 100%; font-size: 13px; line-height: 1.6; color: var(--text); flex: 0 0 auto; }
     .remindBox ol { padding-left: 20px; margin: 4px 0 0 0; }
     .remindBox li { margin-bottom: 6px; font-weight: 700; color: #2b3634; }
-    
     .footer { flex: 0 0 auto; padding: 4px 14px calc(4px + var(--safeB)); background: linear-gradient(0deg, var(--bg) 75%, rgba(246,247,248,0)); }
     .btnRow { display: flex; gap: 12px; }
     .btn { flex: 1; border: 0; border-radius: 16px; padding: 14px 12px; font-size: 16px; font-weight: 950; cursor: pointer; box-shadow: 0 4px 12px rgba(18,122,105,0.1); transition: all 0.2s; }
@@ -104,14 +92,41 @@
     .name-highlight { font-size: 28px; font-weight: 950; color: var(--text); background: linear-gradient(transparent 60%, rgba(18,122,105,0.25) 40%); padding: 0 4px; margin-right: 6px; display: inline-block; }
     #recordList { background: transparent; padding: 4px 2px; box-shadow: none; }
 
-    .record-tabs-container { display: flex; flex-direction: row; gap: 6px; margin-bottom: 12px; background: var(--selBg); padding: 5px; border-radius: 999px; flex: 0 0 auto; width: 100%; }
-    .record-tab { flex: 1; text-align: center; font-weight: 950; font-size: 16px; color: var(--muted); cursor: pointer; padding: 10px 0; border-radius: 999px; transition: all 0.2s ease; user-select: none; }
-    .record-tab.active { color: var(--primary); background: #ffffff; box-shadow: 0 2px 6px rgba(18,122,105,0.15); }
+    /* ✨ 完美橫排按鈕分類容器 */
+    .record-tabs-container {
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: var(--selBg);
+      padding: 5px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+      width: 100%;
+    }
+    .record-tab {
+      flex: 1;
+      text-align: center;
+      font-weight: 950;
+      font-size: 16px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 10px 0;
+      border-radius: 999px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .record-tab.active {
+      color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(18,122,105,0.15);
+    }
 
-    /* ✨ 頂級無框浮凸名片：底色注入鮮明的淡墨綠調性 (#e2ebe7 -> #cad7d1)，維持乾淨淺色背景 */
+    /* ✨ 頂級無框浮凸名片：嚴格移除邊框 + 雙重懸浮立體擬物影 + 頭像緊靠左側排版 */
     .premium-trainer-card {
-      background: linear-gradient(135deg, #e2ebe7 0%, #cad7d1 100%);
-      border: 1px solid rgba(255,255,255,0.6);
+      background: #ffffff;
+      border: none; /* 嚴格移除邊框 */
+      /* 精密 Neumorphism 雙重浮凸陰影 (右下立體柔影 + 左上亮光反射) */
       box-shadow: 8px 8px 24px rgba(18,122,105,0.12), -4px -4px 12px rgba(255,255,255,0.9);
       border-radius: 26px;
       padding: 24px 18px 20px;
@@ -121,11 +136,51 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    .premium-classic-layout { display: flex; align-items: center; justify-content: flex-start; gap: 18px; padding-left: 6px; }
-    .premium-avatar-frame { width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--primary); padding: 2px; background: #fff; box-shadow: 0 4px 12px rgba(18,122,105,0.15); flex-shrink: 0; }
-    .premium-meta-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .premium-job-title { font-size: 13px; font-weight: 950; color: var(--primary); letter-spacing: 1px; background: var(--selBg); padding: 2px 12px; border-radius: 999px; }
-    .raised-icon-circle { width: 60px; height: 60px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 5px 5px 12px rgba(18,122,105,0.08), -3px -3px 8px rgba(255,255,255,1); border: 1px solid rgba(18,122,105,0.03); }
+    .premium-classic-layout {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start; /* 保證頭像安放於左邊 */
+      gap: 18px;
+      padding-left: 6px;
+    }
+    .premium-avatar-frame {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      padding: 2px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(18,122,105,0.15);
+      flex-shrink: 0;
+    }
+    .premium-meta-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 讓職稱完美置中於名字正下方 */
+      gap: 4px;
+    }
+    .premium-job-title {
+      font-size: 13px;
+      font-weight: 950;
+      color: var(--primary);
+      letter-spacing: 1px;
+      background: var(--selBg);
+      padding: 2px 12px;
+      border-radius: 999px;
+    }
+    /* 專長圖示專門「微凸/浮凸」立體效果 */
+    .raised-icon-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* 經典微凸雙重影 */
+      box-shadow: 5px 5px 12px rgba(18,122,105,0.1), -3px -3px 8px rgba(255,255,255,1);
+      border: 1px solid rgba(18,122,105,0.03);
+    }
     .raised-icon-circle svg { filter: drop-shadow(1px 1px 1px rgba(18,122,105,0.1)); }
 
     /* Swal2 高質感外觀 */
@@ -170,38 +225,22 @@
               <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 24px;">
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="14" cy="5" r="2.5" fill="var(--primary)" stroke="none"></circle>
-                              <path d="M14 9 L11 12 L7 12"></path>
-                              <path d="M14 9 L17 11 L20 9"></path>
-                              <path d="M14 9 L13 15"></path>
-                              <path d="M13 15 L9 18 L5 17"></path>
-                              <path d="M13 15 L16 21"></path>
-                          </svg>
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="5" r="2"></circle><path d="M15 7l-3 5l-4 1"></path><path d="M12 12l4 3l1 4"></path><path d="M15 7l3 1l3 -2"></path><path d="M5 10l3 -1"></path></svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">青少年體能</span>
                   </div>
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="15" cy="7" r="2.2" fill="var(--primary)" stroke="none"></circle>
-                              <path d="M15 11 C17 7 14 3 10 5"></path>
-                              <path d="M15 11 C13 14 12 16 12 17"></path>
-                              <path d="M15 11 L12 13 L13 15"></path>
-                              <path d="M12 17 L9 22"></path>
-                              <path d="M12 17 L15 22"></path>
-                          </svg>
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"></circle><path d="M12 7v7"></path><path d="M12 7c-2.5 -2 -4.5 -1 -2 -5"></path><path d="M12 7c2.5 -2 4.5 -1 2 -5"></path><path d="M6 17l6 -3l6 3"></path></svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">樂齡運動</span>
                   </div>
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M19.5 12.572 L12 20 L4.5 12.572 A5 5 0 1 1 11.57 5.5 L12 6 L12.43 5.5 A5 5 0 1 1 19.5 12.572 Z" fill="rgba(18,122,105,0.12)" stroke="none"></path>
-                              <line x1="5" y1="12" x2="19" y2="12" stroke-width="2.5"></line>
-                              <line x1="7" y1="9" x2="7" y2="15" stroke-width="2.5"></line>
-                              <line x1="17" y1="9" x2="17" y2="15" stroke-width="2.5"></line>
-                          </svg>
+                          <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 4px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: -10px;"><line x1="6" y1="12" x2="18" y2="12"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="17" y1="8" x2="17" y2="16"/></svg>
+                          </div>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">肌力&體能</span>
                   </div>
@@ -301,7 +340,7 @@
   const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
 
   const COACHES = [
-    { id:'coachA', name:'偉銘', avatar:'./images/weiming.jpg', tags:['肌力訓練','樂齡運動','青少年體能'] },
+    { id:'coachA', name:'偉銘', avatar:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80', tags:['肌力訓練','樂齡運動','青少年體能'] },
     { id:'coachB', name:'教練 B', avatar:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&q=80', tags:['肌力訓練','姿勢調整','初學友善'] },
   ];
 
@@ -325,8 +364,7 @@
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
 
-  // ✨ 嚴格依循原始要求，不再附加背景層，線條本體直接指定為朱紅色
-  const TRASH_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="var(--danger)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+  const TRASH_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
 
   function createSafeDate(dStr, tStr) {
       if (!dStr || !tStr) return new Date(0);
@@ -369,6 +407,7 @@
       return 1; 
   }
 
+  // ✨ 終極過期捕捉引擎：精確涵蓋字串模糊包含與各種資料型態
   function isTruthy(val) {
       if (val === true || val === 1) return true;
       if (!val) return false;
@@ -424,6 +463,7 @@
     }
   }
 
+  // ✨ 完美呈現過期驚嘆號 SVG 與單次改期攔截防線
   function renderRecordList() {
       const records = state.records; let filteredCount = 0; let html = '';
       records.forEach((r, originalIndex) => {
@@ -435,13 +475,17 @@
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
           const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 3;
           
+          // 支援捕捉各種後端傳來的過期欄位狀態
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
+          
+          // 過期只要曾發動改期即判定為最終封鎖狀態
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
           const canReschedule = (!isExpired) || (isExpired && !isFinal);
           
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
           const displayDate = String(r.date || '').replace(/\//g, '-');
           
+          // ✨ 渲染專屬驚嘆號 + 行事曆 SVG 圖示
           const innerSVGPath = isExpired 
               ? `<path d="M12 13v4"></path><path d="M12 20h.01"></path>` 
               : `<path d="M7 15l2 2 4-4"></path>`;
@@ -458,7 +502,6 @@
           } else {
               if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } 
               else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
-              // 嚴格移除擅自添加的 delBtn 容器，還原直出代碼
               actionContent += `<div style="display:inline-block; cursor:pointer;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
           }
           html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div style="display:flex; align-items:center; gap:10px;"><div class="record-text" style="display:flex; flex-direction:column; gap:4px;"><span class="record-date" style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span><span style="font-size:14px; font-weight:900; color:var(--muted); margin-top:2px;">教練：${r.coach} &nbsp; 課程：${courseDisplay}</span></div></div><div class="step3Del">${actionContent}</div></div>`;
@@ -485,9 +528,11 @@
       }
   };
 
+  // ✨ 精確淨化彈窗文案：完全移除了多餘的問句拼接
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); 
       const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
+      // 乾淨簡潔的指定文字
       const htmlText = isExpired ? '該課堂購買效期已過，取消無法退堂，僅供更改日期乙次。' : '即將為您重新安排預約時段。';
       
       Swal.fire({
@@ -523,7 +568,6 @@
           const oldTime = state.rescheduleSource.time;
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
               const newDateFmt = String(item.date).replace(/\//g, '-'); const newWd = weekdayZhFromDateKey(item.date); const newTime = item.time;
-              // 嚴格還原，不再附加背景層
               html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; align-items:center; width: 100%;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center; justify-content: space-between; width: 100%;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span><span style="font-size:17px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div class="step3Del" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`;
           });
       } else {
@@ -534,6 +578,7 @@
       if (state.mode !== 'reschedule') {
           document.getElementById('step3RemainingContainer').style.display = 'block';
           document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
+          document.getElementById('step3RemainingType').textContent = `(${state.course || '1對1'})`;
       } else { document.getElementById('step3RemainingContainer').style.display = 'none'; }
       
       let remindHtml = '';
@@ -554,7 +599,7 @@
       state.cart.sort((a,b) => a.ts - b.ts).forEach(item => {
           const el = document.createElement('div'); el.className = 'cartItem'; const wd = weekdayZhFromDateKey(item.date); let btnHtml = '';
           if (state.mode !== 'reschedule') { const availableWeeks = getAvailableRecurringWeeks(item.date, item.time); const nextWeekDate = ymd(addDays(new Date(String(item.date).replace(/-/g,'/')), 7)); const isNextWeekInCart = state.cart.some(c => c.date === nextWeekDate && c.time === item.time); if (availableWeeks > 0 && !isNextWeekInCart) btnHtml = `<div class="repeatBtn">+包月</div>`; }
-          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions" style="display:flex; align-items:center; gap:6px;">${btnHtml}<div class="delBtn">×</div></div>`;
+          el.innerHTML = `<span>${item.date} (${wd}) ${item.time}</span><div class="cartActions">${btnHtml}<div class="delBtn">×</div></div>`;
           if(el.querySelector('.repeatBtn')) {
               el.querySelector('.repeatBtn').onclick = (e) => {
                   e.stopPropagation(); const cleanDate = String(item.date).replace(/[\/\.]/g, '-'); const [yyyy, mm, dd] = cleanDate.split('-'); const month = parseInt(mm, 10); const day = parseInt(dd, 10); const availableWeeks = getAvailableRecurringWeeks(cleanDate, item.time);
@@ -659,19 +704,6 @@
         if(!liff.isLoggedIn()) { liff.login(); return; }
         const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
         bindTabListeners();
-        
-        // ✨ 精準注入左右按鈕切換邏輯
-        prevWeek.onclick = () => {
-            if (prevWeek.classList.contains('disabled')) return;
-            state.weekStart = addDays(state.weekStart, -7);
-            renderWeekStrip();
-        };
-        nextWeek.onclick = () => {
-            if (nextWeek.classList.contains('disabled')) return;
-            state.weekStart = addDays(state.weekStart, 7);
-            renderWeekStrip();
-        };
-
         const params = new URLSearchParams(window.location.search);
         if (params.get('page') === 'record') loadMyRecords(); 
         else { renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); }
