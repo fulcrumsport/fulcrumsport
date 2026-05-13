@@ -35,9 +35,11 @@
     .label { font-size: 15px; font-weight: 900; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .label.active { color: var(--text); }
     
-    /* 完美滿版配置，適度邊距讓內容最大化延展 */
+    /* 確保主體容器動態延展 */
     .main { flex: 1 1 auto; overflow-y: auto; padding: 0 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; flex: 0 0 auto; display: flex; flex-direction: column; width: 100%; }
+    
+    /* 讓卡片本身支援內部垂直延展滿版 */
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
     
     .h { margin: 0 0 12px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -46,9 +48,10 @@
     .chip.sel { background: var(--selBg); border-color: rgba(18,122,105,.45); color: var(--selText); }
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); }
-    .step2Box { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     
-    /* ✨ 修正 Step 2 教練列排版，確保圖片與標籤並排展開完美呈現圖1樣式 */
+    /* 讓 Step 2 內部也能正確伸展 */
+    .step2Box { display: flex; flex-direction: column; gap: 10px; width: 100%; flex: 1 1 auto; }
+    
     .coachIntro { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border); border-radius: 18px; padding: 12px 16px; background: #fff; flex: 0 0 auto; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .avatar { width: 50px; height: 50px; border-radius: 999px; overflow: hidden; background: #ddd; flex: 0 0 auto; border: 1px solid var(--border); }
     .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -76,14 +79,15 @@
     .tab.active { color: var(--text); }
     .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: var(--primary); border-radius: 999px; }
     
-    /* ✨ 時段按鈕高度與字體縮小，完美釋放下方空間 */
     .slotGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 140px; overflow-y: auto; padding-right: 4px; }
     .slot { padding: 7px 0; border-radius: 999px; background: #eef2f1; font-weight: 950; font-size: 13px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; }
     .slot.sel { background: var(--selBg); color: var(--selText); border-color: rgba(18,122,105,.35); box-shadow: 0 0 0 2px rgba(18,122,105,.1) inset; }
     .slot.disabled { opacity: .35; pointer-events: none; }
     
-    /* 購物車與確認清單滿版設計 */
-    .cartWrap { margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
+    /* 修正尚未選擇日期時的提示字樣配置 */
+    .slotTip { font-size: 14px; font-weight: 950; color: var(--muted); grid-column: span 4; text-align: center; padding: 16px 0; }
+    
+    .cartWrap { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
     .cartTitle { font-size: 13px; font-weight: 950; color: var(--muted); margin-bottom: 2px; padding-left: 4px; }
     .cartScrollArea { max-height: 130px; overflow-y: auto; background: rgba(255,255,255,0.6); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
     .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 950; color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex: 0 0 auto; width: 100%; }
@@ -93,9 +97,12 @@
     .delBtn { width: 26px; height: 26px; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-weight: bold; }
     .delBtn:active { transform: scale(0.9); }
     
-    /* ✨ 確認頁面與預約紀錄滿版延展，修正為圖5精準佈局質感 */
-    .confirmWrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; max-height: 320px; overflow-y: auto; padding-bottom: 8px; width: 100%; }
+    /* ✨ 確認頁面與預約紀錄滿版延展 */
+    .confirmWrap { display: flex; flex-direction: column; gap: 10px; width: 100%; flex: 1 1 auto; }
+    
+    /* 讓清單區塊自動延伸佔據中間空間 */
+    .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; flex: 1 1 auto; overflow-y: auto; padding-bottom: 8px; width: 100%; }
+    
     .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.03); flex: 0 0 auto; width: 100%; gap: 12px; }
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; border-left: 5px solid var(--danger); }
     .confirmItem.marked-delete .record-text { opacity: 0.6; }
@@ -107,9 +114,11 @@
     .icon-reschedule { cursor: pointer; display: flex; align-items: center; padding: 2px; border-radius: 6px; transition: background 0.2s; }
     .icon-reschedule:active { background: rgba(0,0,0,0.05); }
     
-    /* 溫馨提醒置底排版 */
+    /* ✨ 溫馨提醒置底排版設定：利用 margin-top: auto 推到最下方 */
+    .remindContainer { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); width: 100%; flex: 0 0 auto; }
+    .remindHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; width: 100%; }
     .remindTitle { font-weight: 950; font-size: 14px; color: var(--danger); margin: 0; }
-    .remindBox { width: 100%; font-size: 13px; line-height: 1.6; color: var(--text); margin-top: auto; }
+    .remindBox { width: 100%; font-size: 13px; line-height: 1.6; color: var(--text); }
     .remindBox ol { padding-left: 20px; margin: 4px 0 0 0; }
     .remindBox li { margin-bottom: 6px; font-weight: 700; color: #2b3634; }
     
@@ -124,12 +133,11 @@
     .status { margin-top: 4px; font-size: 13px; color: var(--muted); text-align: center; font-weight: 900; min-height: 18px; line-height: 1.2; }
     .statusError { color: var(--danger); font-weight: 950; }
     .hide { display: none !important; }
-    .recordHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; width: 100%; }
+    .recordHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; width: 100%; flex: 0 0 auto; }
     .recordHeader .h { margin: 0; display: flex; align-items: center; }
     .recordCount { color: var(--primary); font-weight: 900; font-size: 14px; background: var(--selBg); padding: 4px 10px; border-radius: 999px; }
     .name-highlight { font-size: 28px; font-weight: 950; color: var(--text); background: linear-gradient(transparent 60%, rgba(18,122,105,0.25) 40%); padding: 0 4px; margin-right: 6px; display: inline-block; }
 
-    /* 橫排平均展開的分類按鈕容器 */
     .record-tabs-container {
       display: flex;
       flex-direction: row;
@@ -141,6 +149,7 @@
       padding: 5px;
       border-radius: 999px;
       width: 100%;
+      flex: 0 0 auto;
     }
     .record-tab {
       flex: 1;
@@ -160,7 +169,6 @@
       box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15);
     }
 
-    /* ✨ 頂級莫蘭迪綠無框浮凸名片 - 調整為更灰一點的墨綠淺色底色 */
     .premium-trainer-card {
       background: linear-gradient(145deg, #d8e0dc, #c2ccc6);
       border: none;
@@ -213,7 +221,6 @@
       padding: 2px 12px;
       border-radius: 999px;
     }
-    /* 專長圖示微凸設定 */
     .raised-icon-circle {
       width: 58px;
       height: 58px;
@@ -226,14 +233,13 @@
       border: 1px solid rgba(18,122,105,0.03);
     }
 
-    /* Swal2 高質感外觀 */
     .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; max-width: 340px !important; }
     .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; }
     .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.5 !important; }
     .swal2-actions { margin-top: 22px !important; gap: 12px; width: 100%; }
     .swal2-styled.swal2-confirm { border-radius: 14px !important; background-color: var(--primary) !important; font-weight: 950 !important; padding: 12px 24px !important; flex: 1; font-size: 15px !important; box-shadow: none !important; }
     .swal2-styled.swal2-cancel { border-radius: 14px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; padding: 12px 24px !important; flex: 1; font-size: 15px !important; box-shadow: none !important; }
-    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; }
+    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; flex: 0 0 auto; }
   </style>
 </head>
 
@@ -349,12 +355,15 @@
     <div id="card3" class="card hide">
       <div class="confirmWrap">
         <div class="h" id="step3Header">Step 3｜確認預約內容</div>
-        <div class="infoBox" id="confirmInfo" style="width: 100%;"></div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; margin-bottom:4px; width: 100%;">
-            <div class="remindTitle">溫馨提醒</div>
-            <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px;">--</span> 堂</div>
+        <div class="confirmList" id="confirmInfo"></div>
+        
+        <div class="remindContainer">
+            <div class="remindHeader">
+                <div class="remindTitle">溫馨提醒</div>
+                <div id="step3RemainingContainer" style="display:none; font-size:16px; font-weight:950; color:var(--text);">剩餘：<span id="step3RemainingVal" style="color: var(--primary); font-size:18px;">--</span> 堂</div>
+            </div>
+            <div class="remindBox" id="step3RemindBox"></div>
         </div>
-        <div class="remindBox" id="step3RemindBox"></div>
       </div>
     </div>
 
@@ -369,11 +378,17 @@
             <div class="record-tab" data-tab="包班">包班</div>
         </div>
         <div id="recordList" class="confirmList"></div>
-        <div class="remindBox">
-            <ol>
-              <li>取消或改期，請於上課前 3 小時完成。</li>
-              <li>如有任何疑問，請用官方Line聯繫教練。</li>
-            </ol>
+        
+        <div class="remindContainer">
+            <div class="remindHeader">
+                <div class="remindTitle">溫馨提醒</div>
+            </div>
+            <div class="remindBox">
+                <ol>
+                  <li>取消或改期，請於上課前 3 小時完成。</li>
+                  <li>如有任何疑問，請用官方Line聯繫教練。</li>
+                </ol>
+            </div>
         </div>
     </div>
   </div>
@@ -397,7 +412,6 @@
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
   const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
 
-  // 👇 已精準替換偉銘教練之照片路徑
   const COACHES = [
     { 
       id:'coachA', 
@@ -526,7 +540,6 @@
     }
   }
 
-  // ✨ 修正為圖5樣式：上下雙列架構搭配精準右側按鈕區間
   function renderRecordList() {
       const records = state.records; let filteredCount = 0; let html = '';
       records.forEach((r, originalIndex) => {
@@ -618,7 +631,6 @@
       });
   }
 
-  // ✨ 修正 Step 3 結構，補齊教練與課程列，達成完美一致的圖5卡片樣式
   function renderStep3Content() {
       if (state.cart.length === 0) { btnNext.disabled = true; confirmInfo.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">預約清單已空</div>'; return; }
       btnNext.disabled = false;
@@ -626,7 +638,7 @@
       if (step3Header) step3Header.textContent = state.mode === 'reschedule' ? 'Step 3｜確認更改時段內容' : 'Step 3｜確認預約內容';
 
       const courseDisplay = state.course || '1對1';
-      let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex:0 0 auto;"><div><b>預約教練：</b><span style="font-size:1.2em; font-weight:950; color:var(--text);">${state.coach.name}</span></div><div class="recordCount">共 ${state.cart.length} 堂</div></div><div class="confirmList">`;
+      let html = '';
       if (state.mode === 'reschedule' && state.rescheduleSource) {
           const oldDateFmt = String(state.rescheduleSource.date).replace(/\//g, '-');
           const oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date);
@@ -659,16 +671,20 @@
               </div>`; 
           });
       }
-      html += `</div>`; confirmInfo.innerHTML = html;
+      confirmInfo.innerHTML = html;
       
       if (state.mode !== 'reschedule') {
           document.getElementById('step3RemainingContainer').style.display = 'block';
           document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       } else { document.getElementById('step3RemainingContainer').style.display = 'none'; }
       
+      // ✨ 修正丟漏的底層提醒項目，補足完整兩項提醒資訊
       let remindHtml = '';
-      if (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) { remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`; } 
-      else { remindHtml = `<ol><li>取消或改期，請於上課前 3 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`; }
+      if (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) { 
+          remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`; 
+      } else { 
+          remindHtml = `<ol><li>取消或改期，請於上課前 3 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`; 
+      }
       $('#step3RemindBox').innerHTML = remindHtml; setStatus('');
   }
 
@@ -746,7 +762,22 @@
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   function buildAvailabilityMap(options){ const map = {}; (options||[]).forEach(o=>{ const raw = (o.value || o.label || '').toString(); const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4]; if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t); }); Object.keys(map).forEach(k=>map[k].sort()); return map; }
   function renderCoachIntro(){ if(!state.coach) return; coachAvatar2.src = state.coach.avatar; coachName2.textContent = state.coach.name; coachTags2.innerHTML=''; state.coach.tags.forEach(t=>{ const el=document.createElement('div'); el.className='tag'; el.textContent=t; coachTags2.appendChild(el); }); }
-  function renderSlotsStep2(){ slotGrid2.innerHTML=''; if(!state.dateKey){ slotGrid2.innerHTML='<div class="slotTip important">請先選擇上方日期</div>'; return; } const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{ const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18); }); if(list.length===0){ slotGrid2.innerHTML='<div class="slotTip important">此時段無可預約時間</div>'; return; } list.forEach(t=>{ const disabled = !canBookNow(state.dateKey, t); const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t); const div=document.createElement('div'); div.className='slot'+(disabled?' disabled':'')+(isSelected?' sel':''); div.textContent=t; div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div); }); }
+  
+  // ✨ 修正 Step 2 尚未選擇日期時的空白處理，直接顯示整齊居中的提示字樣
+  function renderSlotsStep2(){ 
+      slotGrid2.innerHTML=''; 
+      if(!state.dateKey){ 
+          slotGrid2.innerHTML='<div class="slotTip">請先選擇上方日期</div>'; 
+          return; 
+      } 
+      const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{ const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18); }); 
+      if(list.length===0){ 
+          slotGrid2.innerHTML='<div class="slotTip">此時段無可預約時間</div>'; 
+          return; 
+      } 
+      list.forEach(t=>{ const disabled = !canBookNow(state.dateKey, t); const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t); const div=document.createElement('div'); div.className='slot'+(disabled?' disabled':'')+(isSelected?' sel':''); div.textContent=t; div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div); }); 
+  }
+  
   function renderWeekStrip(){ const ws = state.weekStart; monthTitle.textContent = monthYearLabel(ws); weekStrip.innerHTML=''; prevWeek.classList.toggle('disabled', ws <= weekStartMonday(new Date())); nextWeek.classList.toggle('disabled', addDays(ws,7) > getLimitDate()); for(let i=0;i<7;i++){ const d = addDays(ws, i); const key = ymd(d); const cell=document.createElement('div'); cell.className='dayCell'; if((startOfDay(d) < startOfDay(new Date())) || !state.availabilityMap[key] || d > getLimitDate() || state.loadingOptions) cell.classList.add('disabled'); if(state.dateKey===key) cell.classList.add('sel'); const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i); const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate(); cell.append(dow, dot); cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } }; weekStrip.appendChild(cell); } }
   function renderCoaches(){ coachRow.innerHTML=''; COACHES.forEach(c=>{ const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; coachRow.appendChild(div); }); if(state.coach) { $('#trainerCardWrap').classList.remove('hide'); $('#tcAvatar').src = state.coach.avatar; $('#tcName').textContent = state.coach.name; } else { $('#trainerCardWrap').classList.add('hide'); } }
   function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
