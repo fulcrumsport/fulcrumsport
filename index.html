@@ -35,22 +35,23 @@
     .label { font-size: 15px; font-weight: 900; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .label.active { color: var(--text); }
     
-    .main { flex: 1 1 auto; overflow-y: auto; padding: 0 14px 4px; display: flex; flex-direction: column; gap: 8px; }
-    /* ✨ 稍微縮減卡片的底部 padding，釋放下方空間 */
-    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 12px 16px; flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
+    /* ✨ 徹底鎖死 Main 與 Card 高度，只讓內部清單滾動 */
+    .main { flex: 1 1 auto; overflow: hidden; padding: 0 14px 4px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+    .card { flex: 1 1 auto; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 12px 16px; display: flex; flex-direction: column; width: 100%; overflow: hidden; min-height: 0; }
+    #card1 { overflow-y: auto; } /* 第一步若太長可整張滑動 */
     
     .h { margin: 0 0 12px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .courseGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; flex: 0 0 auto; }
+    .courseGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; flex: 0 0 auto; }
     .chip { padding: 12px 6px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 16px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; min-width: 0; transition: all 0.2s; user-select: none; }
     .chip.sel { background: var(--selBg); border-color: rgba(18,122,105,.45); color: var(--selText); }
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
-    .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); }
+    .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); flex: 0 0 auto; }
     
-    .step2Box { display: flex; flex-direction: column; gap: 6px; width: 100%; flex: 1 1 auto; justify-content: flex-start; }
+    /* ✨ 預約第二步：內部佈局鎖死 */
+    .step2Box { display: flex; flex-direction: column; gap: 6px; width: 100%; flex: 1 1 auto; overflow: hidden; min-height: 0; }
     
     .coachIntro { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border); border-radius: 18px; padding: 12px 16px; background: #fff; flex: 0 0 auto; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-    /* ✨ 預約第二步的頭像加上與名片一致的精緻邊框 */
     .avatar { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #fff; flex: 0 0 auto; border: 2px solid var(--primary); padding: 2px; box-shadow: 0 4px 10px rgba(18,122,105,0.1); }
     .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
     
@@ -84,10 +85,10 @@
     .slot.disabled { opacity: .35; pointer-events: none; }
     .slotTip { font-size: 14px; font-weight: 950; color: var(--muted); grid-column: span 4; text-align: center; line-height: 72px; }
     
-    /* ✨ 將購物車下方的空隙縮減，使其與上方的分隔線間隔對稱 */
-    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; overflow: hidden; margin-bottom: 2px; }
+    /* ✨ 購物車清單獨佔剩餘空間並允許內部滾動 */
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; overflow: hidden; margin-bottom: 2px; min-height: 0; }
     .cartTitle { font-size: 13px; font-weight: 950; color: var(--muted); margin-bottom: 0px; padding-left: 4px; flex: 0 0 auto; }
-    .cartScrollArea { flex: 0 0 auto; max-height: 130px; overflow-y: auto; background: rgba(255,255,255,0.6); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; background: rgba(255,255,255,0.6); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
     .cartEmpty { font-size: 14px; font-weight: 950; color: #aaa; text-align: center; margin: auto 0; }
     .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 950; color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex: 0 0 auto; width: 100%; }
     .cartActions { display: flex; align-items: center; gap: 12px; }
@@ -96,8 +97,9 @@
     .delBtn { width: 26px; height: 26px; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--danger); background: #fff5f5; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-weight: bold; }
     .delBtn:active { transform: scale(0.9); }
     
-    .confirmWrap { display: flex; flex-direction: column; gap: 10px; width: 100%; flex: 1 1 auto; }
-    .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; flex: 1 1 auto; overflow-y: auto; padding-bottom: 8px; width: 100%; }
+    /* ✨ 確認清單滿版固定佈局 */
+    .confirmWrap { display: flex; flex-direction: column; gap: 10px; width: 100%; flex: 1 1 auto; overflow: hidden; min-height: 0; }
+    .confirmList { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; flex: 1 1 auto; overflow-y: auto; padding-bottom: 8px; width: 100%; min-height: 0; }
     .confirmItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(18,122,105,0.03); flex: 0 0 auto; width: 100%; gap: 12px; }
     .confirmItem.marked-delete { background-color: #fff5f5; border-color: #ffcccc; border-left: 5px solid var(--danger); }
     .confirmItem.marked-delete .record-text { opacity: 0.6; }
@@ -176,7 +178,6 @@
       width: 100%;
     }
     
-    /* ✨ 讓整個群組置中對齊，同時頭像在左側並與名字保持適當間隔 */
     .premium-classic-layout {
       display: flex;
       align-items: center;
@@ -262,7 +263,7 @@
       <div class="subTitle">選擇課程</div>
       <div id="courseRow" class="courseGrid"></div>
       
-      <div id="trainerCardWrap" class="hide" style="margin-top: 16px; width: 100%;">
+      <div id="trainerCardWrap" class="hide" style="margin-top: 16px; width: 100%; flex: 0 0 auto;">
           <div class="premium-trainer-card">
               <div class="premium-classic-layout">
                   <div class="premium-avatar-frame">
@@ -278,11 +279,8 @@
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                             <circle cx="14" cy="5" r="2.5"/>
-                             <path d="M14 8v4l-3 5"/>
-                             <path d="M14 12l4 3"/>
-                             <path d="M11 17l-4-3"/>
-                             <path d="M15 14l3-5"/>
+                             <circle cx="15" cy="5" r="2.5"/>
+                             <path d="M15 8v3l-3 4 M15 11l4 3 M9 15l4-3 M19 13l-3 5"/>
                           </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">青少年體能</span>
@@ -291,10 +289,7 @@
                       <div class="raised-icon-circle">
                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                              <circle cx="12" cy="5" r="2.5"/>
-                             <path d="M12 8v5"/>
-                             <path d="M9 13l-3 5"/>
-                             <path d="M15 13l3 5"/>
-                             <path d="M6 7c2 2 10 2 12 0"/>
+                             <path d="M12 8v6 M8 5l4 3 4-3 M12 14l-4 5 M12 14l4 5"/>
                           </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">樂齡運動</span>
@@ -715,7 +710,7 @@
                       if(res.isConfirmed){ 
                           const c = addBatchItems(cleanDate, item.time); 
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2(); 
-                          if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<span style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態課。</span>`, confirmButtonColor: '#127a69' }); 
+                          if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<div style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態課。</div>`, confirmButtonColor: '#127a69' }); 
                       } 
                   });
               };
@@ -828,7 +823,7 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ 修正為「mega」寬度，並確保管理預約與日期呈現精緻加粗樣式
+  // ✨ LINE Flex Message：設定為最大寬度 giga，加粗字體，不允許溫馨提醒斷行
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -855,7 +850,7 @@
           altText: String(`${modeStr}`),
           contents: {
               type: "bubble",
-              size: "mega",
+              size: "giga",
               header: {
                   type: "box", layout: "vertical", backgroundColor: headerColor, paddingAll: "20px",
                   contents: [
@@ -872,12 +867,12 @@
                       { type: "text", text: String(`剩餘：${remain !== undefined && remain !== "--" ? remain : 0}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" },
                       { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xs", margin: "sm", wrap: false },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xs", margin: "sm", wrap: false },
+                      { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xxs", margin: "sm", wrap: false },
+                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xxs", margin: "sm", wrap: false },
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }]
                       }
                   ]
               }
@@ -897,7 +892,7 @@
       return {
           type: "flex", altText: "私課取消成功",
           contents: {
-              type: "bubble", size: "mega",
+              type: "bubble", size: "giga",
               header: {
                   type: "box", layout: "vertical", backgroundColor: "#b23a2b", paddingAll: "20px",
                   contents: [
@@ -913,12 +908,12 @@
                       { type: "text", text: String(`最新剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0} 堂`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" },
                       { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xs", margin: "sm", wrap: false },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xs", margin: "sm", wrap: false },
+                      { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xxs", margin: "sm", wrap: false },
+                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xxs", margin: "sm", wrap: false },
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }]
                       }
                   ]
               }
@@ -942,6 +937,27 @@
         window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; state.rescheduleSource = null; state.cart = []; state.course = null; state.coach = null;  
         renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1);
     };
+    
+    // ✨ 獨立綁定取消預約按鈕，確保一定能觸發
+    document.getElementById('btnCancelBatch').addEventListener('click', async () => {
+        const count = state.selectedRecords.size;
+        if(count === 0) return;
+        const now = new Date();
+        let isTimeout = false;
+        state.selectedRecords.forEach(index => {
+            const classTime = createSafeDate(state.records[index].date, state.records[index].time);
+            if (((classTime - now) / (1000 * 60 * 60)) < 3) isTimeout = true;
+        });
+        if (isTimeout) {
+            Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 3 小時的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' });
+            state.selectedRecords.clear(); renderRecordList(); updateRecordBtns();
+            return;
+        }
+        const result = await Swal.fire({ title: '確認取消預約', html: `即將為您取消勾選的 ${count} 堂課？`, icon: 'warning', showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回' });
+        if (result.isConfirmed) {
+            executeBatchCancel();
+        }
+    });
 
     btnNext.onclick=async ()=>{
       if(state.step===1){ await loadOptionsForCoach(); return; }
