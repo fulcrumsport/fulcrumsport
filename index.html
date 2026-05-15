@@ -36,7 +36,8 @@
     .label.active { color: var(--text); }
     
     .main { flex: 1 1 auto; overflow-y: auto; padding: 0 14px 4px; display: flex; flex-direction: column; gap: 8px; }
-    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
+    /* ✨ 稍微縮減卡片的底部 padding，釋放下方空間 */
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 12px 16px; flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; }
     
     .h { margin: 0 0 12px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -46,11 +47,13 @@
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); }
     
-    .step2Box { display: flex; flex-direction: column; gap: 6px; width: 100%; flex: 1 1 auto; }
+    .step2Box { display: flex; flex-direction: column; gap: 6px; width: 100%; flex: 1 1 auto; justify-content: flex-start; }
     
     .coachIntro { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border); border-radius: 18px; padding: 12px 16px; background: #fff; flex: 0 0 auto; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-    .avatar { width: 50px; height: 50px; border-radius: 999px; overflow: hidden; background: #ddd; flex: 0 0 auto; border: 1px solid var(--border); }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* ✨ 預約第二步的頭像加上與名片一致的精緻邊框 */
+    .avatar { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #fff; flex: 0 0 auto; border: 2px solid var(--primary); padding: 2px; box-shadow: 0 4px 10px rgba(18,122,105,0.1); }
+    .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+    
     .coachMeta { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
     .coachName { font-weight: 950; font-size: 18px; color: var(--text); margin: 0; line-height: 1.1; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
@@ -81,9 +84,10 @@
     .slot.disabled { opacity: .35; pointer-events: none; }
     .slotTip { font-size: 14px; font-weight: 950; color: var(--muted); grid-column: span 4; text-align: center; line-height: 72px; }
     
-    .cartWrap { margin-top: 0px; padding-top: 4px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; overflow: hidden; }
+    /* ✨ 將購物車下方的空隙縮減，使其與上方的分隔線間隔對稱 */
+    .cartWrap { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; overflow: hidden; margin-bottom: 2px; }
     .cartTitle { font-size: 13px; font-weight: 950; color: var(--muted); margin-bottom: 0px; padding-left: 4px; flex: 0 0 auto; }
-    .cartScrollArea { flex: 1 1 auto; overflow-y: auto; background: rgba(255,255,255,0.6); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .cartScrollArea { flex: 0 0 auto; max-height: 130px; overflow-y: auto; background: rgba(255,255,255,0.6); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
     .cartEmpty { font-size: 14px; font-weight: 950; color: #aaa; text-align: center; margin: auto 0; }
     .cartItem { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 950; color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex: 0 0 auto; width: 100%; }
     .cartActions { display: flex; align-items: center; gap: 12px; }
@@ -172,13 +176,13 @@
       width: 100%;
     }
     
-    /* ✨ 教練大頭貼與名字職稱微調排版：左移、隔開、垂直置中對齊 */
+    /* ✨ 讓整個群組置中對齊，同時頭像在左側並與名字保持適當間隔 */
     .premium-classic-layout {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      padding-left: 14px;
-      gap: 28px;
+      justify-content: center;
+      padding-left: 0;
+      gap: 22px;
     }
     
     .premium-avatar-frame {
@@ -274,8 +278,11 @@
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                       <div class="raised-icon-circle">
                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                             <circle cx="15" cy="5" r="2.5"/>
-                             <path d="M15 8v3l-3 4 M15 11l4 3 M9 15l4-3 M19 13l-3 5"/>
+                             <circle cx="14" cy="5" r="2.5"/>
+                             <path d="M14 8v4l-3 5"/>
+                             <path d="M14 12l4 3"/>
+                             <path d="M11 17l-4-3"/>
+                             <path d="M15 14l3-5"/>
                           </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">青少年體能</span>
@@ -284,7 +291,10 @@
                       <div class="raised-icon-circle">
                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                              <circle cx="12" cy="5" r="2.5"/>
-                             <path d="M12 8v6 M8 5l4 3 4-3 M12 14l-4 5 M12 14l4 5"/>
+                             <path d="M12 8v5"/>
+                             <path d="M9 13l-3 5"/>
+                             <path d="M15 13l3 5"/>
+                             <path d="M6 7c2 2 10 2 12 0"/>
                           </svg>
                       </div>
                       <span style="font-size: 12px; font-weight: 950; color: var(--text);">樂齡運動</span>
@@ -705,7 +715,6 @@
                       if(res.isConfirmed){ 
                           const c = addBatchItems(cleanDate, item.time); 
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2(); 
-                          // ✨ 修正成功包月後的彈出文案，加入防斷行樣式
                           if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<span style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態課。</span>`, confirmButtonColor: '#127a69' }); 
                       } 
                   });
@@ -819,7 +828,7 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ 精準還原圖3/圖4版面：移除 size 限定，自動延展，並利用 wrap:false 防斷行
+  // ✨ 修正為「mega」寬度，並確保管理預約與日期呈現精緻加粗樣式
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -829,14 +838,14 @@
           const oD = String(reschSource.date || "").replace(/\//g,'-');
           dateBoxes.push(
               { type: "text", text: String(`舊：${oD} ${reschSource.time || ""}`), size: "md", color: "#999999", decoration: "line-through", weight: "bold" },
-              { type: "text", text: String(`新：${list[0].date} (${list[0].weekday}) ${list[0].time}`), size: "md", color: "#127a69", weight: "bold", margin: "sm" }
+              { type: "text", text: String(`新：${list[0].date} (${list[0].weekday}) ${list[0].time}`), size: "lg", color: "#127a69", weight: "bold", margin: "sm" }
           );
       } else {
           list.forEach((it, idx) => {
               dateBoxes.push({
                   type: "text",
                   text: String(`• ${it.date} (${it.weekday}) ${it.time}`),
-                  size: "md", weight: "bold", color: "#1a2321", margin: "xs"
+                  size: "lg", weight: "bold", color: "#1a2321", margin: "sm"
               });
           });
       }
@@ -846,6 +855,7 @@
           altText: String(`${modeStr}`),
           contents: {
               type: "bubble",
+              size: "mega",
               header: {
                   type: "box", layout: "vertical", backgroundColor: headerColor, paddingAll: "20px",
                   contents: [
@@ -860,13 +870,14 @@
                       { type: "text", text: String(`教練：${state.coach ? state.coach.name : "教練"}`), size: "sm", color: "#333333", margin: "lg" },
                       { type: "text", text: String(`課程：${state.course || "1對1"}`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "text", text: String(`剩餘：${remain !== undefined && remain !== "--" ? remain : 0}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
-                      { type: "separator", margin: "xl", color: "#eeeeee" },
-                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "lg" },
+                      { type: "separator", margin: "md", color: "#eeeeee" },
+                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
                       { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xs", margin: "sm", wrap: false },
                       { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xs", margin: "sm", wrap: false },
                       {
-                          type: "button", style: "primary", color: "#127a69", margin: "xl",
-                          action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` }
+                          type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
+                          action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
                       }
                   ]
               }
@@ -877,16 +888,16 @@
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
       let boxes = [];
       refunded.forEach(it => {
-          boxes.push({ type: "text", text: String(`• ${(it.date||"").replace(/\//g,'-')} ${it.time||""} (已退堂)`), size: "sm", weight: "bold", color: "#1a2321" });
+          boxes.push({ type: "text", text: String(`• ${(it.date||"").replace(/\//g,'-')} ${it.time||""} (已退堂)`), size: "lg", weight: "bold", color: "#1a2321", margin: "sm" });
       });
       expired.forEach(it => {
-          boxes.push({ type: "text", text: String(`• ${(it.date||"").replace(/\//g,'-')} ${it.time||""} (逾期不退)`), size: "sm", weight: "bold", color: "#b23a2b" });
+          boxes.push({ type: "text", text: String(`• ${(it.date||"").replace(/\//g,'-')} ${it.time||""} (逾期不退)`), size: "lg", weight: "bold", color: "#b23a2b", margin: "sm" });
       });
       
       return {
           type: "flex", altText: "私課取消成功",
           contents: {
-              type: "bubble",
+              type: "bubble", size: "mega",
               header: {
                   type: "box", layout: "vertical", backgroundColor: "#b23a2b", paddingAll: "20px",
                   contents: [
@@ -900,13 +911,14 @@
                       ...boxes,
                       { type: "text", text: String(`學員：${state.name || "學員"}`), size: "sm", color: "#333333", margin: "lg" },
                       { type: "text", text: String(`最新剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0} 堂`), size: "sm", color: "#333333", margin: "sm" },
-                      { type: "separator", margin: "xl", color: "#eeeeee" },
-                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "lg" },
+                      { type: "separator", margin: "md", color: "#eeeeee" },
+                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
                       { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xs", margin: "sm", wrap: false },
                       { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xs", margin: "sm", wrap: false },
                       {
-                          type: "button", style: "primary", color: "#127a69", margin: "xl",
-                          action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` }
+                          type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
+                          action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
                       }
                   ]
               }
