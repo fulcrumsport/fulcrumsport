@@ -144,8 +144,6 @@
       width: 100%;
       flex: 0 0 auto;
     }
-    
-    /* ✨ 將上方的標籤 1對1、1對2、包班 的字形放大為 17px */
     .record-tab {
       flex: 1;
       text-align: center;
@@ -387,7 +385,7 @@
             </div>
             <div class="remindBox">
                 <ol>
-                  <li>取消或改期，請於上課前 3 小時完成。</li>
+                  <li>取消或改期，請於上課前一天完成。</li>
                   <li>如有任何疑問，請用官方Line聯繫教練。</li>
                 </ol>
             </div>
@@ -551,7 +549,8 @@
 
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
-          const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 3;
+          // ✨ 更新取消判斷為 24 小時前
+          const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 24;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
@@ -646,15 +645,19 @@
           const oldTime = state.rescheduleSource.time;
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
               const newDateFmt = String(item.date).replace(/\//g, '-'); const newWd = weekdayZhFromDateKey(item.date); const newTime = item.time;
+              // ✨ 修正改期時的版面，確保下方顯示教練與課程
               html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                <div style="display:flex; align-items:center; width: 100%;">
-                  <span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span>
-                  <span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span>
-                </div>
-                <div style="display:flex; align-items:center; justify-content: space-between; width: 100%;">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px;">新</span>
-                    <span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span>
+                <div style="display:flex; justify-content: space-between; width: 100%; align-items: center;">
+                  <div style="display:flex; flex-direction: column; gap: 6px; flex: 1;">
+                    <div style="display:flex; align-items:center;">
+                      <span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span>
+                      <span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                      <span style="font-size:12px; font-weight:900; color:var(--primary); background:#e5f2f0; padding:2px 6px; border-radius:4px; margin-right:8px;">新</span>
+                      <span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span>
+                    </div>
+                    <div style="font-size:13px; font-weight:900; color:var(--muted); margin-top:2px;">教練：${state.coach.name} &nbsp; 課程：${courseDisplay}</div>
                   </div>
                   <div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div>
                 </div>
@@ -683,7 +686,8 @@
       if (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) { 
           remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`; 
       } else { 
-          remindHtml = `<ol><li>取消或改期，請於上課前 3 小時完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`; 
+          // ✨ 更新為一天
+          remindHtml = `<ol><li>取消或改期，請於上課前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`; 
       }
       $('#step3RemindBox').innerHTML = remindHtml; setStatus('');
   }
@@ -715,7 +719,6 @@
                       if(res.isConfirmed){ 
                           const c = addBatchItems(cleanDate, item.time); 
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2(); 
-                          // ✨ 修正成功包月後的彈出文案為「常態預約。」並確保不斷行
                           if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<div style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態預約。</div>`, confirmButtonColor: '#127a69' }); 
                       } 
                   });
@@ -766,13 +769,23 @@
       }
       const totalProcessed = refundedBookings.length + expiredBookings.length;
       if (totalProcessed > 0) {
-          await Swal.fire({ icon: 'success', title: '處理完畢', html: `已成功為您取消 ${totalProcessed} 堂預約。`, confirmButtonColor: '#127a69' });
+          // ✨ 精準帶入防斷行與格式化的取消完成字樣
+          let cancelMsg = '';
+          if (totalProcessed === 1) {
+              const b = refundedBookings.concat(expiredBookings)[0];
+              const [yyyy, mm, dd] = String(b.date).replace(/\//g, '-').split('-');
+              cancelMsg = `已取消${parseInt(mm, 10)}月${parseInt(dd, 10)}日(${b.weekday}) ${b.time}的預約。`;
+          } else {
+              cancelMsg = `已取消勾選的 ${totalProcessed} 堂預約。`;
+          }
+          await Swal.fire({ icon: 'success', title: '取消完成', html: `<div style="white-space: nowrap; font-size:14px;">${cancelMsg}</div>`, confirmButtonColor: '#127a69' });
           if(liff.isInClient()) { 
               try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } 
               catch (msgErr) { console.error("Flex Message Error:", msgErr); } 
           }
           liff.closeWindow(); 
       } else { 
+          // ✨ 修正為精確的異常字眼
           Swal.fire({ icon: 'error', title: '取消異常', text: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); 
           setStatus(""); 
       }
@@ -840,7 +853,7 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ 完美對齊圖 3/圖 4，並將管理我的預約按鈕字體調為 md
+  // ✨ 修正為 mega 尺寸，並加入 shrink-to-fit 確保提示文字不被截斷
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -848,22 +861,9 @@
       
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-');
-          const oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { 
-                  type: "text", size: "lg", weight: "bold", margin: "sm",
-                  contents: [
-                      { type: "span", text: "舊：", color: "#b23a2b" },
-                      { type: "span", text: String(`${oD} (${oWd}) ${reschSource.time || ""}`), color: "#999999", decoration: "line-through" }
-                  ]
-              },
-              { 
-                  type: "text", size: "lg", weight: "bold", margin: "md",
-                  contents: [
-                      { type: "span", text: "新：", color: "#127a69" },
-                      { type: "span", text: String(`${list[0].date} (${list[0].weekday}) ${list[0].time}`), color: "#1a2321" }
-                  ]
-              }
+              { type: "text", text: String(`舊：${oD} ${reschSource.time || ""}`), size: "md", color: "#999999", decoration: "line-through", weight: "bold" },
+              { type: "text", text: String(`新：${list[0].date} (${list[0].weekday}) ${list[0].time}`), size: "lg", color: "#127a69", weight: "bold", margin: "sm" }
           );
       } else {
           list.forEach((it, idx) => {
@@ -897,12 +897,11 @@
                       { type: "text", text: String(`剩餘：${remain !== undefined && remain !== "--" ? remain : 0}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" },
                       { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xs", margin: "sm", wrap: false },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xs", margin: "sm", wrap: false },
+                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          // ✨ 將此處的按鈕字體由 lg 縮小至 md
                           contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
                       }
                   ]
@@ -911,15 +910,57 @@
       };
   }
 
+  // ✨ 完美復刻圖 4 的取消預約卡片版面
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
-      let boxes = [];
-      refunded.forEach(it => {
-          boxes.push({ type: "text", text: String(`• ${(it.date||"").replace(/\//g,'-')} ${it.time||""} (已退堂)`), size: "lg", weight: "bold", color: "#1a2321", margin: "sm" });
-      });
-      expired.forEach(it => {
-          boxes.push({ type: "text", text: String(`• ${(it.date||"").replace(/\//g,'-')} ${it.time||""} (逾期不退)`), size: "lg", weight: "bold", color: "#b23a2b", margin: "sm" });
-      });
+      let bodyContents = [];
       
+      if (refunded.length > 0) {
+          bodyContents.push({ type: "text", text: "已退還堂數：", size: "sm", weight: "bold", color: "#127a69", margin: "md" });
+          refunded.forEach(it => {
+              bodyContents.push({
+                  type: "box", layout: "horizontal", margin: "sm", spacing: "sm",
+                  contents: [
+                      { type: "text", text: "✅", size: "md", flex: 0 },
+                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321" }
+                  ]
+              });
+          });
+      }
+      
+      if (expired.length > 0) {
+          bodyContents.push({ type: "text", text: "過期不予退還：", size: "sm", weight: "bold", color: "#b23a2b", margin: "md" });
+          expired.forEach(it => {
+              bodyContents.push({
+                  type: "box", layout: "horizontal", margin: "sm", spacing: "sm",
+                  contents: [
+                      { type: "text", text: "⚠️", size: "md", flex: 0 },
+                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#b23a2b" }
+                  ]
+              });
+          });
+      }
+      
+      // 動態抓取教練與課程
+      const canceledRec = refunded[0] || expired[0];
+      const c_coach = canceledRec ? canceledRec.coach : (state.coach ? state.coach.name : "教練");
+      const c_course = canceledRec ? getCourseName(canceledRec.course, canceledRec.people) : (state.course || "1對1");
+
+      bodyContents.push(
+          { type: "separator", margin: "xl", color: "#eeeeee" },
+          { type: "text", text: String(`教練：${c_coach}`), size: "sm", color: "#333333", margin: "lg" },
+          { type: "text", text: String(`課程：${c_course}`), size: "sm", color: "#333333", margin: "sm" },
+          { type: "text", text: String(`剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0}堂 (${c_course})`), size: "sm", color: "#333333", margin: "sm" },
+          { type: "separator", margin: "md", color: "#eeeeee" },
+          { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
+          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          {
+              type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
+              action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
+              contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
+          }
+      );
+
       return {
           type: "flex", altText: "私課取消成功",
           contents: {
@@ -933,21 +974,7 @@
               },
               body: {
                   type: "box", layout: "vertical", spacing: "none", paddingAll: "20px",
-                  contents: [
-                      ...boxes,
-                      { type: "text", text: String(`學員：${state.name || "學員"}`), size: "sm", color: "#333333", margin: "lg" },
-                      { type: "text", text: String(`最新剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0} 堂`), size: "sm", color: "#333333", margin: "sm" },
-                      { type: "separator", margin: "md", color: "#eeeeee" },
-                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前 3 小時完成。", color: "#888888", size: "xs", margin: "sm", wrap: false },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xs", margin: "sm", wrap: false },
-                      {
-                          type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
-                          action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          // ✨ 將此處的按鈕字體由 lg 縮小至 md
-                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
-                      }
-                  ]
+                  contents: bodyContents
               }
           }
       };
@@ -982,7 +1009,8 @@
         state.selectedRecords.forEach(index => {
             const rec = state.records[index];
             const classTime = createSafeDate(rec.date, rec.time);
-            if (((classTime - now) / (1000 * 60 * 60)) < 3) isTimeout = true;
+            // ✨ 配合上課前一天的規則，將時間鎖定檢查變更為 24 小時
+            if (((classTime - now) / (1000 * 60 * 60)) < 24) isTimeout = true;
             if(!cancelTargetDate) {
                 cancelTargetDate = rec.date.replace(/\//g, '-');
                 cancelTargetTime = rec.time;
@@ -991,7 +1019,7 @@
         });
 
         if (isTimeout) {
-            Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 3 小時的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' });
+            Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 1 天的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' });
             state.selectedRecords.clear(); renderRecordList(); updateRecordBtns();
             return;
         }
