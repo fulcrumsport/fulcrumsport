@@ -72,7 +72,6 @@
     .dowTxt { font-size: 11px; font-weight: 900; color: var(--muted); }
     .dateDot { width: 30px; height: 30px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 950; color: var(--text); transition: all 0.2s; }
     
-    /* ✨ 修正：確保 tabs 區隔線與下方 slots、cartWrap 等距對稱 (皆為 12px) */
     .slotsArea { flex: 0 0 auto; display: flex; flex-direction: column; gap: 12px; }
     .tabs { display: flex; gap: 16px; border-bottom: 2px solid var(--border); padding-bottom: 8px; align-items: center; }
     .tab { font-weight: 950; font-size: 15px; color: var(--muted); cursor: pointer; padding-bottom: 6px; position: relative; transition: color 0.2s; }
@@ -85,7 +84,6 @@
     .slot.disabled { opacity: .35; pointer-events: none; }
     .slotTip { font-size: 14px; font-weight: 950; color: var(--muted); grid-column: span 4; text-align: center; line-height: 72px; }
     
-    /* ✨ 修正：讓購物車區隔線上方保留對稱的 12px margin-top */
     .cartWrap { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; overflow: hidden; margin-bottom: 2px; min-height: 0; }
     .cartTitle { font-size: 13px; font-weight: 950; color: var(--muted); margin-bottom: 0px; padding-left: 4px; flex: 0 0 auto; }
     .cartScrollArea { flex: 1 1 auto; overflow-y: auto; background: rgba(255,255,255,0.6); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
@@ -146,11 +144,13 @@
       width: 100%;
       flex: 0 0 auto;
     }
+    
+    /* ✨ 將上方的標籤 1對1、1對2、包班 的字形放大為 17px */
     .record-tab {
       flex: 1;
       text-align: center;
       font-weight: 950;
-      font-size: 15px;
+      font-size: 17px;
       color: var(--muted);
       cursor: pointer;
       padding: 10px 0;
@@ -715,7 +715,8 @@
                       if(res.isConfirmed){ 
                           const c = addBatchItems(cleanDate, item.time); 
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2(); 
-                          if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<div style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態課。</div>`, confirmButtonColor: '#127a69' }); 
+                          // ✨ 修正成功包月後的彈出文案為「常態預約。」並確保不斷行
+                          if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<div style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態預約。</div>`, confirmButtonColor: '#127a69' }); 
                       } 
                   });
               };
@@ -745,7 +746,6 @@
       let refundedBookings = []; let expiredBookings = []; let failedBookings = []; let latestRemaining = "--";
       for (const booking of bookingsToCancel) {
           try {
-              // ✨ 關鍵修正：將 oldDate, oldTime 精準寫入 webhook 最外層 payload 供 Make 讀取
               const payload = { 
                   action: "doCancel", 
                   userId: state.uid, 
@@ -773,7 +773,6 @@
           }
           liff.closeWindow(); 
       } else { 
-          // ✨ 修正送出失敗時的彈窗文案
           Swal.fire({ icon: 'error', title: '取消異常', text: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); 
           setStatus(""); 
       }
@@ -841,7 +840,7 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ 修改為 mega 寬度，完美適配並確保提醒字眼不斷行
+  // ✨ 完美對齊圖 3/圖 4，並將管理我的預約按鈕字體調為 md
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -849,9 +848,22 @@
       
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-');
+          const oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { type: "text", text: String(`舊：${oD} ${reschSource.time || ""}`), size: "md", color: "#999999", decoration: "line-through", weight: "bold" },
-              { type: "text", text: String(`新：${list[0].date} (${list[0].weekday}) ${list[0].time}`), size: "lg", color: "#127a69", weight: "bold", margin: "sm" }
+              { 
+                  type: "text", size: "lg", weight: "bold", margin: "sm",
+                  contents: [
+                      { type: "span", text: "舊：", color: "#b23a2b" },
+                      { type: "span", text: String(`${oD} (${oWd}) ${reschSource.time || ""}`), color: "#999999", decoration: "line-through" }
+                  ]
+              },
+              { 
+                  type: "text", size: "lg", weight: "bold", margin: "md",
+                  contents: [
+                      { type: "span", text: "新：", color: "#127a69" },
+                      { type: "span", text: String(`${list[0].date} (${list[0].weekday}) ${list[0].time}`), color: "#1a2321" }
+                  ]
+              }
           );
       } else {
           list.forEach((it, idx) => {
@@ -890,7 +902,8 @@
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }]
+                          // ✨ 將此處的按鈕字體由 lg 縮小至 md
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
                       }
                   ]
               }
@@ -931,7 +944,8 @@
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }]
+                          // ✨ 將此處的按鈕字體由 lg 縮小至 md
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
                       }
                   ]
               }
@@ -956,7 +970,6 @@
         renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1);
     };
     
-    // ✨ 取消預約防呆確認視窗文案客製化
     document.getElementById('btnCancelBatch').addEventListener('click', async () => {
         const count = state.selectedRecords.size;
         if(count === 0) return;
