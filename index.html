@@ -43,8 +43,8 @@
     .row { display: flex; gap: 10px; flex-wrap: wrap; flex: 0 0 auto; }
     .courseGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; flex: 0 0 auto; }
     
-    /* ✨ 教練與課程按鈕字體稍微放大 (16px -> 17px) */
-    .chip { padding: 12px 6px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 17px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; min-width: 0; transition: all 0.2s; user-select: none; }
+    /* ✨ 教練按鈕字體放大 */
+    .chip { padding: 12px 6px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 18px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; min-width: 0; transition: all 0.2s; user-select: none; }
     .chip.sel { background: var(--selBg); border-color: rgba(18,122,105,.45); color: var(--selText); }
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); flex: 0 0 auto; }
@@ -56,8 +56,8 @@
     .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
     
     .coachMeta { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
-    /* ✨ Step 2 教練名稱放大並往右平移一點 */
-    .coachName { font-weight: 950; font-size: 20px; color: var(--text); margin: 0 0 0 6px; line-height: 1.1; }
+    /* ✨ Step 2 名字稍微放大並往右移 */
+    .coachName { font-weight: 950; font-size: 22px; color: var(--text); margin: 0 0 0 8px; line-height: 1.1; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .tag { padding: 3px 10px; border-radius: 999px; background: var(--selBg); color: var(--selText); font-weight: 900; font-size: 12px; white-space: nowrap; }
     
@@ -165,22 +165,77 @@
       box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15);
     }
 
-    /* ✨ 名片全新設計：頭像靠左放大、右側名字職稱、下方文字標籤 */
+    /* ✨ 名片全新設計：左大頭貼、右資訊、下方 Tag */
     .premium-trainer-card {
       background: linear-gradient(145deg, #e5ede8, #d4ded8);
       border: none;
       box-shadow: 6px 6px 16px rgba(18, 122, 105, 0.08), -6px -6px 16px rgba(255, 255, 255, 0.9);
-      border-radius: 26px;
-      padding: 20px 24px;
+      border-radius: 20px;
+      padding: 18px 20px;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
       width: 100%;
     }
     
-    /* 確保所有 SWAL 彈出視窗內的文字嚴格置中 */
-    .swal2-title { text-align: center !important; justify-content: center !important; }
-    .swal2-html-container { text-align: center !important; justify-content: center !important; }
+    .premium-avatar-frame {
+      width: 110px;
+      height: 125px;
+      border-radius: 16px;
+      border: 3px solid #fff;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(18, 122, 105, 0.12);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+    }
+    
+    .premium-avatar-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .premium-meta-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      flex: 1;
+      gap: 6px;
+    }
+    
+    .premium-name {
+      font-size: 26px;
+      font-weight: 950;
+      color: var(--text);
+      letter-spacing: 1.5px;
+      line-height: 1.1;
+      margin: 0;
+    }
+    
+    .premium-job-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 1px;
+      margin: 0;
+    }
+    
+    .premium-tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
 
+    /* ✨ 確保彈出視窗(Swal2)內字體全數回歸正常，且完美置中 */
+    .swal2-title { font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; text-align: center !important; justify-content: center !important; }
+    .swal2-html-container { font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.5 !important; text-align: center !important; justify-content: center !important; }
+    .swal2-actions { margin-top: 22px !important; gap: 12px; width: 100%; }
+    .swal2-styled.swal2-confirm { border-radius: 14px !important; background-color: var(--primary) !important; font-weight: 950 !important; padding: 12px 24px !important; flex: 1; box-shadow: none !important; }
+    .swal2-styled.swal2-cancel { border-radius: 14px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; padding: 12px 24px !important; flex: 1; box-shadow: none !important; }
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; flex: 0 0 auto; }
   </style>
 </head>
@@ -204,20 +259,14 @@
       
       <div id="trainerCardWrap" class="hide" style="margin-top: 16px; width: 100%; flex: 0 0 auto;">
           <div class="premium-trainer-card">
-              <div style="display: flex; align-items: center; gap: 20px;">
-                  <div style="width: 80px; height: 80px; flex-shrink: 0; border-radius: 50%; border: 2px solid var(--primary); padding: 2px; background: #fff; box-shadow: 0 4px 12px rgba(18, 122, 105, 0.12);">
-                      <img id="tcAvatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                  </div>
-                  <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px;">
-                      <div id="tcName" style="font-size: 24px; font-weight: 950; color: var(--text); letter-spacing: 1.5px; margin: 0; line-height: 1.1;">--</div>
-                      <div style="font-size: 15px; font-weight: 900; color: var(--primary); letter-spacing: 1px; margin: 0;">資深教練</div>
-                  </div>
+              <div class="premium-avatar-frame">
+                  <img id="tcAvatar" src="" alt="">
               </div>
-              
-              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px;">
-                  <div class="tag" style="font-size: 13px; padding: 5px 12px;">青少年訓練</div>
-                  <div class="tag" style="font-size: 13px; padding: 5px 12px;">肌力訓練</div>
-                  <div class="tag" style="font-size: 13px; padding: 5px 12px;">樂齡運動</div>
+              <div class="premium-meta-block">
+                  <div id="tcName" class="premium-name">--</div>
+                  <div class="premium-job-title">資深教練</div>
+                  <div id="tcTags" class="premium-tags-container">
+                      </div>
               </div>
           </div>
       </div>
@@ -506,9 +555,14 @@
           const r = state.records[originalIndex]; 
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
           if (isExpired) {
+              // ✨ 修正無法返還堂數的防呆視窗，僅保留「同意」並置中
               Swal.fire({
-                  title: '確認取消？', html: '該課堂購買效期已過，系統取消後無法自動退還堂數，確定要取消嗎？', icon: 'warning',
-                  showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定取消', confirmButtonColor: '#d33'
+                  title: '無法返還堂數', 
+                  html: '<span style="white-space: nowrap;">此堂購買效期已過，取消將不予返還堂數。</span>', 
+                  icon: 'warning',
+                  showCancelButton: false, 
+                  confirmButtonText: '同意', 
+                  confirmButtonColor: '#d33'
               }).then((res) => { if (res.isConfirmed) { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); } });
           } else {
               state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns();
@@ -529,9 +583,11 @@
       
       let htmlText = '';
       if (isExpired) {
-          htmlText = `此堂購買效期已過，僅供更改時段乙次。<br>確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
+          // ✨ 針對過期的改期防呆視窗，將大字小字置中，小字分為兩行
+          htmlText = `<span style="white-space: nowrap;">此堂購買效期已過，僅供更改時段乙次。</span><br><span style="white-space: nowrap;">確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</span>`;
       } else {
-          htmlText = `確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
+          // ✨ 針對未過期的改期防呆視窗，將大字小字置中
+          htmlText = `<span style="white-space: nowrap;">確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</span>`;
       }
       
       Swal.fire({
@@ -553,6 +609,16 @@
                   cardWrap.classList.remove('hide');
                   document.getElementById('tcAvatar').src = matchCoach.avatar;
                   document.getElementById('tcName').textContent = matchCoach.name;
+                  
+                  // 同步產生 Step 1 的新名片 Tags
+                  const tcTags = document.getElementById('tcTags');
+                  tcTags.innerHTML = '';
+                  matchCoach.tags.forEach(t => {
+                      const el = document.createElement('div');
+                      el.className = 'tag';
+                      el.textContent = t;
+                      tcTags.appendChild(el);
+                  });
               }
               loadOptionsForCoach(); 
           }
@@ -620,7 +686,7 @@
 
   window.deleteFromStep3 = function(date, time) {
       const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) { state.cart.splice(idx, 1); renderStep3Content(); if (state.cart.length === 0) { Swal.fire({ icon:'info', title:'清單已空', html:'請重新選擇預約時段', confirmButtonColor: '#127a69' }); setStep(2); } }
+      if (idx >= 0) { state.cart.splice(idx, 1); renderStep3Content(); if (state.cart.length === 0) { Swal.fire({ icon:'info', title:'清單已空', html:'<span style="white-space: nowrap;">請重新選擇預約時段</span>', confirmButtonColor: '#127a69' }); setStep(2); } }
   };
 
   function renderCart() {
@@ -639,13 +705,13 @@
                   e.stopPropagation(); const cleanDate = String(item.date).replace(/[\/\.]/g, '-'); const [yyyy, mm, dd] = cleanDate.split('-'); const month = parseInt(mm, 10); const day = parseInt(dd, 10); const availableWeeks = getAvailableRecurringWeeks(cleanDate, item.time);
                   Swal.fire({ 
                       title: '一鍵包月？', 
-                      html: `是否加入 ${month}月${day}日 起，後續 ${availableWeeks} 週<br>(每週${wd} ${item.time}) 的常態預約？`, 
+                      html: `<span style="white-space: nowrap;">是否加入 ${month}月${day}日 起，後續 ${availableWeeks} 週</span><br><span style="white-space: nowrap;">(每週${wd} ${item.time}) 的常態預約？</span>`, 
                       icon: 'question', showCancelButton: true, confirmButtonText: '確定加入', confirmButtonColor: '#127a69', cancelButtonText: '取消返回', iconColor: '#127a69' 
                   }).then((res)=>{ 
                       if(res.isConfirmed){ 
                           const c = addBatchItems(cleanDate, item.time); 
                           renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2(); 
-                          if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<div style="white-space: nowrap; font-size:14px;">已加入後續 ${c}週(每週${wd} ${item.time})的常態預約。</div>`, confirmButtonColor: '#127a69' }); 
+                          if(c > 0) Swal.fire({ icon:'success', title:'包月成功！', html:`<span style="white-space: nowrap;">已加入後續 ${c} 週(每週${wd} ${item.time})的常態預約。</span>`, confirmButtonColor: '#127a69' }); 
                       } 
                   });
               };
@@ -656,13 +722,13 @@
 
   function toggleCartItem(date, time) {
       const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) { state.cart.splice(idx, 1); } else { if (state.mode === 'reschedule' && state.cart.length >= 1) { Swal.fire({ icon: 'warning', title: '只能挑選一堂', text: '更改日期一次僅限調整一堂', confirmButtonColor: '#127a69' }); return; } if (state.mode !== 'reschedule' && state.cart.length >= state.remainingCredits) { Swal.fire({ icon: 'warning', title: '額度不足', html: `您目前僅剩 <span style="font-weight:950;">${state.remainingCredits} 堂</span> 可用`, confirmButtonColor: '#127a69' }); return; } const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
+      if (idx >= 0) { state.cart.splice(idx, 1); } else { if (state.mode === 'reschedule' && state.cart.length >= 1) { Swal.fire({ icon: 'warning', title: '只能挑選一堂', html: '<span style="white-space: nowrap;">更改日期一次僅限調整一堂</span>', confirmButtonColor: '#127a69' }); return; } if (state.mode !== 'reschedule' && state.cart.length >= state.remainingCredits) { Swal.fire({ icon: 'warning', title: '額度不足', html: `<span style="white-space: nowrap;">您目前僅剩 <b style="font-weight:950;">${state.remainingCredits} 堂</b> 可用</span>`, confirmButtonColor: '#127a69' }); return; } const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
       renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
   }
 
   function addBatchItems(startDateKey, timeStr) {
       let current = createSafeDate(startDateKey, '00:00'); const limit = getLimitDate(); let addedCount = 0;
-      while(true) { current = addDays(current, 7); if (current > limit) break; const dKey = ymd(current); const exists = state.cart.some(item => item.date === dKey && item.time === timeStr); const slotsForDay = state.availabilityMap[dKey]; const isAvailable = slotsForDay && slotsForDay.includes(timeStr); if (!exists && isAvailable && canBookNow(dKey, timeStr)) { if (state.cart.length >= state.remainingCredits) { Swal.fire({ icon: 'info', title: '額度已滿', html: `已幫您排入 <span style="font-weight:950;">${addedCount} 堂</span>，剩餘額度已全數用畢`, confirmButtonColor: '#127a69' }); break; } state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 }); addedCount++; } }
+      while(true) { current = addDays(current, 7); if (current > limit) break; const dKey = ymd(current); const exists = state.cart.some(item => item.date === dKey && item.time === timeStr); const slotsForDay = state.availabilityMap[dKey]; const isAvailable = slotsForDay && slotsForDay.includes(timeStr); if (!exists && isAvailable && canBookNow(dKey, timeStr)) { if (state.cart.length >= state.remainingCredits) { Swal.fire({ icon: 'info', title: '額度已滿', html: `<span style="white-space: nowrap;">已幫您排入 <b style="font-weight:950;">${addedCount} 堂</b>，剩餘額度已全數用畢</span>`, confirmButtonColor: '#127a69' }); break; } state.cart.push({ date: dKey, time: timeStr, ts: current.getTime() + parseInt(timeStr.split(':')[0])*3600000 }); addedCount++; } }
       return addedCount;
   }
 
@@ -703,27 +769,39 @@
           } else {
               cancelMsg = `已取消勾選的 ${totalProcessed} 堂預約。`;
           }
-          await Swal.fire({ icon: 'success', title: '取消完成', html: `<div style="white-space: nowrap; font-size:14px;">${cancelMsg}</div>`, confirmButtonColor: '#127a69' });
+          await Swal.fire({ icon: 'success', title: '取消完成', html: `<span style="white-space: nowrap;">${cancelMsg}</span>`, confirmButtonColor: '#127a69' });
           if(liff.isInClient()) { 
               try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } 
               catch (msgErr) { console.error("Flex Message Error:", msgErr); } 
           }
           liff.closeWindow(); 
       } else { 
-          Swal.fire({ icon: 'error', title: '取消異常', html: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); 
+          Swal.fire({ icon: 'error', title: '取消異常', html: '<span style="white-space: nowrap;">請聯繫教練協助處理。</span>', confirmButtonColor: '#b23a2b' }); 
           setStatus(""); 
       }
   }
 
   window.showCannotReschedule = function(e) { 
       e.stopPropagation(); 
-      Swal.fire({ icon: 'error', title: '無法改期', html: '該課堂購買效期已過，且已改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' }); 
+      Swal.fire({ icon: 'error', title: '無法改期', html: '<span style="white-space: nowrap;">該課堂購買效期已過，且已改過時段，不得再次更改。</span>', confirmButtonColor: '#b23a2b' }); 
   };
 
   function renderCourseTip() { if (state.step !== 1) return; setStatus('請選擇教練與課程'); }
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   function buildAvailabilityMap(options){ const map = {}; (options||[]).forEach(o=>{ const raw = (o.value || o.label || '').toString(); const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4]; if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t); }); Object.keys(map).forEach(k=>map[k].sort()); return map; }
-  function renderCoachIntro(){ if(!state.coach) return; coachAvatar2.src = state.coach.avatar; coachName2.textContent = state.coach.name; coachTags2.innerHTML=''; state.coach.tags.forEach(t=>{ const el=document.createElement('div'); el.className='tag'; el.textContent=t; coachTags2.appendChild(el); }); }
+  
+  function renderCoachIntro(){ 
+      if(!state.coach) return; 
+      coachAvatar2.src = state.coach.avatar; 
+      coachName2.textContent = state.coach.name; 
+      coachTags2.innerHTML=''; 
+      state.coach.tags.forEach(t=>{ 
+          const el=document.createElement('div'); 
+          el.className='tag'; 
+          el.textContent=t; 
+          coachTags2.appendChild(el); 
+      }); 
+  }
   
   function renderSlotsStep2(){ 
       slotGrid2.innerHTML=''; 
@@ -740,7 +818,42 @@
   }
   
   function renderWeekStrip(){ const ws = state.weekStart; monthTitle.textContent = monthYearLabel(ws); weekStrip.innerHTML=''; prevWeek.classList.toggle('disabled', ws <= weekStartMonday(new Date())); nextWeek.classList.toggle('disabled', addDays(ws,7) > getLimitDate()); for(let i=0;i<7;i++){ const d = addDays(ws, i); const key = ymd(d); const cell=document.createElement('div'); cell.className='dayCell'; if((startOfDay(d) < startOfDay(new Date())) || !state.availabilityMap[key] || d > getLimitDate() || state.loadingOptions) cell.classList.add('disabled'); if(state.dateKey===key) cell.classList.add('sel'); const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i); const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate(); cell.append(dow, dot); cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } }; weekStrip.appendChild(cell); } }
-  function renderCoaches(){ coachRow.innerHTML=''; COACHES.forEach(c=>{ const div=document.createElement('div'); div.className='chip'+(state.coach?.id===c.id?' sel':''); div.textContent=c.name; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.coach=c; renderCoaches(); renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; coachRow.appendChild(div); }); if(state.coach) { $('#trainerCardWrap').classList.remove('hide'); $('#tcAvatar').src = state.coach.avatar; $('#tcName').textContent = state.coach.name; } else { $('#trainerCardWrap').classList.add('hide'); } }
+  
+  function renderCoaches(){ 
+      coachRow.innerHTML=''; 
+      COACHES.forEach(c=>{ 
+          const div=document.createElement('div'); 
+          div.className='chip'+(state.coach?.id===c.id?' sel':''); 
+          div.textContent=c.name; 
+          if(state.mode === 'reschedule') div.classList.add('disabled'); 
+          div.onclick=()=>{ 
+              if(state.mode === 'reschedule') return; 
+              state.coach=c; 
+              renderCoaches(); 
+              renderCourse(); 
+              btnNext.disabled=!(state.coach && state.course); 
+              renderCourseTip(); 
+          }; 
+          coachRow.appendChild(div); 
+      }); 
+      
+      if(state.coach) { 
+          $('#trainerCardWrap').classList.remove('hide'); 
+          $('#tcAvatar').src = state.coach.avatar; 
+          $('#tcName').textContent = state.coach.name; 
+          const tcTags = $('#tcTags');
+          tcTags.innerHTML = '';
+          state.coach.tags.forEach(t => {
+              const el = document.createElement('div');
+              el.className = 'tag';
+              el.textContent = t;
+              tcTags.appendChild(el);
+          });
+      } else { 
+          $('#trainerCardWrap').classList.add('hide'); 
+      } 
+  }
+  
   function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
 
   async function loadOptionsForCoach(){ state.weekStart = weekStartMonday(new Date()); state.loadingOptions=true; state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; setStep(2); renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); try{ const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:getPeopleCount(state.course), userId:state.uid, mode: state.mode }) }); const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const data = JSON.parse(safeText); state.optionsRaw = Array.isArray(data.options)?data.options:[]; state.availabilityMap = buildAvailabilityMap(state.optionsRaw); const remain = data["Remaining credits"] ?? data.remainingCredits; if (remain !== undefined) state.remainingCredits = parseInt(remain, 10); renderCart(); }catch(e){} state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); }
@@ -777,6 +890,7 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
+  // ✨ LINE Flex Message 產生器：加深提醒字體、新舊時段文字黑化，並確保動態補位剩餘堂數
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -784,9 +898,22 @@
       
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-');
+          const oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { type: "text", text: String(`舊：${oD} ${reschSource.time || ""}`), size: "md", color: "#b23a2b", decoration: "line-through", weight: "bold" },
-              { type: "text", text: String(`新：${list[0].date} (${list[0].weekday}) ${list[0].time}`), size: "lg", color: "#127a69", weight: "bold", margin: "sm" }
+              { 
+                  type: "text", size: "lg", weight: "bold", margin: "sm",
+                  contents: [
+                      { type: "span", text: "舊：", color: "#b23a2b" },
+                      { type: "span", text: String(`${oD} (${oWd}) ${reschSource.time || ""}`), color: "#1a2321", decoration: "line-through" }
+                  ]
+              },
+              { 
+                  type: "text", size: "lg", weight: "bold", margin: "md",
+                  contents: [
+                      { type: "span", text: "新：", color: "#127a69" },
+                      { type: "span", text: String(`${list[0].date} (${list[0].weekday}) ${list[0].time}`), color: "#1a2321" }
+                  ]
+              }
           );
       } else {
           list.forEach((it, idx) => {
@@ -798,6 +925,7 @@
           });
       }
 
+      // 若未抓取到剩餘堂數，嘗試從狀態中的各處提取補位
       const fallbackRemain = state.recordRemaining !== undefined ? state.recordRemaining : (state.remainingCredits !== undefined ? state.remainingCredits : "--");
       const safeRemain = (remain !== undefined && remain !== "--" && remain !== "") ? remain : fallbackRemain;
 
@@ -823,8 +951,8 @@
                       { type: "text", text: String(`剩餘：${safeRemain}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" },
                       { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "xs", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#333333", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#333333", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
@@ -840,14 +968,11 @@
       let bodyContents = [];
       
       if (refunded.length > 0) {
-          bodyContents.push({ type: "text", text: "已退還堂數：", size: "sm", weight: "bold", color: "#127a69", margin: "md" });
           refunded.forEach(it => {
               bodyContents.push({
-                  type: "box", layout: "horizontal", margin: "sm", spacing: "sm",
-                  contents: [
-                      { type: "text", text: "✅", size: "md", flex: 0 },
-                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321" }
-                  ]
+                  type: "text",
+                  text: String(`• ${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`),
+                  size: "lg", weight: "bold", color: "#1a2321", margin: "sm"
               });
           });
       }
@@ -856,11 +981,9 @@
           bodyContents.push({ type: "text", text: "過期不予退還：", size: "sm", weight: "bold", color: "#b23a2b", margin: "md" });
           expired.forEach(it => {
               bodyContents.push({
-                  type: "box", layout: "horizontal", margin: "sm", spacing: "sm",
-                  contents: [
-                      { type: "text", text: "⚠️", size: "md", flex: 0 },
-                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321" }
-                  ]
+                  type: "text",
+                  text: String(`• ${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`),
+                  size: "lg", weight: "bold", color: "#b23a2b", margin: "sm"
               });
           });
       }
@@ -870,14 +993,13 @@
       const c_course = canceledRec ? getCourseName(canceledRec.course, canceledRec.people) : (state.course || "1對1");
 
       bodyContents.push(
-          { type: "separator", margin: "xl", color: "#eeeeee" },
           { type: "text", text: String(`教練：${c_coach}`), size: "sm", color: "#333333", margin: "lg" },
           { type: "text", text: String(`課程：${c_course}`), size: "sm", color: "#333333", margin: "sm" },
           { type: "text", text: String(`剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0}堂 (${c_course})`), size: "sm", color: "#333333", margin: "sm" },
           { type: "separator", margin: "md", color: "#eeeeee" },
           { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "xs", margin: "md" },
-          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
-          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#333333", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#333333", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
           {
               type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
               action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
@@ -942,7 +1064,7 @@
         });
 
         if (isTimeout) {
-            Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 1 天的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' });
+            Swal.fire({ icon: 'error', title: '操作逾時', html: '<span style="white-space: nowrap;">您勾選的清單中，有距離開課已不足 1 天的時段，系統已自動鎖定。</span>', confirmButtonColor: '#b23a2b' });
             state.selectedRecords.clear(); renderRecordList(); updateRecordBtns();
             return;
         }
@@ -952,9 +1074,9 @@
             const [yyyy, mm, dd] = cancelTargetDate.split('-');
             const m = parseInt(mm, 10);
             const d = parseInt(dd, 10);
-            htmlStr = `<div style="white-space: nowrap; font-size: 15px;">取消 ${m}月${d}日 (${cancelTargetWd}) ${cancelTargetTime} 的預約？</div>`;
+            htmlStr = `<span style="white-space: nowrap;">取消 ${m}月${d}日 (${cancelTargetWd}) ${cancelTargetTime} 的預約？</span>`;
         } else {
-            htmlStr = `<div style="white-space: nowrap; font-size: 15px;">取消勾選的 ${count} 堂預約？</div>`;
+            htmlStr = `<span style="white-space: nowrap;">取消勾選的 ${count} 堂預約？</span>`;
         }
 
         const result = await Swal.fire({
@@ -994,7 +1116,7 @@
               const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
               const alertTitle = isReschedule ? '更改成功' : '預約成功';
-              const alertHtml = isReschedule ? '已成功更改私課預約時段！' : `已成功安排您的預約。`;
+              const alertHtml = isReschedule ? '<span style="white-space: nowrap;">已成功更改私課預約時段！</span>' : `<span style="white-space: nowrap;">已成功安排您的預約。</span>`;
               await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
               
               if(liff.isInClient()) {
@@ -1004,8 +1126,8 @@
                   } catch (msgErr) { console.error("Flex Message Error:", msgErr); }
               }
               liff.closeWindow();
-           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', html: '時段可能已被佔走，請重新選擇時段。', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
-        }catch(e){ Swal.fire({ icon:'error', title: '系統異常', html: '請稍後再試。', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
+           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', html: '<span style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</span>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
+        }catch(e){ Swal.fire({ icon:'error', title: '系統異常', html: '<span style="white-space: nowrap;">請稍後再試。</span>', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
   }
