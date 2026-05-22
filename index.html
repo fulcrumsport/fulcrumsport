@@ -1169,25 +1169,93 @@
               bookings: state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }))
            };
            if (isReschedule && state.rescheduleSource) { payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || ""; payload.oldDate = state.rescheduleSource.date; payload.oldTime = state.rescheduleSource.time; }
+           
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            const rawText = await res.text(); 
            const safeResText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
            let result = JSON.parse(safeResText);
-           if (result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled') {
-              const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
-              state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
-              const alertTitle = isReschedule ? '更改成功' : '預約成功';
-              const alertHtml = isReschedule ? '<div style="white-space: nowrap;">已成功更改私課預約時段！</div>' : `<div style="white-space: nowrap;">已成功安排您的預約。</div>`;
-              await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
-              
-              if(liff.isInClient()) {
-                  try { 
-                      const flexObj = createSuccessFlexMessage(state.cart.length, actualRemain, state.cart.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })), isReschedule, state.rescheduleSource);
-                      await liff.sendMessages([flexObj]); 
-                  } catch (msgErr) { console.error("Flex Message Error:", msgErr); }
-              }
-              liff.closeWindow();
-           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', html: '<div style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
+           
+           const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
+
+           if (isSuccess) {
+               let parsedList = []; 
+               let rawResults = result.Results || result.results || result.records || result;
+               if (!Array.isArray(rawResults)) rawResults = [rawResults];
+               
+               function parseItem(item) { 
+                   if (Array.isArray(item)) item.forEach(parseItem); 
+                   else if (typeof item === 'object' && item !== null) parsedList.push(item); 
+                   else if (typeof item === 'string') { 
+                       try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} 
+                   } 
+               }
+               parseItem(rawResults);
+               
+               // ✨ 重點修正區：比對成功名單，容錯斜線與橫槓
+               let successBookings = state.cart.filter(item => {
+                   const dateDash = String(item.date).replace(/\//g, '-');
+                   const dateSlash = String(item.date).replace(/-/g, '/');
+                   return parsedList.some(res => {
+                       const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-');
+                       const rTime = String(res.time || res.Time || '').trim();
+                       return (rDate === dateDash || rDate === dateSlash) && (rTime === item.time);
+                   });
+               });
+
+               // 極端情況容錯：Make沒吐results但判斷成功，當作全成功
+               if (successBookings.length === 0 && parsedList.length === 0) {
+                   successBookings = [...state.cart];
+               }
+               
+               // 將不在成功名單的抽出來當作失敗名單
+               let failedBookings = state.cart.filter(item => !successBookings.includes(item));
+               
+               const actualSuccessCount = successBookings.length;
+               const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
+               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
+               
+               if (actualSuccessCount > 0) {
+                   // ✨ 如果有失敗的，跳出你要求的「部分成功防呆視窗」
+                   if (failedBookings.length > 0) {
+                       let failedHtml = failedBookings.map(b => `<div style="color:var(--danger); font-weight:950; text-align:center;">• ${b.date} ${b.time}</div>`).join('');
+                       let successHtml = successBookings.map(b => `<div style="color:var(--primary); font-weight:950; text-align:center;">• ${b.date} ${b.time}</div>`).join('');
+                       
+                       await Swal.fire({
+                           icon: 'warning',
+                           title: '糟糕！部分時段已被預約！',
+                           html: `<div style="font-size:15px; line-height:1.5;">
+                                   <p style="margin:0 0 10px 0; font-weight:900;">以下時段已被搶先預約：</p>
+                                   <div style="background:#fff5f5; padding:12px; border-radius:10px; margin-bottom:16px;">${failedHtml}</div>
+                                   <p style="margin:0 0 10px 0; font-weight:900;">為您成功保留以下時段：</p>
+                                   <div style="background:#e5f2f0; padding:12px; border-radius:10px;">${successHtml}</div>
+                                 </div>`,
+                           confirmButtonText: 'OK',
+                           confirmButtonColor: '#127a69'
+                       });
+                   } else {
+                       // 全部成功
+                       const alertTitle = isReschedule ? '更改成功' : '預約成功';
+                       const alertHtml = isReschedule ? '<div style="white-space: nowrap;">已成功更改私課預約時段！</div>' : `<div style="white-space: nowrap;">已成功安排您的預約。</div>`;
+                       await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
+                   }
+                   
+                   if(liff.isInClient()) {
+                       try { 
+                           // ✨ 重點修正區：送出給 LINE 的陣列只傳 successBookings
+                           const successListForFlex = successBookings.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }));
+                           const flexObj = createSuccessFlexMessage(actualSuccessCount, actualRemain, successListForFlex, isReschedule, state.rescheduleSource);
+                           await liff.sendMessages([flexObj]); 
+                       } catch (msgErr) { console.error("Flex Message Error:", msgErr); }
+                   }
+                   liff.closeWindow();
+               } else {
+                   Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '<div style="white-space: nowrap;">所有時段已被預約，請選擇其他時段。</div>', confirmButtonColor: '#b23a2b' }); 
+                   setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
+               }
+           } else { 
+               Swal.fire({ icon:'error', title: '糟糕！失敗', html: '<div style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</div>', confirmButtonColor: '#b23a2b' }); 
+               setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; 
+           }
         }catch(e){ Swal.fire({ icon:'error', title: '系統異常', html: '<div style="white-space: nowrap;">請稍後再試。</div>', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
