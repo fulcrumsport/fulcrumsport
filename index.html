@@ -42,7 +42,9 @@
     .h { margin: 0 0 12px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; flex: 0 0 auto; }
     .courseGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; flex: 0 0 auto; }
-    .chip { padding: 12px 6px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 16px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; min-width: 0; transition: all 0.2s; user-select: none; }
+    
+    /* ✨ 教練與課程按鈕字體稍微放大 (16px -> 17px) */
+    .chip { padding: 12px 6px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 17px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; min-width: 0; transition: all 0.2s; user-select: none; }
     .chip.sel { background: var(--selBg); border-color: rgba(18,122,105,.45); color: var(--selText); }
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); flex: 0 0 auto; }
@@ -54,7 +56,8 @@
     .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
     
     .coachMeta { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
-    .coachName { font-weight: 950; font-size: 18px; color: var(--text); margin: 0; line-height: 1.1; }
+    /* ✨ Step 2 教練名稱放大並往右平移一點 */
+    .coachName { font-weight: 950; font-size: 20px; color: var(--text); margin: 0 0 0 6px; line-height: 1.1; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .tag { padding: 3px 10px; border-radius: 999px; background: var(--selBg); color: var(--selText); font-weight: 900; font-size: 12px; white-space: nowrap; }
     
@@ -162,83 +165,22 @@
       box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15);
     }
 
+    /* ✨ 名片全新設計：頭像靠左放大、右側名字職稱、下方文字標籤 */
     .premium-trainer-card {
       background: linear-gradient(145deg, #e5ede8, #d4ded8);
       border: none;
       box-shadow: 6px 6px 16px rgba(18, 122, 105, 0.08), -6px -6px 16px rgba(255, 255, 255, 0.9);
       border-radius: 26px;
-      padding: 24px 20px;
+      padding: 20px 24px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      gap: 20px;
       width: 100%;
     }
     
-    .premium-classic-layout {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding-left: 0;
-      gap: 22px;
-    }
-    
-    .premium-avatar-frame {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 2px solid var(--primary);
-      padding: 2px;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(18, 122, 105, 0.12);
-      flex-shrink: 0;
-    }
-    .premium-meta-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-      gap: 4px;
-    }
-    .premium-name {
-      font-size: 25px;
-      font-weight: 950;
-      color: var(--text);
-      letter-spacing: 1.5px;
-      line-height: 1.1;
-      margin: 0;
-    }
-    
-    .premium-job-title {
-      font-size: 14px;
-      font-weight: 900;
-      color: var(--primary);
-      letter-spacing: 1px;
-      margin: 0;
-      background: transparent;
-      box-shadow: none;
-      padding: 0;
-    }
-    
-    .raised-icon-circle {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 2px 4px 10px rgba(18,122,105,0.12);
-      border: 1px solid rgba(18,122,105,0.05);
-    }
+    /* 確保所有 SWAL 彈出視窗內的文字嚴格置中 */
+    .swal2-title { text-align: center !important; justify-content: center !important; }
+    .swal2-html-container { text-align: center !important; justify-content: center !important; }
 
-    .swal2-popup { border-radius: 20px !important; padding: 24px 20px !important; max-width: 340px !important; }
-    .swal2-title { font-size: 19px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; }
-    .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.5 !important; }
-    .swal2-actions { margin-top: 22px !important; gap: 12px; width: 100%; }
-    .swal2-styled.swal2-confirm { border-radius: 14px !important; background-color: var(--primary) !important; font-weight: 950 !important; padding: 12px 24px !important; flex: 1; font-size: 15px !important; box-shadow: none !important; }
-    .swal2-styled.swal2-cancel { border-radius: 14px !important; font-weight: 950 !important; color: #111 !important; background: #eef2f1 !important; padding: 12px 24px !important; flex: 1; font-size: 15px !important; box-shadow: none !important; }
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; flex: 0 0 auto; }
   </style>
 </head>
@@ -262,52 +204,20 @@
       
       <div id="trainerCardWrap" class="hide" style="margin-top: 16px; width: 100%; flex: 0 0 auto;">
           <div class="premium-trainer-card">
-              <div class="premium-classic-layout">
-                  <div class="premium-avatar-frame">
+              <div style="display: flex; align-items: center; gap: 20px;">
+                  <div style="width: 80px; height: 80px; flex-shrink: 0; border-radius: 50%; border: 2px solid var(--primary); padding: 2px; background: #fff; box-shadow: 0 4px 12px rgba(18, 122, 105, 0.12);">
                       <img id="tcAvatar" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                   </div>
-                  <div class="premium-meta-block">
-                      <div id="tcName" class="premium-name">--</div>
-                      <div class="premium-job-title">資深教練</div>
+                  <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px;">
+                      <div id="tcName" style="font-size: 24px; font-weight: 950; color: var(--text); letter-spacing: 1.5px; margin: 0; line-height: 1.1;">--</div>
+                      <div style="font-size: 15px; font-weight: 900; color: var(--primary); letter-spacing: 1px; margin: 0;">資深教練</div>
                   </div>
               </div>
               
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;">
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div class="raised-icon-circle">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                             <circle cx="14" cy="5" r="2.5"/>
-                             <path d="M14 8v4l-3 5"/>
-                             <path d="M14 12l4 3"/>
-                             <path d="M11 17l-4-3"/>
-                             <path d="M15 14l3-5"/>
-                          </svg>
-                      </div>
-                      <span style="font-size: 12px; font-weight: 950; color: var(--text);">青少年體能</span>
-                  </div>
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div class="raised-icon-circle">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                             <circle cx="12" cy="5" r="2.5"/>
-                             <path d="M12 8v5"/>
-                             <path d="M9 13l-3 5"/>
-                             <path d="M15 13l3 5"/>
-                             <path d="M6 7c2 2 10 2 12 0"/>
-                          </svg>
-                      </div>
-                      <span style="font-size: 12px; font-weight: 950; color: var(--text);">樂齡運動</span>
-                  </div>
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                      <div class="raised-icon-circle">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                             <path d="M8 11.5h8" />
-                             <path d="M7 9.5v4" />
-                             <path d="M17 9.5v4" />
-                          </svg>
-                      </div>
-                      <span style="font-size: 12px; font-weight: 950; color: var(--text);">肌力&體能</span>
-                  </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px;">
+                  <div class="tag" style="font-size: 13px; padding: 5px 12px;">青少年訓練</div>
+                  <div class="tag" style="font-size: 13px; padding: 5px 12px;">肌力訓練</div>
+                  <div class="tag" style="font-size: 13px; padding: 5px 12px;">樂齡運動</div>
               </div>
           </div>
       </div>
@@ -549,7 +459,6 @@
 
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
-          // ✨ 更新取消判斷為 24 小時前
           const canCancel = ((classTime - now) / (1000 * 60 * 60)) >= 24;
           
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
@@ -611,9 +520,28 @@
       e.stopPropagation(); 
       const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
       
+      const oD = String(record.date || "").replace(/\//g,'-');
+      const [yyyy, mm, dd] = oD.split('-');
+      const m = parseInt(mm, 10);
+      const d = parseInt(dd, 10);
+      const oWd = record.weekday || weekdayZhFromDateKey(record.date);
+      const oTime = record.time;
+      
+      let htmlText = '';
+      if (isExpired) {
+          htmlText = `此堂購買效期已過，僅供更改時段乙次。<br>確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
+      } else {
+          htmlText = `確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
+      }
+      
       Swal.fire({
-          title: '更改時段？', html: '是否確定要更改目前的預約時段？', icon: 'question', 
-          showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定改期', confirmButtonColor: '#127a69'
+          title: '更改時段？', 
+          html: htmlText, 
+          icon: 'question', 
+          showCancelButton: true, 
+          cancelButtonText: '返回', 
+          confirmButtonText: '確定更改', 
+          confirmButtonColor: '#127a69'
       }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule'; state.rescheduleSource = record;
@@ -645,7 +573,6 @@
           const oldTime = state.rescheduleSource.time;
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
               const newDateFmt = String(item.date).replace(/\//g, '-'); const newWd = weekdayZhFromDateKey(item.date); const newTime = item.time;
-              // ✨ 修正改期時的版面，確保下方顯示教練與課程
               html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;">
                 <div style="display:flex; justify-content: space-between; width: 100%; align-items: center;">
                   <div style="display:flex; flex-direction: column; gap: 6px; flex: 1;">
@@ -686,7 +613,6 @@
       if (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) { 
           remindHtml = `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，<span style="color:var(--danger)">僅可更改時段乙次</span>，亦無法取消退還。</div>`; 
       } else { 
-          // ✨ 更新為一天
           remindHtml = `<ol><li>取消或改期，請於上課前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`; 
       }
       $('#step3RemindBox').innerHTML = remindHtml; setStatus('');
@@ -769,12 +695,11 @@
       }
       const totalProcessed = refundedBookings.length + expiredBookings.length;
       if (totalProcessed > 0) {
-          // ✨ 精準帶入防斷行與格式化的取消完成字樣
           let cancelMsg = '';
           if (totalProcessed === 1) {
               const b = refundedBookings.concat(expiredBookings)[0];
               const [yyyy, mm, dd] = String(b.date).replace(/\//g, '-').split('-');
-              cancelMsg = `已取消${parseInt(mm, 10)}月${parseInt(dd, 10)}日(${b.weekday}) ${b.time}的預約。`;
+              cancelMsg = `已取消 ${parseInt(mm, 10)}月${parseInt(dd, 10)}日(${b.weekday}) ${b.time} 的預約。`;
           } else {
               cancelMsg = `已取消勾選的 ${totalProcessed} 堂預約。`;
           }
@@ -785,15 +710,14 @@
           }
           liff.closeWindow(); 
       } else { 
-          // ✨ 修正為精確的異常字眼
-          Swal.fire({ icon: 'error', title: '取消異常', text: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); 
+          Swal.fire({ icon: 'error', title: '取消異常', html: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); 
           setStatus(""); 
       }
   }
 
   window.showCannotReschedule = function(e) { 
       e.stopPropagation(); 
-      Swal.fire({ icon: 'error', title: '無法改期', text: '該課堂購買效期已過，且已改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' }); 
+      Swal.fire({ icon: 'error', title: '無法改期', html: '該課堂購買效期已過，且已改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' }); 
   };
 
   function renderCourseTip() { if (state.step !== 1) return; setStatus('請選擇教練與課程'); }
@@ -853,7 +777,6 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ 修正為 mega 尺寸，並加入 shrink-to-fit 確保提示文字不被截斷
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -862,7 +785,7 @@
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-');
           dateBoxes.push(
-              { type: "text", text: String(`舊：${oD} ${reschSource.time || ""}`), size: "md", color: "#999999", decoration: "line-through", weight: "bold" },
+              { type: "text", text: String(`舊：${oD} ${reschSource.time || ""}`), size: "md", color: "#b23a2b", decoration: "line-through", weight: "bold" },
               { type: "text", text: String(`新：${list[0].date} (${list[0].weekday}) ${list[0].time}`), size: "lg", color: "#127a69", weight: "bold", margin: "sm" }
           );
       } else {
@@ -874,6 +797,9 @@
               });
           });
       }
+
+      const fallbackRemain = state.recordRemaining !== undefined ? state.recordRemaining : (state.remainingCredits !== undefined ? state.remainingCredits : "--");
+      const safeRemain = (remain !== undefined && remain !== "--" && remain !== "") ? remain : fallbackRemain;
 
       return {
           type: "flex",
@@ -894,15 +820,15 @@
                       ...dateBoxes,
                       { type: "text", text: String(`教練：${state.coach ? state.coach.name : "教練"}`), size: "sm", color: "#333333", margin: "lg" },
                       { type: "text", text: String(`課程：${state.course || "1對1"}`), size: "sm", color: "#333333", margin: "sm" },
-                      { type: "text", text: String(`剩餘：${remain !== undefined && remain !== "--" ? remain : 0}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
+                      { type: "text", text: String(`剩餘：${safeRemain}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" },
-                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "xs", margin: "md" },
+                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
+                          contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }]
                       }
                   ]
               }
@@ -910,7 +836,6 @@
       };
   }
 
-  // ✨ 完美復刻圖 4 的取消預約卡片版面
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
       let bodyContents = [];
       
@@ -934,13 +859,12 @@
                   type: "box", layout: "horizontal", margin: "sm", spacing: "sm",
                   contents: [
                       { type: "text", text: "⚠️", size: "md", flex: 0 },
-                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#b23a2b" }
+                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321" }
                   ]
               });
           });
       }
       
-      // 動態抓取教練與課程
       const canceledRec = refunded[0] || expired[0];
       const c_coach = canceledRec ? canceledRec.coach : (state.coach ? state.coach.name : "教練");
       const c_course = canceledRec ? getCourseName(canceledRec.course, canceledRec.people) : (state.course || "1對1");
@@ -951,13 +875,13 @@
           { type: "text", text: String(`課程：${c_course}`), size: "sm", color: "#333333", margin: "sm" },
           { type: "text", text: String(`剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0}堂 (${c_course})`), size: "sm", color: "#333333", margin: "sm" },
           { type: "separator", margin: "md", color: "#eeeeee" },
-          { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
-          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#888888", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "xs", margin: "md" },
+          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#555555", size: "xxs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
           {
               type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
               action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
-              contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "md" }]
+              contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }]
           }
       );
 
@@ -1009,7 +933,6 @@
         state.selectedRecords.forEach(index => {
             const rec = state.records[index];
             const classTime = createSafeDate(rec.date, rec.time);
-            // ✨ 配合上課前一天的規則，將時間鎖定檢查變更為 24 小時
             if (((classTime - now) / (1000 * 60 * 60)) < 24) isTimeout = true;
             if(!cancelTargetDate) {
                 cancelTargetDate = rec.date.replace(/\//g, '-');
@@ -1081,8 +1004,8 @@
                   } catch (msgErr) { console.error("Flex Message Error:", msgErr); }
               }
               liff.closeWindow();
-           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', text: '時段可能已被佔走，請重新選擇時段。', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
-        }catch(e){ Swal.fire({ icon:'error', title: '系統異常', text: '請稍後再試。' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
+           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', html: '時段可能已被佔走，請重新選擇時段。', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
+        }catch(e){ Swal.fire({ icon:'error', title: '系統異常', html: '請稍後再試。', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
   }
