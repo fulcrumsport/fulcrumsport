@@ -79,13 +79,13 @@
     .tab.active { color: var(--text); }
     .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: var(--primary); border-radius: 999px; }
     
-    .slotGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; min-height: 100px; max-height: 140px; overflow-y: auto; padding-right: 4px; align-content: start; }
+    /* ✨ 修正：縮減時段選擇版面，最大高度限制為 80px (完美顯示兩排) */
+    .slotGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 80px; overflow-y: auto; padding-right: 4px; align-content: start; }
     .slot { padding: 7px 0; border-radius: 999px; background: #eef2f1; font-weight: 950; font-size: 13px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; height: 32px; display: flex; align-items: center; justify-content: center; }
     .slot.sel { background: var(--selBg); color: var(--selText); border-color: rgba(18,122,105,.35); box-shadow: 0 0 0 2px rgba(18,122,105,.1) inset; }
     .slot.disabled { opacity: .35; pointer-events: none; }
     
-    /* 置中下移修改 */
-    .slotTip { font-size: 14px; font-weight: 950; color: var(--muted); grid-column: span 4; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; min-height: 80px; gap: 8px; margin: auto;}
+    .slotTip { font-size: 14px; font-weight: 950; color: var(--muted); grid-column: span 4; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; min-height: 70px; gap: 8px; margin: auto;}
     
     .cartWrap { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; overflow: hidden; margin-bottom: 2px; min-height: 0; }
     .cartTitle { font-size: 13px; font-weight: 950; color: var(--muted); margin-bottom: 0px; padding-left: 4px; flex: 0 0 auto; }
@@ -178,7 +178,7 @@
       box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15);
     }
 
-    /* ✨ 名片全新高質感滿版設計 */
+    /* ✨ 修正：名片加長、名字職稱置中、專長自動縮小且不斷行 */
     .premium-trainer-card {
       background: linear-gradient(145deg, #e5ede8, #d4ded8);
       border: none;
@@ -187,18 +187,17 @@
       padding: 0;
       display: flex;
       flex-direction: row;
-      align-items: center;
+      align-items: stretch;
       width: 100%;
-      height: 120px;
+      height: 110px;
       overflow: hidden;
     }
     .premium-avatar-frame {
-      width: 120px;
+      width: 110px;
       height: 100%;
       border-radius: 0;
       border: none;
       background: #fff;
-      box-shadow: none;
       flex-shrink: 0;
       overflow: hidden;
     }
@@ -212,48 +211,50 @@
     .premium-meta-block {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center; /* 水平置中 */
       justify-content: center;
       flex: 1;
       min-width: 0;
-      padding: 12px 16px;
+      padding: 8px 12px;
+      text-align: center;
     }
     .premium-name {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 950;
       color: var(--text);
-      letter-spacing: 1.5px;
+      letter-spacing: 1px;
       line-height: 1.1;
       margin: 0 0 4px 0;
     }
     .premium-job-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: var(--primary);
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       margin: 0;
     }
-    /* 專長設定為換行顯示，並縮小字體 */
     .premium-tags-container {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
+      flex-wrap: nowrap; /* 不換行 */
+      justify-content: center;
+      gap: 4px;
+      margin-top: 6px;
       width: 100%;
+      overflow: hidden;
     }
     .premium-tags-container .tag {
       background: rgba(255,255,255,0.8);
       color: var(--text);
       border: 1px solid rgba(0,0,0,0.05);
       font-weight: 900;
-      font-size: 11px;
+      font-size: 10px; /* 縮小字體以塞入單行 */
       white-space: nowrap;
-      padding: 3px 8px;
+      padding: 2px 6px;
       border-radius: 999px;
     }
 
-    /* ✨ Swal2 彈出視窗：移除不換行，保證置中完美顯示 */
-    .swal2-popup { width: 310px !important; padding: 24px 20px !important; border-radius: 20px !important; }
+    /* ✨ 修正：Swal2 彈出視窗加寬 (350px)，保證小字舒適且置中 */
+    .swal2-popup { width: 350px !important; padding: 24px 20px !important; border-radius: 20px !important; }
     .swal2-title { font-size: 20px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; text-align: center !important; justify-content: center !important; }
     .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.6 !important; text-align: center !important; justify-content: center !important; white-space: normal !important; word-break: break-word !important; }
     .swal2-actions { margin-top: 22px !important; gap: 12px !important; width: 100%; justify-content: center !important; }
@@ -289,7 +290,7 @@
               </div>
               <div class="premium-meta-block">
                   <div id="tcName" class="premium-name">--</div>
-                  <div class="premium-job-title">資深教練</div>
+                  <div class="premium-job-title" id="tcJobTitle">豆豆的爸，點點的奴才</div>
                   <div id="tcTags" class="premium-tags-container"></div>
               </div>
           </div>
@@ -395,6 +396,7 @@
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
   const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
 
+  // ✨ 教練 B 資料更新
   const COACHES = [
     { 
       id:'coachA', 
@@ -404,8 +406,8 @@
     },
     { 
       id:'coachB', 
-      name:'教練 B', 
-      avatar:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&q=80', 
+      name:'教練 B(招募中)', 
+      avatar:'./images/coach b.jpg', 
       tags:['肌力訓練','姿勢調整','初學友善'] 
     },
   ];
@@ -485,7 +487,6 @@
   function updateStatusInStep2() {
       if(state.loadingOptions) return; 
       if(!state.dateKey) { setStatus('請先選擇上方日期'); return; }
-      if(!hasAnySlots()) { setStatus('目前沒有可預約的時段', true); return; }
       if(state.cart.length > 0) { setStatus(`已選擇 ${state.cart.length} 堂課`); return; }
       setStatus(`已選日期：${state.dateKey}`);
   }
@@ -609,7 +610,7 @@
       
       let htmlText = '';
       if (isExpired) {
-          htmlText = `此堂購買效期已過，僅供更改時段乙次。<br>確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
+          htmlText = `此堂購買效期已過，僅供更改時段乙次。<br><br>確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
       } else {
           htmlText = `更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？`;
       }
@@ -707,10 +708,11 @@
       $('#step3RemindBox').innerHTML = remindHtml; setStatus('');
   }
 
-  window.deleteFromStep3 = function(date, time) {
+  function windowDeleteFromStep3(date, time) {
       const idx = state.cart.findIndex(i => i.date === date && i.time === time);
       if (idx >= 0) { state.cart.splice(idx, 1); renderStep3Content(); if (state.cart.length === 0) { Swal.fire({ icon:'info', title:'清單已空', html:'請重新選擇預約時段', confirmButtonColor: '#127a69' }); setStep(2); } }
   };
+  window.deleteFromStep3 = windowDeleteFromStep3;
 
   function renderCart() {
       if (state.remainingCredits !== undefined && state.mode !== 'reschedule') { const currentLeft = state.remainingCredits - state.cart.length; const displayEl = document.getElementById('displayCredits'); if (displayEl) { displayEl.textContent = currentLeft; displayEl.style.color = currentLeft <= 0 ? 'var(--danger)' : 'var(--primary)'; } }
@@ -759,6 +761,7 @@
       const count = state.selectedRecords.size; if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} 堂)`; btnCancelBatch.disabled = false; } else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; }
   }
 
+  /* ✨ 修正：單一 Payload 批次發送取消預約請求 */
   async function executeBatchCancel() {
       const btnCancel = document.getElementById('btnCancelBatch');
       const origText = btnCancel.textContent;
@@ -766,40 +769,101 @@
       btnCancel.disabled = true;
       setStatus("正在取消預約..."); 
       
-      const bookingsToCancel = []; state.selectedRecords.forEach(index => { bookingsToCancel.push(state.records[index]); });
+      const bookingsToCancel = []; 
+      state.selectedRecords.forEach(index => { bookingsToCancel.push(state.records[index]); });
+      
       let refundedBookings = []; let expiredBookings = []; let failedBookings = []; let latestRemaining = "--";
       
-      for (const booking of bookingsToCancel) {
-          try {
-              const payload = { 
-                  action: "doCancel", 
-                  userId: state.uid, 
-                  course: getCourseName(booking.course, booking.people),
-                  bookings: [booking],
-                  oldDate: booking.date,
-                  oldTime: booking.time,
-                  oldRowNumber: booking.rowNumber || booking.rowIndex || ""
-              };
-              const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-              const rawResponseText = await res.text(); let result;
-              try { const safeText = rawResponseText.replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); result = JSON.parse(safeText); } catch (e) { throw new Error("回傳格式異常"); }
-              const currentStatus = result.Status || result.status; const msg = result.Message || result.message || ""; const remain = result["Remaining credits"] !== undefined ? result["Remaining credits"] : (result.remainingCredits !== undefined ? result.remainingCredits : null);
-              if (remain !== null) latestRemaining = remain;
-              if (currentStatus === 'expired' || msg.includes('不予退還') || msg.includes('過期') || booking.改期狀態 === 'final') expiredBookings.push(booking);
-              else if (currentStatus === 'success' || currentStatus === 'completed') refundedBookings.push(booking);
-              else failedBookings.push(booking);
-          } catch (e) { failedBookings.push(booking); }
+      try {
+          const payload = { 
+              action: "doCancel", 
+              userId: state.uid, 
+              course: state.recordTab, 
+              bookings: bookingsToCancel.map(b => ({
+                  date: b.date,
+                  time: b.time,
+                  weekday: b.weekday,
+                  coach: b.coach,
+                  course: b.course,
+                  people: b.people,
+                  rowNumber: b.rowNumber || b.rowIndex || ""
+              }))
+          };
+          
+          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { 
+              method: "POST", 
+              headers: {"Content-Type":"application/json"}, 
+              body: JSON.stringify(payload) 
+          });
+          
+          const rawResponseText = await res.text(); 
+          const safeText = rawResponseText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
+          let result = JSON.parse(safeText);
+          
+          const currentStatus = result.Status || result.status; 
+          const msg = result.Message || result.message || ""; 
+          const remain = result["Remaining credits"] ?? result.remainingCredits;
+          if (remain !== undefined && remain !== null) latestRemaining = remain;
+          
+          if (currentStatus === 'success' || currentStatus === 'completed' || currentStatus === 'cancelled') {
+              let parsedList = [];
+              let rawResults = result.Results || result.results || result.records || result;
+              if (!Array.isArray(rawResults)) rawResults = [rawResults];
+              
+              function parseItem(item) { 
+                  if (Array.isArray(item)) item.forEach(parseItem); 
+                  else if (typeof item === 'object' && item !== null) {
+                      if(Object.keys(item).length > 0) parsedList.push(item);
+                  } 
+                  else if (typeof item === 'string' && item.trim() !== "") { 
+                       try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} 
+                  } 
+              }
+              parseItem(rawResults);
+              
+              bookingsToCancel.forEach(booking => {
+                  const dateDash = String(booking.date).replace(/\//g, '-');
+                  const dateSlash = String(booking.date).replace(/-/g, '/');
+                  
+                  const match = parsedList.find(res => {
+                      const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-');
+                      const rTime = String(res.time || res.Time || '').trim();
+                      return (rDate === dateDash || rDate === dateSlash) && (rTime === booking.time);
+                  });
+                  
+                  if (match) {
+                      const mStatus = match.Status || match.status || currentStatus;
+                      const mMsg = match.Message || match.message || msg;
+                      if (mStatus === 'expired' || mMsg.includes('不予退還') || mMsg.includes('過期') || booking.改期狀態 === 'final') {
+                          expiredBookings.push(booking);
+                      } else {
+                          refundedBookings.push(booking);
+                      }
+                  } else {
+                      const isExpired = isTruthy(booking.isExpired) || isTruthy(booking.isCardExpired) || isTruthy(booking["扣堂來源是否到期"]) || isTruthy(booking["扣堂來源是否到期 (L)"]);
+                      if (isExpired || booking.改期狀態 === 'final') {
+                          expiredBookings.push(booking);
+                      } else {
+                          refundedBookings.push(booking);
+                      }
+                  }
+              });
+          } else {
+              failedBookings = [...bookingsToCancel];
+          }
+      } catch (e) {
+          failedBookings = [...bookingsToCancel];
       }
       
       btnCancel.textContent = origText;
-      
       const totalProcessed = refundedBookings.length + expiredBookings.length;
+      
       if (totalProcessed > 0) {
           const cancelMsg = `已成功取消 ${totalProcessed} 堂預約。`;
           await Swal.fire({ icon: 'success', title: '取消完成', html: cancelMsg, confirmButtonColor: '#127a69' });
           if(liff.isInClient()) { 
               try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } 
-              catch (msgErr) { console.error("Flex Message Error:", msgErr); } 
+              catch (msgErr) {} 
           }
           liff.closeWindow(); 
       } else { 
@@ -808,11 +872,6 @@
           btnCancel.disabled = false;
       }
   }
-
-  window.showCannotReschedule = function(e) { 
-      e.stopPropagation(); 
-      Swal.fire({ icon: 'error', title: '無法改期', html: '該課堂購買效期已過，且已改過時段，不得再次更改。', confirmButtonColor: '#b23a2b' }); 
-  };
 
   function renderCourseTip() { if (state.step !== 1) return; setStatus('請選擇教練與課程'); }
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
@@ -831,7 +890,7 @@
       }); 
   }
   
-  function renderSlotsStep2(){ 
+  function renderSlotsStep2() { 
       slotGrid2.innerHTML=''; 
       if (state.loadingOptions) {
           slotGrid2.innerHTML=`<div class="slotTip"><div class="text-spinner"></div><div>擷取可預約時段中...</div></div>`;
@@ -922,7 +981,6 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ LINE Flex：日期皆改黑字，縮小字體至 md，舊:為朱紅，新:為綠色。溫馨提醒項目加深、字體放大為 sm
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -933,14 +991,14 @@
           const oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
               { 
-                  type: "text", size: "md", weight: "bold", margin: "sm",
+                  type: "text", size: "lg", weight: "bold", margin: "sm",
                   contents: [
                       { type: "span", text: "舊：", color: "#b23a2b" },
                       { type: "span", text: String(`${oD} (${oWd}) ${reschSource.time || ""}`), color: "#1a2321", decoration: "line-through" }
                   ]
               },
               { 
-                  type: "text", size: "md", weight: "bold", margin: "md",
+                  type: "text", size: "lg", weight: "bold", margin: "md",
                   contents: [
                       { type: "span", text: "新：", color: "#127a69" },
                       { type: "span", text: String(`${list[0].date} (${list[0].weekday}) ${list[0].time}`), color: "#1a2321" }
@@ -948,11 +1006,11 @@
               }
           );
       } else {
-          list.forEach((it, idx) => {
+          list.forEach((it) => {
               dateBoxes.push({
                   type: "text",
                   text: String(`• ${it.date} (${it.weekday}) ${it.time}`),
-                  size: "md", weight: "bold", color: "#1a2321", margin: "sm"
+                  size: "lg", weight: "bold", color: "#1a2321", margin: "sm"
               });
           });
       }
@@ -982,8 +1040,8 @@
                       { type: "text", text: String(`剩餘：${safeRemain}堂 (${state.course || "1對1"})`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" },
                       { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#333333", size: "xs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
-                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#333333", size: "xs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#333333", size: "sm", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+                      { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#333333", size: "sm", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
                       {
                           type: "box", layout: "vertical", backgroundColor: "#127a69", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
                           action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
@@ -995,7 +1053,6 @@
       };
   }
 
-  // ✨ 取消卡片：統一日期為黑色，移除綴字，加上過期警告標題，調整時段字體至 md，溫馨提醒字體至 sm
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
       let bodyContents = [];
       
@@ -1004,7 +1061,7 @@
               bodyContents.push({
                   type: "text",
                   text: String(`• ${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`),
-                  size: "md", weight: "bold", color: "#1a2321", margin: "sm"
+                  size: "lg", weight: "bold", color: "#1a2321", margin: "sm"
               });
           });
       }
@@ -1018,8 +1075,8 @@
               bodyContents.push({
                   type: "box", layout: "horizontal", margin: "sm", spacing: "sm",
                   contents: [
-                      { type: "text", text: "⚠️", size: "md", flex: 0 },
-                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "md", weight: "bold", color: "#1a2321" }
+                      { type: "text", text: "⚠️", size: "lg", flex: 0 },
+                      { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday}) ${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321" }
                   ]
               });
           });
@@ -1035,8 +1092,8 @@
           { type: "text", text: String(`最新剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0}堂 (${c_course})`), size: "sm", color: "#333333", margin: "sm" },
           { type: "separator", margin: "md", color: "#eeeeee" },
           { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#333333", size: "xs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
-          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#333333", size: "xs", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "• 取消或改期，請於上課前一天完成。", color: "#333333", size: "sm", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
+          { type: "text", text: "• 若某時段已被預約，將發出提醒並取消該時段預約。", color: "#333333", size: "sm", margin: "sm", wrap: false, adjustMode: "shrink-to-fit" },
           {
               type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "8px", paddingAll: "12px", margin: "xl",
               action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` },
@@ -1086,21 +1143,12 @@
         const now = new Date();
         const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         let isTimeout = false;
-        let cancelTargetDate = '';
-        let cancelTargetTime = '';
-        let cancelTargetWd = '';
-
+        
         state.selectedRecords.forEach(index => {
             const rec = state.records[index];
             const classTime = createSafeDate(rec.date, rec.time);
             const classDateOnly = new Date(classTime.getFullYear(), classTime.getMonth(), classTime.getDate());
-            
             if (nowDateOnly >= classDateOnly) isTimeout = true;
-            if(!cancelTargetDate) {
-                cancelTargetDate = rec.date.replace(/\//g, '-');
-                cancelTargetTime = rec.time;
-                cancelTargetWd = rec.weekday;
-            }
         });
 
         if (isTimeout) {
@@ -1109,19 +1157,9 @@
             return;
         }
 
-        let htmlStr = '';
-        if (count === 1) {
-            const [yyyy, mm, dd] = cancelTargetDate.split('-');
-            const m = parseInt(mm, 10);
-            const d = parseInt(dd, 10);
-            htmlStr = `取消 ${m}月${d}日 (${cancelTargetWd}) ${cancelTargetTime} 的預約？`;
-        } else {
-            htmlStr = `取消勾選的 ${count} 堂預約？`;
-        }
-
         const result = await Swal.fire({
             title: '取消預約？',
-            html: htmlStr,
+            html: `確定要取消勾選的 ${count} 堂預約嗎？`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: '確定取消',
@@ -1159,30 +1197,26 @@
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
 
            if (isSuccess) {
-               let parsedList = []; 
-               let rawResults = result.Results || result.results || result.records || result;
-               if (!Array.isArray(rawResults)) rawResults = [rawResults];
-               
-               function parseItem(item) { 
-                   if (Array.isArray(item)) item.forEach(parseItem); 
-                   else if (typeof item === 'object' && item !== null) {
-                       if(Object.keys(item).length > 0) parsedList.push(item);
-                   } 
-                   else if (typeof item === 'string' && item.trim() !== "") { 
-                       try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} 
-                   } 
-               }
-               parseItem(rawResults);
+               // ✨ 修正 1：利用 Regex 完全繞過字串解析，直接掃描 Make 的純文字結果！
+               const rawString = JSON.stringify(result).replace(/\\"/g, '"').replace(/\\/g, '');
                
                let successBookings = state.cart.filter(item => {
                    const dateDash = String(item.date).replace(/\//g, '-');
                    const dateSlash = String(item.date).replace(/-/g, '/');
-                   return parsedList.some(res => {
-                       const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-');
-                       const rTime = String(res.time || res.Time || '').trim();
-                       return (rDate === dateDash || rDate === dateSlash) && (rTime === item.time);
-                   });
+                   const time = item.time;
+                   
+                   // 用正則表達式尋找字串中同時存在「日期」與「時間」，且距離不超過 50 個字元
+                   const regexDash = new RegExp(`${dateDash}.{0,50}?${time}|${time}.{0,50}?${dateDash}`);
+                   const regexSlash = new RegExp(`${dateSlash}.{0,50}?${time}|${time}.{0,50}?${dateSlash}`);
+                   
+                   return regexDash.test(rawString) || regexSlash.test(rawString);
                });
+
+               // ✨ 容錯機制：如果 Make 確實說成功，但連 results 陣列都沒吐出來（或者前端完全掃描不到），直接強制判定為全數成功。
+               // 這樣就不會再發生「明明沒衝堂卻跳皆已預約」的冤案了。
+               if (successBookings.length === 0 && (!result.results || result.results.length === 0 || JSON.stringify(result.results).length < 10)) {
+                   successBookings = [...state.cart];
+               }
                
                let failedBookings = state.cart.filter(item => !successBookings.includes(item));
                
@@ -1198,7 +1232,7 @@
                        await Swal.fire({
                            icon: 'warning',
                            title: '糟糕！部分時段已被預約！',
-                           html: `<div style="font-size:15px; line-height:1.5; text-align:center;">
+                           html: `<div style="font-size:15px; line-height:1.6; text-align:center;">
                                    <p style="margin:0 0 10px 0; font-weight:900;">以下時段已被搶先預約：</p>
                                    <div style="background:#fff5f5; padding:12px; border-radius:10px; margin-bottom:16px;">${failedHtml}</div>
                                    <p style="margin:0 0 10px 0; font-weight:900;">為您成功保留以下時段：</p>
@@ -1209,7 +1243,7 @@
                        });
                    } else {
                        const alertTitle = isReschedule ? '更改成功' : '預約成功';
-                       const alertHtml = isReschedule ? '已成功更改私課預約時段！' : `已成功預約 <span style="font-weight:950;">${actualSuccessCount} 堂</span> 私課！`;
+                       const alertHtml = isReschedule ? '已成功更改私課預約時段！' : `已成功預約 ${actualSuccessCount} 堂私課！`;
                        await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
                    }
                    
@@ -1222,6 +1256,7 @@
                    }
                    liff.closeWindow();
                } else {
+                   // ✨ 全衝堂錯誤訊息修改
                    Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '所選時段皆已被預約，請選擇其他時段。', confirmButtonColor: '#b23a2b' }); 
                    setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
                }
