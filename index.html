@@ -126,7 +126,6 @@
     .btnDanger { background: var(--danger); color: #fff; }
     .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
     
-    /* ✨ 新增與調整 Spinner 動畫 */
     .btn-spinner {
         display: inline-block; width: 16px; height: 16px;
         border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
@@ -178,7 +177,6 @@
       box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15);
     }
 
-    /* ✨ 名片全新設計：左側放大方圖，右側名字與單行 Tag */
     .premium-trainer-card {
       background: linear-gradient(145deg, #e5ede8, #d4ded8);
       border: none;
@@ -237,7 +235,6 @@
       margin: 0;
     }
     
-    /* 專長設定為單行不換行，支援左右滑動 */
     .premium-tags-container {
       display: flex;
       flex-wrap: nowrap;
@@ -249,7 +246,6 @@
     }
     .premium-tags-container::-webkit-scrollbar { display: none; }
     
-    /* 改用白底的 Tag 樣式 */
     .premium-tags-container .tag {
       background: #fff;
       color: var(--text);
@@ -262,7 +258,6 @@
       border-radius: 999px;
     }
 
-    /* ✨ Swal2 彈出視窗：字體大小統一還原並嚴格置中 */
     .swal2-popup { width: 310px !important; padding: 24px 20px !important; border-radius: 20px !important; }
     .swal2-title { font-size: 20px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; text-align: center !important; justify-content: center !important; }
     .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.5 !important; text-align: center !important; justify-content: center !important; white-space: normal !important; word-break: break-word !important; }
@@ -493,7 +488,7 @@
   function setStatus(msg, isError=false){ status.classList.toggle('statusError', !!isError); status.innerHTML = msg || ''; }
 
   function updateStatusInStep2() {
-      if(state.loadingOptions) return; // Loading 時交給 renderSlotsStep2 處理畫面
+      if(state.loadingOptions) return;
       else if(state.cart.length > 0) setStatus(`已選擇 ${state.cart.length} 堂課`);
       else if(!hasAnySlots()) setStatus('目前沒有可預約的時段', true);
       else if(state.dateKey) setStatus(`已選日期：${state.dateKey}`);
@@ -543,7 +538,6 @@
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); 
           const now = new Date(); 
-          // ✨ 防呆邏輯更新：只要現在「日期」小於上課「日期」就可以取消
           const classDateOnly = new Date(classTime.getFullYear(), classTime.getMonth(), classTime.getDate());
           const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const canCancel = nowDateOnly < classDateOnly;
@@ -593,7 +587,6 @@
           const r = state.records[originalIndex]; 
           const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
           if (isExpired) {
-              // ✨ 修正無法返還堂數防呆視窗：大字無法返還堂數，小字精準且置中
               Swal.fire({
                   title: '無法返還堂數', 
                   html: '<div style="white-space: nowrap;">此堂購買效期已過，取消將不予返還堂數。</div>', 
@@ -621,10 +614,8 @@
       
       let htmlText = '';
       if (isExpired) {
-          // ✨ 針對過期的改期防呆視窗 (文字斷行並強制置中)
           htmlText = `<div style="white-space: nowrap;">此堂購買效期已過，僅供更改時段乙次。</div><div style="white-space: nowrap;">確定要更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</div>`;
       } else {
-          // ✨ 針對未過期的改期防呆視窗，統一單行不換行
           htmlText = `<div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</div>`;
       }
       
@@ -676,7 +667,6 @@
           const oldTime = state.rescheduleSource.time;
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => {
               const newDateFmt = String(item.date).replace(/\//g, '-'); const newWd = weekdayZhFromDateKey(item.date); const newTime = item.time;
-              // ✨ 修正改期時版面，縮排 margin-left: 36px 完美對齊日期年份
               html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;">
                 <div style="display:flex; justify-content: space-between; width: 100%; align-items: center;">
                   <div style="display:flex; flex-direction: column; gap: 6px; flex: 1;">
@@ -774,7 +764,6 @@
       const count = state.selectedRecords.size; if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} 堂)`; btnCancelBatch.disabled = false; } else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; }
   }
 
-  // ✨ 改期與取消時，同步變更按鈕狀態顯示動畫
   async function executeBatchCancel() {
       const btnCancel = document.getElementById('btnCancelBatch');
       const origText = btnCancel.textContent;
@@ -790,7 +779,7 @@
               const payload = { 
                   action: "doCancel", 
                   userId: state.uid, 
-                  course: getCourseName(booking.course, booking.people), // 確保 {{1.course}} 可被 Make 抓取
+                  course: getCourseName(booking.course, booking.people),
                   bookings: [booking],
                   oldDate: booking.date,
                   oldTime: booking.time,
@@ -856,7 +845,6 @@
   
   function renderSlotsStep2(){ 
       slotGrid2.innerHTML=''; 
-      // ✨ 加入 Loading 狀態的專屬動畫與提示
       if (state.loadingOptions) {
           slotGrid2.innerHTML=`<div class="slotTip" style="flex-direction: column;"><div class="text-spinner"></div><div>擷取可預約時段中...</div></div>`;
           return;
@@ -946,7 +934,6 @@
       } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
   }
 
-  // ✨ LINE Flex：日期皆改黑字，舊:為朱紅，新:為綠色。溫馨提醒項目加深
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
       const modeStr = isReschedule ? "私課更改時段成功" : "私課預約成功";
       const headerColor = "#127a69"; 
@@ -1019,7 +1006,6 @@
       };
   }
 
-  // ✨ 取消卡片：統一日期為黑色，移除多餘 Emoji，完美對齊預約格式
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
       let bodyContents = [];
       
@@ -1156,7 +1142,6 @@
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
-        // ✨ 改期與預約皆呈現 Spinner 處理中狀態
         btnNext.disabled=true; 
         btnNext.innerHTML='<span class="btn-spinner"></span>處理中...'; 
         setStatus("正在送出預約...");
@@ -1184,14 +1169,16 @@
                
                function parseItem(item) { 
                    if (Array.isArray(item)) item.forEach(parseItem); 
-                   else if (typeof item === 'object' && item !== null) parsedList.push(item); 
-                   else if (typeof item === 'string') { 
+                   else if (typeof item === 'object' && item !== null) {
+                       if(Object.keys(item).length > 0) parsedList.push(item);
+                   } 
+                   else if (typeof item === 'string' && item.trim() !== "") { 
                        try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} 
                    } 
                }
                parseItem(rawResults);
                
-               // ✨ 重點修正區：比對成功名單，容錯斜線與橫槓
+               // ✨ 完全拔除舊版容錯：嚴格比對 Make 傳回來的有效資料
                let successBookings = state.cart.filter(item => {
                    const dateDash = String(item.date).replace(/\//g, '-');
                    const dateSlash = String(item.date).replace(/-/g, '/');
@@ -1201,21 +1188,15 @@
                        return (rDate === dateDash || rDate === dateSlash) && (rTime === item.time);
                    });
                });
-
-               // 極端情況容錯：Make沒吐results但判斷成功，當作全成功
-               if (successBookings.length === 0 && parsedList.length === 0) {
-                   successBookings = [...state.cart];
-               }
                
-               // 將不在成功名單的抽出來當作失敗名單
                let failedBookings = state.cart.filter(item => !successBookings.includes(item));
                
                const actualSuccessCount = successBookings.length;
                const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--";
-               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : 0;
+               state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : state.remainingCredits;
                
+               // 只要成功筆數 > 0，就視為成功（全部成功 or 部分成功）
                if (actualSuccessCount > 0) {
-                   // ✨ 如果有失敗的，跳出你要求的「部分成功防呆視窗」
                    if (failedBookings.length > 0) {
                        let failedHtml = failedBookings.map(b => `<div style="color:var(--danger); font-weight:950; text-align:center;">• ${b.date} ${b.time}</div>`).join('');
                        let successHtml = successBookings.map(b => `<div style="color:var(--primary); font-weight:950; text-align:center;">• ${b.date} ${b.time}</div>`).join('');
@@ -1233,7 +1214,6 @@
                            confirmButtonColor: '#127a69'
                        });
                    } else {
-                       // 全部成功
                        const alertTitle = isReschedule ? '更改成功' : '預約成功';
                        const alertHtml = isReschedule ? '<div style="white-space: nowrap;">已成功更改私課預約時段！</div>' : `<div style="white-space: nowrap;">已成功安排您的預約。</div>`;
                        await Swal.fire({ icon: 'success', title: alertTitle, html: alertHtml, confirmButtonColor: '#127a69' });
@@ -1241,7 +1221,6 @@
                    
                    if(liff.isInClient()) {
                        try { 
-                           // ✨ 重點修正區：送出給 LINE 的陣列只傳 successBookings
                            const successListForFlex = successBookings.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) }));
                            const flexObj = createSuccessFlexMessage(actualSuccessCount, actualRemain, successListForFlex, isReschedule, state.rescheduleSource);
                            await liff.sendMessages([flexObj]); 
@@ -1249,7 +1228,8 @@
                    }
                    liff.closeWindow();
                } else {
-                   Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '<div style="white-space: nowrap;">所有時段已被預約，請選擇其他時段。</div>', confirmButtonColor: '#b23a2b' }); 
+                   // 🚨 修正：當 successBookings 長度為 0 時，代表一筆都沒有成功比對到，直接跳失敗！
+                   Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '<div style="white-space: nowrap;">所有時段皆已被預約，請選擇其他時段。</div>', confirmButtonColor: '#b23a2b' }); 
                    setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
                }
            } else { 
