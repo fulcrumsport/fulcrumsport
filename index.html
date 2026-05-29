@@ -79,7 +79,6 @@
     .tab.active { color: var(--text); }
     .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: var(--primary); border-radius: 999px; }
     
-    /* ✨ 修正：縮減時段選擇版面，最大高度限制為 80px (完美顯示兩排) */
     .slotGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 80px; overflow-y: auto; padding-right: 4px; align-content: start; }
     .slot { padding: 7px 0; border-radius: 999px; background: #eef2f1; font-weight: 950; font-size: 13px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; height: 32px; display: flex; align-items: center; justify-content: center; }
     .slot.sel { background: var(--selBg); color: var(--selText); border-color: rgba(18,122,105,.35); box-shadow: 0 0 0 2px rgba(18,122,105,.1) inset; }
@@ -178,7 +177,6 @@
       box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15);
     }
 
-    /* ✨ 修正：名片加長、名字職稱置中、專長自動縮小且不斷行 */
     .premium-trainer-card {
       background: linear-gradient(145deg, #e5ede8, #d4ded8);
       border: none;
@@ -211,7 +209,7 @@
     .premium-meta-block {
       display: flex;
       flex-direction: column;
-      align-items: center; /* 水平置中 */
+      align-items: center;
       justify-content: center;
       flex: 1;
       min-width: 0;
@@ -235,7 +233,7 @@
     }
     .premium-tags-container {
       display: flex;
-      flex-wrap: nowrap; /* 不換行 */
+      flex-wrap: nowrap;
       justify-content: center;
       gap: 4px;
       margin-top: 6px;
@@ -247,13 +245,12 @@
       color: var(--text);
       border: 1px solid rgba(0,0,0,0.05);
       font-weight: 900;
-      font-size: 10px; /* 縮小字體以塞入單行 */
+      font-size: 10px;
       white-space: nowrap;
       padding: 2px 6px;
       border-radius: 999px;
     }
 
-    /* ✨ 修正：Swal2 彈出視窗加寬 (350px)，保證小字舒適且置中 */
     .swal2-popup { width: 350px !important; padding: 24px 20px !important; border-radius: 20px !important; }
     .swal2-title { font-size: 20px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; text-align: center !important; justify-content: center !important; }
     .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.6 !important; text-align: center !important; justify-content: center !important; white-space: normal !important; word-break: break-word !important; }
@@ -396,7 +393,6 @@
   const MAKE_BOOKING_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
   const MAKE_QUERY_WEBHOOK_URL = 'https://hook.us2.make.com/v1p3s5or4opbvh5s7yxbvcw277xjizq7'; 
 
-  // ✨ 教練 B 資料更新
   const COACHES = [
     { 
       id:'coachA', 
@@ -761,7 +757,6 @@
       const count = state.selectedRecords.size; if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} 堂)`; btnCancelBatch.disabled = false; } else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; }
   }
 
-  /* ✨ 修正：單一 Payload 批次發送取消預約請求 */
   async function executeBatchCancel() {
       const btnCancel = document.getElementById('btnCancelBatch');
       const origText = btnCancel.textContent;
@@ -958,6 +953,7 @@
       if(nextWeek) nextWeek.onclick = () => { const limit = getLimitDate(); if (addDays(state.weekStart, 7) <= limit) { state.weekStart = addDays(state.weekStart, 7); renderWeekStrip(); renderSlotsStep2(); } };
   }
 
+  // ✨ 修正 2：終極相容 Make 所有資料陣列命名 (包含 options)
   async function loadMyRecords() {
       state.mode = 'record';
       stepBar.classList.add('hide'); card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
@@ -968,8 +964,12 @@
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "getRecords", userId: state.uid }) });
           const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}');
           let data = JSON.parse(safeText);
-          if (typeof data.records === 'string') { try { data.records = JSON.parse(data.records); } catch(e){} }
-          state.records = data.records || [];
+          
+          // 抓取 Make 的各種陣列名稱
+          let arr = data.records || data.options || data.results || data.Records || [];
+          if (typeof arr === 'string') { try { arr = JSON.parse(arr); } catch(e){} }
+          state.records = arr;
+          
           state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           
           const remain = data["Remaining credits"] ?? data.remainingCredits;
@@ -978,7 +978,11 @@
           if(data.credits_1on2 !== undefined) state.credits_1on2 = data.credits_1on2;
           if(data.credits_group !== undefined) state.credits_group = data.credits_group;
           renderRecordList(); updateRecordBtns(); setStatus("");
-      } catch(e) { recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; setStatus(""); }
+      } catch(e) { 
+          console.error(e);
+          recordList.innerHTML = '<div style="text-align:center; padding:20px; color:var(--danger);">讀取失敗，請稍後再試</div>'; 
+          setStatus(""); 
+      }
   }
 
   function createSuccessFlexMessage(count, remain, list, isReschedule, reschSource) {
@@ -1197,7 +1201,21 @@
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
 
            if (isSuccess) {
-               // ✨ 修正 1：利用 Regex 完全繞過字串解析，直接掃描 Make 的純文字結果！
+               let parsedList = []; 
+               let rawResults = result.Results || result.results || result.records || result;
+               if (!Array.isArray(rawResults)) rawResults = [rawResults];
+               
+               function parseItem(item) { 
+                   if (Array.isArray(item)) item.forEach(parseItem); 
+                   else if (typeof item === 'object' && item !== null) {
+                       if(Object.keys(item).length > 0) parsedList.push(item);
+                   } 
+                   else if (typeof item === 'string' && item.trim() !== "") { 
+                       try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} 
+                   } 
+               }
+               parseItem(rawResults);
+               
                const rawString = JSON.stringify(result).replace(/\\"/g, '"').replace(/\\/g, '');
                
                let successBookings = state.cart.filter(item => {
@@ -1205,15 +1223,12 @@
                    const dateSlash = String(item.date).replace(/-/g, '/');
                    const time = item.time;
                    
-                   // 用正則表達式尋找字串中同時存在「日期」與「時間」，且距離不超過 50 個字元
                    const regexDash = new RegExp(`${dateDash}.{0,50}?${time}|${time}.{0,50}?${dateDash}`);
                    const regexSlash = new RegExp(`${dateSlash}.{0,50}?${time}|${time}.{0,50}?${dateSlash}`);
                    
                    return regexDash.test(rawString) || regexSlash.test(rawString);
                });
 
-               // ✨ 容錯機制：如果 Make 確實說成功，但連 results 陣列都沒吐出來（或者前端完全掃描不到），直接強制判定為全數成功。
-               // 這樣就不會再發生「明明沒衝堂卻跳皆已預約」的冤案了。
                if (successBookings.length === 0 && (!result.results || result.results.length === 0 || JSON.stringify(result.results).length < 10)) {
                    successBookings = [...state.cart];
                }
@@ -1256,7 +1271,6 @@
                    }
                    liff.closeWindow();
                } else {
-                   // ✨ 全衝堂錯誤訊息修改
                    Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '所選時段皆已被預約，請選擇其他時段。', confirmButtonColor: '#b23a2b' }); 
                    setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出";
                }
