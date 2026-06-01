@@ -112,7 +112,7 @@
     /* ✨ 修正 1：名片 CSS 優化 - 填滿照片並放大字體 */
     #trainerCardWrap { margin-top: 16px; margin-left: -8px; margin-right: -8px; width: calc(100% + 16px); flex: 0 0 auto; }
     .premium-trainer-card { background: linear-gradient(145deg, #e5ede8, #d4ded8); border: none; box-shadow: 6px 6px 16px rgba(18, 122, 105, 0.08), -6px -6px 16px rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 0; display: flex; flex-direction: row; align-items: stretch; width: 100%; min-height: 110px; overflow: hidden; }
-    .premium-avatar-frame { width: 135px; height: 100%; border-radius: 0; border: none; background: #fff; flex-shrink: 0; overflow: hidden; }
+    .premium-avatar-frame { width: 150px; height: 100%; border-radius: 0; border: none; background: #fff; flex-shrink: 0; overflow: hidden; }
     .premium-avatar-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
     .premium-meta-block { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 8px 12px 8px 15px; text-align: center; }
     .premium-name { font-size: 24px; font-weight: 950; color: var(--text); letter-spacing: 1px; line-height: 1.1; margin: 0 0 4px 0; }
@@ -487,7 +487,7 @@
           const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); let data = JSON.parse(safeText);
           let arr = data.records || data.options || data.results || data.Records || [];
           if (typeof arr === 'string') { try { arr = JSON.parse(arr); } catch(e){} }
-          state.records = arr;
+          state.records = arr.filter(r => r && r.date && String(r.date).trim() !== '');
           state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           const remain = data["Remaining credits"] ?? data.remainingCredits;
           if(remain !== undefined) state.recordRemaining = remain;
