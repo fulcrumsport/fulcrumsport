@@ -306,7 +306,7 @@
 
   function renderRecordList() {
       if (state.isLoadingRecords) {
-        recordList.innerHTML = '<div style="text-align:center; padding:40px; color:#111; font-weight:900;"><div class="text-spinner"></div>讀取中...</div>';
+        recordList.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; gap:8px; padding:40px; color:#111; font-weight:900;"><div class="text-spinner"></div>讀取中...</div>';
         $('#myRecordCount').textContent = '讀取中...';
         return;
       }
