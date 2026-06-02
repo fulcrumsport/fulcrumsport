@@ -545,7 +545,6 @@
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
       let bodyContents = [];
       refunded.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "•", size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 } ] }); });
-      }
       if (expired.length > 0) {
           if (refunded.length > 0) bodyContents.push({ type: "separator", margin: "md", color: "#eeeeee" });
           bodyContents.push({ type: "text", text: "過期不予退還：", size: "sm", color: "#b23a2b", weight: "bold", margin: "md" });
