@@ -435,8 +435,8 @@
               bookingsToCancel.forEach(booking => {
                   const dateDash = String(booking.date).replace(/\//g, '-'), dateSlash = String(booking.date).replace(/-/g, '/');
                   const match = parsedList.find(res => { const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-'), rTime = String(res.time || res.Time || '').trim(); return (rDate === dateDash || rDate === dateSlash) && (rTime === booking.time); });
-                  if (match) { const mStatus = match.Status || match.status || currentStatus; const mMsg = match.Message || match.message || msg; if (mStatus === 'expired' || mMsg.includes('不予退還') || mMsg.includes('過期') || booking.改期狀態 === 'final') { expiredBookings.push(booking); } else { refundedBookings.push(booking); }
-                  } else { const isExpired = isTruthy(booking.isExpired) || isTruthy(booking.isCardExpired) || isTruthy(booking["扣堂來源是否到期"]) || isTruthy(booking["扣堂來源是否到期 (L)"]); if (isExpired || booking.改期狀態 === 'final') { expiredBookings.push(booking); } else { refundedBookings.push(booking); } }
+                 if (match) { const mStatus = match.Status || match.status || currentStatus; const mMsg = match.Message || match.message || msg; if (mStatus === 'expired' || mMsg.includes('不予退還') || mMsg.includes('過期')) { expiredBookings.push(booking); } else { refundedBookings.push(booking); }
+        } else { const isExpired = isTruthy(booking.isExpired) || isTruthy(booking.isCardExpired) || isTruthy(booking["扣堂來源是否到期"]) || isTruthy(booking["扣堂來源是否到期 (L)"]); if (isExpired) { expiredBookings.push(booking); } else { refundedBookings.push(booking); } }
               });
           } else { failedBookings = [...bookingsToCancel]; }
       } catch (e) { failedBookings = [...bookingsToCancel]; }
