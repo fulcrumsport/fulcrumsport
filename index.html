@@ -281,7 +281,21 @@
   function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
   function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
   function weekStartMonday(d){const x=startOfDay(d),day=x.getDay();return addDays(x,day===0?-6:1-day);}
-  function monthYearLabel(ws){return `${ws.getMonth()+1}月 ${ws.getFullYear()}`;}
+  function monthYearLabel(ws) {
+  const we = addDays(ws, 6); 
+  const startYear = ws.getFullYear();
+  const startMonth = ws.getMonth() + 1;
+  const endYear = we.getFullYear();
+  const endMonth = we.getMonth() + 1;
+
+  if (startYear !== endYear) {
+    return `${startMonth}月 ${startYear} - ${endMonth}月 ${endYear}`;
+  } else if (startMonth !== endMonth) {
+    return `${startMonth}月-${endMonth}月 ${startYear}`;
+  } else {
+    return `${startMonth}月 ${startYear}`;
+  }
+}
   function dowLabel(idx){return ['一','二','三','四','五','六','日'][idx]||'';}
   function weekdayZhFromDateKey(k){return k?['日','一','二','三','四','五','六'][new Date(String(k).replace(/-/g,'/')).getDay()]||'':'';}
   function getLimitDate(){const d=new Date();d.setMonth(d.getMonth()+2,0);d.setHours(23,59,59,999);return d;}
