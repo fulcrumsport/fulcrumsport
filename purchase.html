@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>支點運動空間｜購買堂數</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root { --bg: #ffffff; --card: #ffffff; --text: #2b2e22; --muted: #7c8168; --primary: #63732e; --radius: 22px; --danger: #b23a2b; --selBg: #eef2e0; --selText: #46521c; --border: rgba(99,115,46,0.22); --shadow: 0 6px 18px rgba(70,82,30,0.10); --onBg: #4d5531; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { height: 100dvh; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
+    .top { padding: 12px 16px 6px; padding-top: calc(12px + var(--safeT)); flex: 0 0 auto; }
+    .titleWrap { min-width: 0; flex: 1; }
+    .pageTitle { font-size: 19px; font-weight: 950; color: var(--text); margin: 0; line-height: 1.25; }
+    .greeting { font-size: 17px; font-weight: 900; color: #111310; margin-top: 7px; }
+    .main { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 14px 12px; display: flex; flex-direction: column; min-height: 0; gap: 12px; }
+    .card { flex: 0 0 auto; display: flex; flex-direction: column; width: 100%; gap: 12px; }
+    .sec { flex: 0 0 auto; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 18px; }
+    .secTitle { font-weight: 950; font-size: 17px; color: var(--text); margin: 14px 0 9px; display: flex; align-items: center; gap: 9px; }
+    .secTitle:first-child { margin-top: 2px; }
+    .secNum { width: 24px; height: 24px; border-radius: 999px; background: var(--primary); color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .catGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .catCard { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 9px; padding: 14px 8px; border-radius: 15px; background: #fff; border: 2px solid var(--border); cursor: pointer; transition: all 0.15s; user-select: none; }
+    .catCard.sel { border-color: var(--primary); background: var(--selBg); }
+    .catIconWrap { width: 34px; height: 34px; border-radius: 999px; background: var(--selBg); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 950; color: var(--primary); letter-spacing: -0.5px; line-height: 1; flex: 0 0 auto; transition: all 0.15s; }
+    .catCard.sel .catIconWrap { background: var(--primary); color: #fff; }
+    .catName { font-weight: 950; font-size: 17px; color: var(--text); }
+    .catCard.sel .catName { color: var(--selText); }
+    .planList { display: flex; flex-direction: column; gap: 11px; }
+    .planCard { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-radius: 18px; background: #fff; border: 2px solid var(--border); cursor: pointer; transition: all 0.15s; user-select: none; }
+    .planCard.sel { border-color: var(--primary); background: var(--selBg); box-shadow: 0 0 0 2px rgba(99,115,46,.1) inset; }
+    .planLeft { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .planName { font-weight: 950; font-size: 20px; color: var(--text); display: flex; align-items: center; }
+    .planAvg { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .planPrice { font-weight: 950; font-size: 19px; color: var(--primary); white-space: nowrap; flex: 0 0 auto; }
+    .planBadge { font-size: 11px; font-weight: 900; color: #fff; background: var(--danger); border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
+    .payRow { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .payChip { padding: 16px 6px; border-radius: 18px; background: #edf0e4; font-weight: 950; font-size: 17px; cursor: pointer; border: 2px solid transparent; text-align: center; transition: all 0.15s; user-select: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .payChip.sel { background: var(--selBg); border-color: var(--primary); color: var(--selText); }
+    .paySub { font-size: 12px; font-weight: 800; color: var(--muted); }
+    .payChip.sel .paySub { color: var(--selText); }
+    .last5Box { margin-top: 14px; }
+    .last5Label { font-size: 14px; font-weight: 900; color: var(--text); margin-bottom: 7px; }
+    .last5Input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid var(--border); font-size: 24px; font-weight: 900; letter-spacing: 8px; text-align: center; color: var(--text); outline: none; transition: border-color 0.15s; }
+    .last5Input:focus { border-color: var(--primary); }
+    .last5Tip { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 7px; line-height: 1.55; }
+    .bankBox { margin-top: 10px; background: #f5f7ee; border: 1px dashed rgba(99,115,46,0.35); border-radius: 16px; padding: 14px; font-size: 14px; font-weight: 800; color: var(--text); display: flex; flex-direction: column; gap: 10px; }
+    .bankBox .bankRow { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .bankBox .bankInfo { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .bankBox .bankKey { font-size: 12px; font-weight: 800; color: var(--muted); }
+    .bankBox .bankVal { color: var(--text); font-weight: 950; font-size: 17px; word-break: break-all; }
+    .bankBox .bankVal.acct { color: var(--primary); letter-spacing: 0.5px; }
+    .copyBtn { flex: 0 0 auto; background: var(--primary); color: #fff; border: 0; border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 900; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+    .copyBtn:active { transform: scale(0.94); }
+    .copyToast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(12px); background: rgba(44,38,33,0.94); color: #fff; font-size: 14px; font-weight: 900; padding: 11px 20px; border-radius: 999px; opacity: 0; pointer-events: none; transition: all 0.22s; z-index: 100; box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+    .copyToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hint { font-size: 14px; font-weight: 800; color: var(--muted); text-align: center; padding: 22px 8px; line-height: 1.6; }
+    .topRow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .navPill { flex: 0 0 auto; background: #fff; border: 1.5px solid var(--border); color: var(--primary); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 950; cursor: pointer; box-shadow: 0 2px 8px rgba(70,82,30,0.06); transition: all 0.15s; margin-top: 5px; white-space: nowrap; }
+    .navPill:active { transform: scale(0.96); }
+    .recCount { font-size: 14px; font-weight: 900; color: var(--onBg); flex: 0 0 auto; margin: 0 0 2px 4px; }
+    .recordList { display: flex; flex-direction: column; gap: 12px; }
+    .recItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 16px; padding: 14px 16px; box-shadow: 0 3px 10px rgba(70,82,30,0.04); display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
+    .recItem.pending { border-left-color: #d98a3d; }
+    .recTop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .recId { font-size: 12.5px; font-weight: 900; color: var(--muted); letter-spacing: 0.3px; }
+    .recBadge { font-size: 12.5px; font-weight: 950; padding: 4px 12px; border-radius: 999px; flex: 0 0 auto; }
+    .recBadge.ok { background: var(--selBg); color: var(--primary); }
+    .recBadge.pending { background: #fbead6; color: #b06a2e; }
+    .recMid { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .recName { font-size: 18px; font-weight: 950; color: var(--text); }
+    .recAmount { font-size: 20px; font-weight: 950; color: var(--primary); flex: 0 0 auto; }
+    .recSub { font-size: 13px; font-weight: 800; color: var(--muted); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .refundLink { color: var(--primary); font-weight: 950; font-size: 13px; text-decoration: underline; cursor: pointer; white-space: nowrap; flex: 0 0 auto; }
+    .refundLink:active { opacity: 0.6; }
+    .recEmpty { text-align: center; color: var(--muted); font-weight: 800; padding: 44px 12px; line-height: 1.8; }
+    .agreeRow { display: flex; align-items: flex-start; gap: 9px; padding: 2px 4px 10px; }
+    .agreeRow input { width: 21px; height: 21px; margin: 1px 0 0; accent-color: var(--primary); flex: 0 0 auto; }
+    .agreeRow label { font-size: 13.5px; font-weight: 800; color: var(--text); line-height: 1.5; }
+    .agreeRow a { color: var(--primary); font-weight: 950; text-decoration: underline; cursor: pointer; }
+    .gate { position: fixed; inset: 0; background: rgba(44,38,33,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 18px; }
+    .gateCard { background: #fff; border-radius: 22px; max-width: 520px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.32); }
+    .gateHead { padding: 18px 20px 12px; font-size: 20px; font-weight: 950; color: var(--text); flex: 0 0 auto; border-bottom: 1px solid var(--border); }
+    .gateBody { padding: 4px 20px 16px; overflow-y: auto; flex: 1 1 auto; }
+    .gateFoot { padding: 12px 20px calc(14px + var(--safeB)); border-top: 1px solid var(--border); flex: 0 0 auto; }
+    .rules h4 { font-size: 16.5px; font-weight: 950; color: var(--primary); margin: 16px 0 7px; padding-left: 9px; border-left: 4px solid var(--primary); line-height: 1.3; }
+    .rules p { font-size: 13.5px; line-height: 1.7; color: #3a332b; font-weight: 600; margin: 4px 0; }
+    .rules ol, .rules ul { padding-left: 20px; margin: 4px 0; }
+    .rules li { font-size: 13.5px; line-height: 1.7; color: #3a332b; font-weight: 600; margin-bottom: 3px; }
+    .rules .refund { background: #fbe7dd; border: 1px solid rgba(99,115,46,0.35); border-radius: 12px; padding: 11px 14px; margin: 8px 0; font-size: 13.5px; line-height: 1.75; color: #3a332b; font-weight: 700; }
+    .rules .refund b { color: var(--danger); }
+    .rules .ver { text-align: center; color: #b5b0a6; font-size: 12px; margin-top: 14px; font-weight: 800; }
+    .footer { flex: 0 0 auto; padding: 8px 16px calc(10px + var(--safeB)); background: linear-gradient(0deg, var(--bg) 85%, rgba(255,255,255,0)); }
+    .summary { display: flex; align-items: baseline; justify-content: flex-end; gap: 10px; padding: 0 6px 8px; }
+    .sumLabel { font-size: 17px; font-weight: 950; color: var(--text); }
+    .sumAmount { font-size: 29px; font-weight: 950; color: var(--primary); }
+    .sumAmount small { font-size: 15px; font-weight: 900; }
+    .btn { width: 100%; border: 0; border-radius: 15px; padding: 13px 12px; font-size: 17px; font-weight: 950; cursor: pointer; box-shadow: 0 5px 14px rgba(99,115,46,0.16); transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+    .btn:active { transform: scale(0.98); }
+    .btnPrimary { background: var(--primary); color: #fff; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status { margin-top: 6px; font-size: 12px; color: var(--muted); text-align: center; font-weight: 800; min-height: 16px; line-height: 1.2; }
+    .statusError { color: var(--danger); font-weight: 900; }
+    .hide { display: none !important; }
+    .previewNav { position: fixed; bottom: calc(78px + var(--safeB)); left: 10px; z-index: 50; background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 900; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .swal2-popup { width: 350px !important; padding: 24px 20px !important; border-radius: 20px !important; }
+    .swal2-title { font-size: 20px !important; font-weight: 950 !important; color: #111 !important; margin: 0 !important; line-height: 1.4 !important; text-align: center !important; }
+    .swal2-html-container { font-size: 15px !important; font-weight: 600 !important; color: #444 !important; margin: 12px 0 0 0 !important; line-height: 1.6 !important; text-align: center !important; }
+    .swal2-actions { margin-top: 22px !important; gap: 12px !important; width: 100%; justify-content: center !important; }
+    .swal2-styled.swal2-confirm, .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; padding: 10px 24px !important; font-size: 15px !important; box-shadow: none !important; min-width: 100px !important; margin: 0 !important; }
+    .swal2-styled.swal2-confirm { background-color: var(--primary) !important; color: #fff !important; }
+    .swal2-styled.swal2-cancel { color: #111 !important; background: #f0ebe4 !important; }
+    .orderSummary { text-align: left !important; background: #f5f7ee; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.9; }
+    .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; }
+    .orderSummary .osKey { color: var(--muted); font-weight: 800; }
+    .orderSummary .osVal { color: var(--text); font-weight: 950; }
+    .orderSummary .osId { font-size: 12px; color: var(--primary); font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .swal2-html-container .rules { text-align: left !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="topRow">
+        <div class="titleWrap">
+          <h1 class="pageTitle" id="pageTitle">支點運動空間｜購買課程</h1>
+        </div>
+        <button class="navPill" id="navToggle" type="button">我的購買紀錄 ›</button>
+      </div>
+      <div class="greeting" id="greeting"></div>
+    </div>
+    <div class="main">
+      <div class="card" id="mainCard">
+        <div class="sec">
+          <div class="secTitle"><span class="secNum">1</span>選擇課程類別</div>
+          <div class="catGrid" id="catGrid"></div>
+        </div>
+        <div class="sec" id="planSec">
+          <div class="secTitle"><span class="secNum">2</span>選擇方案</div>
+          <div class="planList" id="planList">
+            <div class="hint">請先選擇上方類別</div>
+          </div>
+        </div>
+        <div class="sec hide" id="paySec">
+          <div class="secTitle"><span class="secNum">3</span>付款方式</div>
+          <div class="payRow" id="payRow"></div>
+          <div class="last5Box hide" id="last5Box">
+            <div class="last5Tip" style="margin:0 0 8px;">請匯款至以下<b>本館收款帳號</b>，完成後填寫末五碼供對帳：</div>
+            <div class="bankBox">
+              <div class="bankRow">
+                <div class="bankInfo"><div class="bankKey">銀行代碼</div><div class="bankVal" id="bankName">—</div></div>
+              </div>
+              <div class="bankRow">
+                <div class="bankInfo"><div class="bankKey">匯款帳號</div><div class="bankVal acct" id="bankAccount">—</div></div>
+                <button class="copyBtn" id="copyAcctBtn" type="button">📋 複製</button>
+              </div>
+            </div>
+            <div class="last5Label" style="margin-top:14px;">匯款帳號末五碼</div>
+            <input class="last5Input" id="last5Input" inputmode="numeric" maxlength="5" placeholder="＿＿＿＿＿" />
+            <div class="last5Tip" style="text-align:center;">訂單款項經核實後將會自動加入購買堂數。</div>
+          </div>
+        </div>
+      </div>
+      <div class="card hide" id="recordCard">
+        <div class="recCount" id="recCount"></div>
+        <div class="recordList" id="recordList">
+          <div class="hint">載入中…</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer" id="footer">
+      <div class="agreeRow">
+        <input type="checkbox" id="agreeChk" />
+        <label for="agreeChk">我已閱讀並同意 <a id="viewRules">購買規章</a></label>
+      </div>
+      <div class="summary">
+        <span class="sumLabel">應付金額</span>
+        <span class="sumAmount"><small>NT$ </small><span id="sumAmount">0</span></span>
+      </div>
+      <button class="btn btnPrimary" id="btnSubmit" disabled>送出訂單</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+  <div class="copyToast" id="copyToast">已複製</div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    /* ====== 需替換的設定（部署前填入） ====== */
+    const LIFF_ID = 'REPLACE_WITH_PURCHASE_LIFF_ID';                 // ← LINE Developers 另開的購買 LIFF ID
+    const MAKE_PURCHASE_WEBHOOK_URL = 'REPLACE_WITH_MAKE_WEBHOOK';   // ← 寫入「待核實訂單」的 Make webhook
+    const SERVICE = 'purchase';
+    const ENABLE_CARD = false;   // 預留刷卡，接金流後改 true
+
+    /* 匯款資訊（本館收款帳號，顯示於轉帳說明；部署前請填入正確資料） */
+    const BANK_INFO = { code: '（銀行代碼，例 013）', account: '（本館收款帳號）' };
+
+    /* 類別小圖示（線條 SVG，stroke=currentColor 隨主色/選中色變化） */
+    const SVG = (inner) => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+    const ICONS = {
+      pt1: SVG('<circle cx="12" cy="8" r="3.3"/><path d="M6 19c0-3.4 2.7-5.6 6-5.6s6 2.2 6 5.6"/>'),
+      pt2: SVG('<circle cx="8" cy="8.5" r="2.7"/><circle cx="16" cy="8.5" r="2.7"/><path d="M3.4 18.5c0-2.7 2-4.4 4.6-4.4s4.6 1.7 4.6 4.4"/><path d="M11.4 18.5c0-2.7 2-4.4 4.6-4.4s4.6 1.7 4.6 4.4"/>'),
+      class: SVG('<circle cx="12" cy="7.5" r="2.4"/><circle cx="5.5" cy="10.5" r="2"/><circle cx="18.5" cy="10.5" r="2"/><path d="M8.2 18c0-2.1 1.7-3.6 3.8-3.6s3.8 1.5 3.8 3.6"/><path d="M2.6 17.5c0-1.8 1.2-3 3-3"/><path d="M21.4 17.5c0-1.8-1.2-3-3-3"/>'),
+      group: SVG('<circle cx="7.5" cy="8" r="2.3"/><circle cx="16.5" cy="8" r="2.3"/><circle cx="7.5" cy="15.5" r="2.3"/><circle cx="16.5" cy="15.5" r="2.3"/>')
+    };
+
+    /* ====== 商品設定：類別 → 方案。credits=實加堂數；months=使用期限(月，單堂為0)；pool=對應試算表堂數欄位（需與 Sheet/Make 對齊） ====== */
+    const PRODUCTS = {
+      pt1: {
+        label: '1對1', param: 'pt1', pool: '1對1堂數', icon: ICONS.pt1, desc: '一對一教練',
+        plans: [
+          { id: 'p1_1',  label: '單堂',  credits: 1,  price: 1400,  months: 0 },
+          { id: 'p1_12', label: '12堂', credits: 12, price: 14400, months: 5 },
+          { id: 'p1_24', label: '24堂', credits: 24, price: 27600, months: 9 },
+          { id: 'p1_36', label: '36堂', credits: 36, price: 39600, months: 12 },
+        ]
+      },
+      pt2: {
+        label: '1對2', param: 'pt2', pool: '1對2堂數', icon: ICONS.pt2, desc: '兩人一起上',
+        plans: [
+          { id: 'p2_1',  label: '單堂',  credits: 1,  price: 1800,  months: 0 },
+          { id: 'p2_12', label: '12堂', credits: 12, price: 19200, months: 5 },
+          { id: 'p2_24', label: '24堂', credits: 24, price: 37200, months: 9 },
+          { id: 'p2_36', label: '36堂', credits: 36, price: 54000, months: 12 },
+        ]
+      },
+      class: {
+        label: '包班', param: 'class', pool: '包班堂數', icon: ICONS.class, desc: '3–6 人包班',
+        plans: [
+          { id: 'c1',  label: '單堂',  credits: 1,  price: 2000,  months: 0 },
+          { id: 'c12', label: '12堂', credits: 12, price: 21600, months: 5 },
+          { id: 'c24', label: '24堂', credits: 24, price: 42000, months: 9 },
+          { id: 'c36', label: '36堂', credits: 36, price: 61200, months: 12 },
+        ]
+      },
+      group: {
+        label: '團課', param: 'group', pool: '團課堂數', icon: ICONS.group, desc: '多人團課',
+        plans: [
+          { id: 'g1',  label: '單堂',  credits: 1,  price: 400,   months: 0 },
+          { id: 'g12', label: '12堂', credits: 12, price: 4200,  months: 5 },
+          { id: 'g24', label: '24堂', credits: 24, price: 7800,  months: 9 },
+          { id: 'g48', label: '48堂', credits: 48, price: 14400, months: 12 },
+        ]
+      },
+    };
+    const CAT_ORDER = ['pt1', 'pt2', 'class', 'group'];
+
+    /* ====== 購買規章 ====== */
+    const RULES_VERSION = '2026-07-07';
+    const PURCHASE_RULES_HTML =
+      '<div class="rules">' +
+        '<h4>一、堂數與使用期限</h4>' +
+        '<ol>' +
+          '<li>購買後依方案享有使用期限，逾期未使用之堂數即失效、不予保留：<ul>' +
+            '<li>12 堂：5 個月</li><li>24 堂：9 個月</li>' +
+            '<li>36 堂（私人課／包班）：12 個月</li><li>48 堂（團體課）：12 個月</li>' +
+          '</ul></li>' +
+          '<li>單堂方案僅供體驗或臨時上課使用，<b>不可延期、保留或轉讓</b>。</li>' +
+          '<li>私人課程與包班課程使用期限完全一致。</li>' +
+          '<li>所有贈送課程須於原課程期限內完成，逾期失效。</li>' +
+        '</ol>' +
+        '<h4>二、購買堂數與付款核實</h4>' +
+        '<ol>' +
+          '<li>於本頁送出「購買訂單」後，<b>尚不代表已完成購買</b>。</li>' +
+          '<li>須經教練核實款項後，購買堂數才會加入帳戶。</li>' +
+        '</ol>' +
+        '<h4>三、退費機制</h4>' +
+        '<div class="refund"><ol>' +
+          '<li>僅限<b>使用期限內、尚未使用的剩餘堂數</b>可申請退費；已使用或已逾期之堂數不予退費。</li>' +
+          '<li>退費金額以原方案<b>每堂購買均價</b>計算，並<b>加收 10% 手續費（即實退 90%）</b>。</li>' +
+          '<li>單堂體驗方案不適用退費。</li>' +
+          '<li>退費申請以<b>原購買訂單編號</b>為依據，請務必保留您的訂單編號。</li>' +
+        '</ol></div>' +
+        '<h4>四、請假規定</h4>' +
+        '<ol>' +
+          '<li>教練請假：將提前通知並安排補課，補課堂數不列入使用期限。</li>' +
+          '<li>學員請假，請於下列時間前以 LINE 告知教練：<ul>' +
+            '<li>私人課／包班：須於上課<b>前一日 23:59 前</b>告知。</li>' +
+            '<li>團體課：上課<b>前 1 小時</b>告知。</li>' +
+            '<li>逾時取消或未到者，該堂數視同已使用，不予補課或退還。</li>' +
+          '</ul></li>' +
+        '</ol>' +
+        '<h4>五、其他</h4>' +
+        '<ol><li>課程方案與價格以現場公告為準，本館保留調整之權利。</li></ol>' +
+        '<div class="ver">購買規章版本 ' + RULES_VERSION + '</div>' +
+      '</div>';
+
+    const state = { previewMode: false, uid: null, name: '', view: 'purchase', category: null, plan: null, payment: null, last5: '', agreed: false, recordsLoaded: false };
+
+    /* ====== DOM ====== */
+    const $ = (id) => document.getElementById(id);
+    const catGrid = $('catGrid'), planList = $('planList'), paySec = $('paySec'), payRow = $('payRow');
+    const last5Box = $('last5Box'), last5Input = $('last5Input');
+    const sumAmount = $('sumAmount'), btnSubmit = $('btnSubmit'), statusEl = $('status');
+    const mainCard = $('mainCard'), recordCard = $('recordCard'), recordList = $('recordList'), recCount = $('recCount');
+    const footer = $('footer'), navToggle = $('navToggle'), pageTitle = $('pageTitle');
+
+    function setStatus(msg, isErr){ statusEl.textContent = msg || ''; statusEl.className = 'status' + (isErr ? ' statusError' : ''); }
+    function money(n){ return Number(n).toLocaleString('en-US'); }
+
+    let toastTimer = null;
+    function showToast(msg){
+      const t = $('copyToast'); if(!t) return;
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+    }
+    function copyText(text, okMsg){
+      const done = () => showToast(okMsg || '已複製');
+      const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { document.execCommand('copy'); done(); } catch(e){ showToast('複製失敗，請長按選取'); }
+        document.body.removeChild(ta);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else { fallback(); }
+    }
+
+    function currentPlan(){ if(!state.category || !state.plan) return null; return PRODUCTS[state.category].plans.find(p => p.id === state.plan) || null; }
+
+    /* ====== 渲染 ====== */
+    function renderCategories(){
+      catGrid.innerHTML = '';
+      CAT_ORDER.forEach(key => {
+        const c = PRODUCTS[key];
+        const el = document.createElement('div');
+        el.className = 'catCard' + (state.category === key ? ' sel' : '');
+        el.innerHTML =
+          '<div class="catIconWrap">' + (c.icon || '') + '</div>' +
+          '<div class="catName">' + c.label + '</div>';
+        el.onclick = () => selectCategory(key);
+        catGrid.appendChild(el);
+      });
+    }
+
+    function selectCategory(key){
+      if(state.category === key) return;
+      state.category = key; state.plan = null;
+      renderCategories(); renderPlans(); refresh();
+    }
+
+    function renderPlans(){
+      planList.innerHTML = '';
+      if(!state.category){ planList.innerHTML = '<div class="hint">請先選擇上方類別</div>'; return; }
+      const plans = PRODUCTS[state.category].plans;
+      plans.forEach(p => {
+        const avg = Math.round(p.price / p.credits);
+        const el = document.createElement('div');
+        el.className = 'planCard' + (state.plan === p.id ? ' sel' : '');
+        const isBest = p.credits > 1 && p.id === plans[plans.length - 1].id;
+        const sub = (p.credits > 1)
+          ? ('使用期限 ' + p.months + ' 個月')
+          : '單堂・不可延期保留';
+        el.innerHTML =
+          '<div class="planLeft">' +
+            '<div class="planName">' + p.label + (isBest ? '<span class="planBadge">最優惠</span>' : '') + '</div>' +
+            '<div class="planAvg">' + sub + '</div>' +
+          '</div>' +
+          '<div class="planPrice">NT$ ' + money(p.price) + '</div>';
+        el.onclick = () => selectPlan(p.id);
+        planList.appendChild(el);
+      });
+    }
+
+    function selectPlan(id){
+      state.plan = id;
+      renderPlans();
+      paySec.classList.remove('hide');
+      if(!state.payment) selectPayment('transfer', true);
+      refresh();
+    }
+
+    function renderPayments(){
+      const methods = [
+        { id: 'transfer', label: '轉帳', sub: '填匯款末五碼' },
+        { id: 'cash',     label: '現金', sub: '免填末五碼' },
+      ];
+      if(ENABLE_CARD) methods.push({ id: 'card', label: '刷卡', sub: '線上付款' });
+      payRow.innerHTML = '';
+      methods.forEach(m => {
+        const el = document.createElement('div');
+        el.className = 'payChip' + (state.payment === m.id ? ' sel' : '');
+        el.innerHTML = m.label + '<span class="paySub">' + m.sub + '</span>';
+        el.onclick = () => selectPayment(m.id);
+        payRow.appendChild(el);
+      });
+    }
+
+    function selectPayment(id, silent){
+      state.payment = id;
+      renderPayments();
+      const needLast5 = (id === 'transfer');
+      last5Box.classList.toggle('hide', !needLast5);
+      if(!needLast5) state.last5 = '';
+      if(!silent) refresh();
+    }
+
+    function refresh(){
+      const plan = currentPlan();
+      sumAmount.textContent = plan ? money(plan.price) : '0';
+      const validLast5 = state.payment !== 'transfer' || /^\d{5}$/.test(state.last5);
+      btnSubmit.disabled = !(plan && state.payment && validLast5 && state.agreed);
+    }
+
+    /* ====== 送出 ====== */
+    function genOrderId(){
+      const d = new Date();
+      const p2 = (n) => String(n).padStart(2, '0');
+      const stamp = '' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate())
+                  + p2(d.getHours()) + p2(d.getMinutes()) + p2(d.getSeconds());
+      const rnd = Math.floor(10 + Math.random() * 90);   // 2 碼亂數，防同秒不同人撞號
+      return 'P' + stamp + '-' + rnd;                     // 例：P20260710153012-48
+    }
+
+    async function submit(){
+      const cat = PRODUCTS[state.category]; const plan = currentPlan();
+      if(!cat || !plan || !state.payment) return;
+      if(state.payment === 'transfer' && !/^\d{5}$/.test(state.last5)){
+        Swal.fire({ icon: 'warning', title: '請填寫末五碼', html: '轉帳需填入匯款帳號末五碼（5 碼數字）。', confirmButtonColor: '#63732e' });
+        return;
+      }
+      const paymentLabel = state.payment === 'transfer' ? '轉帳' : (state.payment === 'cash' ? '現金' : '刷卡');
+      const payload = {
+        action: 'purchaseReport', service: SERVICE, orderId: genOrderId(),
+        userId: state.uid, displayName: state.name,
+        category: state.category, categoryLabel: cat.label, pool: cat.pool,
+        plan: plan.id, planLabel: plan.label, credits: plan.credits, amount: plan.price,
+        unitPrice: Math.round(plan.price / plan.credits), months: plan.months,
+        payment: state.payment, paymentLabel, last5: state.last5 || '',
+        rulesVersion: RULES_VERSION, agreedRules: true,
+        status: '待確認', reportedAt: new Date().toISOString(),
+      };
+
+      btnSubmit.disabled = true; btnSubmit.innerHTML = '<span class="btn-spinner"></span>送出中...'; setStatus('正在送出訂單...');
+
+      if(state.previewMode){
+        await showSuccess(payload, true);
+        showToast('（預覽）已模擬回傳卡片並關閉視窗');
+        resetForm();
+        setStatus('🔧 預覽模式：資料未實際送出');
+        return;
+      }
+
+      // 送出一次：回傳 { res, raw, j, ok, isDuplicate }
+      const postOnce = async () => {
+        const res = await fetch(MAKE_PURCHASE_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const raw = (await res.text()).trim();
+        let j = null, ok = res.ok;
+        try { j = JSON.parse(raw); ok = ok && (j.status === 'success' || j.Status === 'completed' || j === 'Accepted' || j.status === 'ok'); }
+        catch(e){ ok = ok && /accepted|success|completed|ok/i.test(raw); }
+        const isDuplicate = !ok && j && typeof j === 'object' && (j.code === 'DUPLICATE_ORDER_ID' || /duplicate|重複/i.test(j.message || j.error || ''));
+        return { res, raw, j, ok, isDuplicate };
+      };
+
+      try{
+        let r = await postOnce();
+        // 撞號：自動重產訂單編號後再送一次（使用者無感）
+        if(r.isDuplicate){
+          setStatus('編號重複，正在重新產生訂單編號...');
+          payload.orderId = genOrderId();
+          payload.reportedAt = new Date().toISOString();
+          r = await postOnce();
+        }
+        if(!r.ok){
+          const msg = (r.j && (r.j.message || r.j.error)) || r.raw || ('HTTP ' + r.res.status);
+          throw new Error(msg);
+        }
+        // 以 Make 回傳的權威訂單編號為準（退費依據）
+        if(r.j && typeof r.j === 'object'){ payload.orderId = r.j.orderId || r.j.orderNo || r.j.orderNumber || r.j.OrderId || payload.orderId; }
+        await showSuccess(payload, false);
+        // 點 OK 後：回傳「待確認」購課卡片到 LINE 聊天室，並關閉 LIFF 視窗
+        try{
+          if(window.liff && liff.isInClient && liff.isInClient()){
+            await liff.sendMessages([createPurchaseFlex(payload)]);
+            liff.closeWindow();
+          }
+        }catch(e){}
+        resetForm();
+        setStatus('');
+      } catch(err){
+        setStatus('送出失敗，請稍後再試或聯繫櫃檯', true);
+        Swal.fire({ icon: 'error', title: '送出失敗', html: '申報未能送出，請檢查網路後再試，或直接聯繫櫃檯。<br><small style="color:#999">' + String(err.message || err).slice(0,120) + '</small>', confirmButtonColor: '#b23a2b' });
+      } finally {
+        btnSubmit.disabled = false; btnSubmit.textContent = '送出訂單'; refresh();
+      }
+    }
+
+    async function showSuccess(p, isPreview){
+      const payTxt = p.paymentLabel + (p.payment === 'transfer' ? '（末五碼 ' + p.last5 + '）' : '');
+      const html =
+        '<div class="orderSummary">' +
+          '<div class="osId">訂單編號 ' + p.orderId + '</div>' +
+          '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:#c77b34;">● 待確認</span></div>' +
+          '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + p.categoryLabel + '</span></div>' +
+          '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + p.planLabel + '（' + p.credits + ' 堂）</span></div>' +
+          '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(p.amount) + '</span></div>' +
+          '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + payTxt + '</span></div>' +
+        '</div>' +
+        (isPreview ? '<div style="margin-top:12px;font-size:13px;color:#c77b34;text-align:left;font-weight:800;">🔧 預覽模式：未實際送出。</div>' : '') +
+        '<ol style="margin:12px 0 0;padding-left:20px;font-size:13px;color:#555;line-height:1.7;text-align:left;">' +
+          '<li>「我的購買紀錄」可查看訂單狀態。</li>' +
+          '<li>訂單款項經確認後將自動加入購買堂數。</li>' +
+        '</ol>';
+      await Swal.fire({ icon: 'success', title: isPreview ? '預覽：訂單已送出' : '訂單已送出', html, confirmButtonText: 'OK', confirmButtonColor: '#63732e' });
+    }
+
+    /* 回傳給會員的「待確認」購課卡片（Flex）；點 OK 後送到 LINE 聊天室並關閉 LIFF */
+    function createPurchaseFlex(p){
+      const payTxt = p.paymentLabel + (p.payment === 'transfer' && p.last5 ? '（末五碼 ' + p.last5 + '）' : '');
+      const recordUri = 'https://liff.line.me/' + LIFF_ID + '?page=record';
+      const row = (k, v, color) => ({ type: 'box', layout: 'baseline', spacing: 'sm', contents: [
+        { type: 'text', text: k, color: '#9a9a9a', size: 'sm', flex: 2 },
+        { type: 'text', text: v, color: color || '#333333', size: 'sm', flex: 5, wrap: true, weight: color ? 'bold' : 'regular' }
+      ]});
+      return {
+        type: 'flex', altText: '購買申報已送出（待確認）｜訂單 ' + p.orderId,
+        contents: { type: 'bubble',
+          header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '16px', contents: [
+            { type: 'text', text: '購買申報已送出', color: '#ffffff', weight: 'bold', size: 'lg' },
+            { type: 'text', text: '訂單 ' + p.orderId, color: '#e7eed3', size: 'sm', margin: 'sm' }
+          ]},
+          body: { type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px', contents: [
+            row('狀態', '● 待確認', '#c77b34'),
+            row('類別', p.categoryLabel),
+            row('方案', p.planLabel + '（' + p.credits + ' 堂）'),
+            row('金額', 'NT$ ' + money(p.amount)),
+            row('付款', payTxt),
+            { type: 'separator', margin: 'lg' },
+            { type: 'text', text: '待櫃檯核實付款後才會加入堂數，並以 LINE 通知您。', wrap: true, size: 'xs', color: '#999999', margin: 'lg' }
+          ]},
+          footer: { type: 'box', layout: 'vertical', contents: [
+            { type: 'button', style: 'primary', color: '#63732e', height: 'sm',
+              action: { type: 'uri', label: '查看我的購買紀錄', uri: recordUri } }
+          ]}
+        }
+      };
+    }
+
+    function resetForm(){
+      state.category = null; state.plan = null; state.payment = null; state.last5 = '';
+      state.recordsLoaded = false;   // 送出後讓紀錄頁下次重新載入
+      last5Input.value = '';
+      btnSubmit.disabled = false; btnSubmit.textContent = '送出訂單';
+      renderCategories(); renderPlans(); paySec.classList.add('hide'); last5Box.classList.add('hide');
+      refresh();
+      const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
+    }
+
+    /* ====== 我的購買紀錄 ====== */
+    const SAMPLE_RECORDS = [
+      { orderId: 'P20260705-4821', categoryLabel: '1對1', planLabel: '24堂', credits: 24, amount: 27600, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-07-05T10:12:00+08:00' },
+      { orderId: 'P20260703-1907', categoryLabel: '團課', planLabel: '單堂', credits: 1, amount: 400, paymentLabel: '現金', status: '待確認', reportedAt: '2026-07-03T19:40:00+08:00' },
+    ];
+
+    function switchView(view){
+      state.view = view;
+      const isRecord = view === 'record';
+      mainCard.classList.toggle('hide', isRecord);
+      recordCard.classList.toggle('hide', !isRecord);
+      footer.classList.toggle('hide', isRecord);
+      pageTitle.textContent = isRecord ? '支點運動空間｜購買紀錄' : '支點運動空間｜購買課程';
+      navToggle.textContent = isRecord ? '‹ 返回購買' : '我的購買紀錄 ›';
+      $('greeting').textContent = isRecord
+        ? ('HI~ ' + state.name + '，以下是您的購買紀錄')
+        : ('HI~ ' + state.name + '，請選擇您要購買的方案');
+      const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
+      if(isRecord && !state.recordsLoaded) loadRecords();
+    }
+
+    function fmtTime(iso){
+      const d = new Date(iso); if(isNaN(d)) return String(iso || '');
+      const p2 = (n) => String(n).padStart(2, '0');
+      return d.getFullYear() + '/' + p2(d.getMonth()+1) + '/' + p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+    }
+
+    function renderRecords(list){
+      list = Array.isArray(list) ? list : [];
+      // 新到舊
+      list = list.slice().sort((a, b) => new Date(b.reportedAt || 0) - new Date(a.reportedAt || 0));
+      recCount.textContent = list.length ? ('共 ' + list.length + ' 筆購買紀錄' + (state.previewMode ? '（範例資料）' : '')) : '';
+      if(!list.length){
+        recordList.innerHTML = '<div class="recEmpty">目前沒有購買紀錄<br>點右上「‹ 返回購買」開始選購</div>';
+        return;
+      }
+      recordList.innerHTML = list.map(r => {
+        const confirmed = /確認|完成|已加|success|ok/i.test(r.status || '') && !/待/.test(r.status || '');
+        const badge = confirmed
+          ? '<span class="recBadge ok">✓ 已確認</span>'
+          : '<span class="recBadge pending">待確認</span>';
+        const creditsTxt = (r.credits != null) ? ('（' + r.credits + ' 堂）') : '';
+        const canRefund = confirmed && Number(r.credits) > 1;   // 已確認且非單堂才可申請退費
+        const refundLink = canRefund
+          ? '<a class="refundLink" data-oid="' + (r.orderId || '') + '" data-plan="' + (r.categoryLabel || '') + ' ' + (r.planLabel || '') + '">申請退費 ›</a>'
+          : '';
+        return '<div class="recItem' + (confirmed ? '' : ' pending') + '">' +
+          '<div class="recTop"><span class="recId">' + (r.orderId || '—') + '</span>' + badge + '</div>' +
+          '<div class="recMid"><span class="recName">' + (r.categoryLabel || '') + ' · ' + (r.planLabel || '') + creditsTxt + '</span>' +
+            '<span class="recAmount">NT$ ' + money(r.amount || 0) + '</span></div>' +
+          '<div class="recSub"><span>' + (r.paymentLabel || '') + ' · ' + fmtTime(r.reportedAt) + '</span>' + refundLink + '</div>' +
+        '</div>';
+      }).join('');
+      recordList.querySelectorAll('.refundLink').forEach(el => {
+        el.onclick = () => requestRefund(el.dataset.oid, el.dataset.plan);
+      });
+    }
+
+    async function requestRefund(orderId, planLabel){
+      const r = await Swal.fire({
+        icon: 'question', title: '申請退費',
+        html: '訂單 <b>' + orderId + '</b><br>' + planLabel + '<br><br>退費將依購買規章：<br><b>剩餘未使用堂數 × 每堂購買均價 × 90%</b>（扣 10% 手續費）；已使用／逾期堂數與單堂體驗不予退費。<br><br>確定提出退費申請嗎？',
+        showCancelButton: true, confirmButtonText: '確定申請', cancelButtonText: '返回', confirmButtonColor: '#63732e'
+      });
+      if(!r.isConfirmed) return;
+      if(state.previewMode){
+        await Swal.fire({ icon: 'success', title: '預覽：退費申請已送出', html: '（預覽）將通知教練核算退費金額並處理。', confirmButtonText: 'OK', confirmButtonColor: '#63732e' });
+        return;
+      }
+      try{
+        Swal.fire({ title: '送出中…', didOpen: () => Swal.showLoading(), allowOutsideClick: false, allowEscapeKey: false });
+        // LIFF → Make：退費申請
+        const res = await fetch(MAKE_PURCHASE_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'refundRequest', service: SERVICE, userId: state.uid, orderId }) });
+        const raw = (await res.text()).trim();
+        let j = null; try { j = JSON.parse(raw); } catch(e){}
+        const ok = res.ok && (!j || j.status === 'success' || j.Status === 'completed' || j.status === 'ok' || /accepted|success|completed|ok/i.test(raw));
+        if(!ok) throw new Error((j && (j.message || j.error)) || raw || ('HTTP ' + res.status));
+        // Make → LIFF：若有回傳試算資料就顯示（remainingCredits/unitPrice/refundAmount/refundId/message）
+        let detail = '';
+        if(j && typeof j === 'object'){
+          const rows = [];
+          if(j.refundId) rows.push('<div class="osRow"><span class="osKey">退費單號</span><span class="osVal">' + j.refundId + '</span></div>');
+          if(j.remainingCredits != null) rows.push('<div class="osRow"><span class="osKey">可退堂數</span><span class="osVal">' + j.remainingCredits + ' 堂</span></div>');
+          if(j.refundAmount != null) rows.push('<div class="osRow"><span class="osKey">預估退費</span><span class="osVal">NT$ ' + money(j.refundAmount) + '</span></div>');
+          if(rows.length) detail = '<div class="orderSummary" style="margin-top:4px;"><div class="osId">訂單 ' + orderId + '</div>' + rows.join('') + '</div>';
+          if(j.message) detail += '<div style="margin-top:10px;font-size:13px;color:#555;line-height:1.6;">' + j.message + '</div>';
+        }
+        if(!detail) detail = '訂單 <b>' + orderId + '</b> 的退費申請已送出，待教練核算與處理，結果將另行通知您。';
+        await Swal.fire({ icon: 'success', title: '退費申請已送出', html: detail, confirmButtonText: 'OK', confirmButtonColor: '#63732e' });
+      }catch(err){
+        Swal.fire({ icon: 'error', title: '送出失敗', html: '退費申請未能送出，請稍後再試或聯繫櫃檯。<br><small style="color:#999">' + String(err.message || err).slice(0,100) + '</small>', confirmButtonColor: '#b23a2b' });
+      }
+    }
+
+    async function loadRecords(){
+      recordList.innerHTML = '<div class="hint">載入中…</div>'; recCount.textContent = '';
+      if(state.previewMode){ state.recordsLoaded = true; renderRecords(SAMPLE_RECORDS); return; }
+      try{
+        const res = await fetch(MAKE_PURCHASE_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'purchaseRecords', service: SERVICE, userId: state.uid }) });
+        const raw = (await res.text()).trim();
+        let data; try { data = JSON.parse(raw); } catch(e){ data = []; }
+        let list = data.Results || data.results || data.records || data.orders || data;
+        if(!Array.isArray(list)) list = (list && typeof list === 'object') ? [list] : [];
+        state.recordsLoaded = true;
+        renderRecords(list);
+      } catch(err){
+        recordList.innerHTML = '<div class="recEmpty">載入失敗，請稍後再試<br><small style="color:#bbb">' + String(err.message || err).slice(0,80) + '</small></div>';
+      }
+    }
+
+    /* ====== 購買規章：彈窗 + 首次進入閘門 ====== */
+    function showRules(){
+      Swal.fire({ title: '支點運動空間｜購買規章', html: PURCHASE_RULES_HTML, width: 520, confirmButtonText: '關閉', confirmButtonColor: '#63732e', customClass: { htmlContainer: 'rulesSwal' } });
+    }
+
+    function showGate(){
+      const gate = document.createElement('div');
+      gate.className = 'gate';
+      gate.innerHTML =
+        '<div class="gateCard">' +
+          '<div class="gateHead">支點運動空間｜購買規章</div>' +
+          '<div class="gateBody">' + PURCHASE_RULES_HTML + '</div>' +
+          '<div class="gateFoot">' +
+            '<div class="agreeRow"><input type="checkbox" id="gateChk" /><label for="gateChk">我已閱讀並同意上述購買規章</label></div>' +
+            '<button class="btn btnPrimary" id="gateBtn" disabled>我已閱讀，開始購買</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(gate);
+      const chk = gate.querySelector('#gateChk'), btn = gate.querySelector('#gateBtn');
+      chk.onchange = () => { btn.disabled = !chk.checked; };
+      btn.onclick = () => {
+        try { sessionStorage.setItem('purchaseAgreed', '1'); } catch(e){}
+        state.agreed = true; const fc = $('agreeChk'); if(fc) fc.checked = true; refresh();
+        gate.remove();
+      };
+    }
+
+    /* ====== 預覽模式導覽 ====== */
+    function addPreviewNav(){
+      const nav = document.createElement('div');
+      nav.className = 'previewNav';
+      nav.textContent = '🔧 預覽模式';
+      document.body.appendChild(nav);
+    }
+
+    /* ====== 初始化 ====== */
+    async function init(){
+      renderCategories(); renderPlans(); renderPayments();
+
+      last5Input.addEventListener('input', () => {
+        state.last5 = last5Input.value.replace(/\D/g, '').slice(0, 5);
+        if(last5Input.value !== state.last5) last5Input.value = state.last5;
+        refresh();
+      });
+      btnSubmit.onclick = submit;
+      navToggle.onclick = () => switchView(state.view === 'record' ? 'purchase' : 'record');
+      $('agreeChk').addEventListener('change', (e) => { state.agreed = e.target.checked; refresh(); });
+      $('viewRules').addEventListener('click', (e) => { e.preventDefault(); showRules(); });
+
+      const params = new URLSearchParams(window.location.search);
+      if(params.get('preview') === '1'){
+        state.previewMode = true; state.uid = 'preview'; state.name = '預覽會員';
+      } else {
+        try {
+          await liff.init({ liffId: LIFF_ID });
+          if(!liff.isLoggedIn()){ liff.login(); return; }
+          const prof = await liff.getProfile(); state.uid = prof.userId; state.name = prof.displayName;
+        } catch(err){
+          state.previewMode = true; state.uid = 'preview'; state.name = state.name || '預覽會員';
+        }
+      }
+
+      $('greeting').textContent = 'HI~ ' + state.name + '，請選擇您要購買的方案';
+      $('bankName').textContent = BANK_INFO.code;
+      $('bankAccount').textContent = BANK_INFO.account;
+      $('copyAcctBtn').onclick = () => copyText(BANK_INFO.account, '已複製帳號');
+
+      // 入口參數 ?type= 直達某類別
+      const type = params.get('type');
+      const hit = CAT_ORDER.find(k => k === type || PRODUCTS[k].param === type);
+      if(hit) selectCategory(hit);
+
+      if(state.previewMode){ setStatus('🔧 預覽模式：未連線 LINE，資料不會送出'); addPreviewNav(); }
+
+      // 入口參數 ?page=record 直接進紀錄頁（購買成功 Flex 的「查看紀錄」按鈕可帶此參數）
+      const isRecordEntry = params.get('page') === 'record';
+      if(isRecordEntry) switchView('record');
+
+      // 首次進入顯示購買規章閘門（紀錄頁入口跳過；本次 session 已同意則跳過）
+      let agreedThisSession = false;
+      try { agreedThisSession = sessionStorage.getItem('purchaseAgreed') === '1'; } catch(e){}
+      if(agreedThisSession){ state.agreed = true; $('agreeChk').checked = true; refresh(); }
+      else if(!isRecordEntry){ showGate(); }
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>
