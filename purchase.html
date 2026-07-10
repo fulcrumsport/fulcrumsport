@@ -12,6 +12,8 @@
     html, body { height: 100%; overflow: hidden; margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
     .wrap { height: 100dvh; display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; position: relative; z-index: 1; box-shadow: 0 0 0 1px rgba(70,82,30,0.06); }
     .top { padding: 12px 16px 6px; padding-top: calc(12px + var(--safeT)); flex: 0 0 auto; }
+    .chatBack { background: none; border: 0; color: var(--muted); font-size: 13px; font-weight: 850; padding: 0 0 8px; margin: 0; cursor: pointer; display: inline-flex; align-items: center; }
+    .chatBack:active { opacity: 0.55; }
     .titleWrap { min-width: 0; flex: 1; }
     .pageTitle { font-size: 19px; font-weight: 950; color: var(--text); margin: 0; line-height: 1.25; }
     .greeting { font-size: 17px; font-weight: 900; color: #111310; margin-top: 7px; }
@@ -46,15 +48,13 @@
     .last5Input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid var(--border); font-size: 24px; font-weight: 900; letter-spacing: 8px; text-align: center; color: var(--text); outline: none; transition: border-color 0.15s; }
     .last5Input:focus { border-color: var(--primary); }
     .last5Tip { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 7px; line-height: 1.55; }
-    .bankBox { margin-top: 10px; background: #f5f7ee; border: 1px dashed rgba(99,115,46,0.35); border-radius: 16px; padding: 14px; color: var(--text); display: flex; flex-direction: column; gap: 12px; }
-    .bankBox .bankRow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-    .bankBox .bankKey { font-size: 12.5px; font-weight: 800; color: var(--muted); flex: 0 0 auto; }
-    .bankBox .bankRow .bankVal { color: var(--text); font-weight: 950; font-size: 17px; letter-spacing: 0.3px; text-align: right; word-break: break-all; }
-    .bankAcct { display: flex; flex-direction: column; gap: 6px; }
-    .acctField { display: flex; align-items: stretch; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .acctField .acctNum { flex: 1 1 auto; min-width: 0; padding: 8px 12px; font-size: 16px; font-weight: 950; color: var(--primary); letter-spacing: 0.5px; word-break: break-all; display: flex; align-items: center; }
-    .acctField .copyBtn { flex: 0 0 auto; border: 0; border-left: 1.5px solid var(--border); background: var(--primary); color: #fff; padding: 0 15px; font-size: 14px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; transition: opacity 0.15s; }
-    .acctField .copyBtn:active { opacity: 0.82; }
+    .bankBox { margin-top: 10px; background: #f5f7ee; border: 1px dashed rgba(99,115,46,0.35); border-radius: 16px; padding: 14px 16px; color: var(--text); display: flex; flex-direction: column; gap: 11px; }
+    .bankLine { display: flex; align-items: center; gap: 10px; }
+    .bankLine .bankKey { flex: 0 0 64px; font-size: 12.5px; font-weight: 800; color: var(--muted); }
+    .bankLine .bankVal { font-size: 18px; font-weight: 950; color: var(--text); letter-spacing: 0.5px; }
+    .bankLine .bankVal.acct { flex: 1 1 auto; min-width: 0; color: #111; word-break: break-all; }
+    .bankLine .copyBtn { flex: 0 0 auto; background: var(--primary); color: #fff; border: 0; border-radius: 8px; padding: 6px 13px; font-size: 13px; font-weight: 900; cursor: pointer; transition: opacity 0.15s; }
+    .bankLine .copyBtn:active { opacity: 0.82; }
     .copyToast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(12px); background: rgba(44,38,33,0.94); color: #fff; font-size: 14px; font-weight: 900; padding: 11px 20px; border-radius: 999px; opacity: 0; pointer-events: none; transition: all 0.22s; z-index: 100; box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
     .copyToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .hint { font-size: 14px; font-weight: 800; color: var(--muted); text-align: center; padding: 22px 8px; line-height: 1.6; }
@@ -130,6 +130,7 @@
 <body>
   <div class="wrap">
     <div class="top">
+      <button class="chatBack" id="chatBack" type="button">‹ 返回聊天室</button>
       <div class="topRow">
         <div class="titleWrap">
           <h1 class="pageTitle" id="pageTitle">支點運動空間｜購買課程</h1>
@@ -156,16 +157,14 @@
           <div class="last5Box hide" id="last5Box">
             <div class="last5Tip" style="margin:0 0 8px;">請匯款至以下<b>本館收款帳號</b>，完成後填寫末五碼供對帳：</div>
             <div class="bankBox">
-              <div class="bankRow">
+              <div class="bankLine">
                 <span class="bankKey">銀行代碼</span>
                 <span class="bankVal" id="bankName">—</span>
               </div>
-              <div class="bankAcct">
+              <div class="bankLine">
                 <span class="bankKey">匯款帳號</span>
-                <div class="acctField">
-                  <span class="acctNum" id="bankAccount">—</span>
-                  <button class="copyBtn" id="copyAcctBtn" type="button">📋 複製</button>
-                </div>
+                <span class="bankVal acct" id="bankAccount">—</span>
+                <button class="copyBtn" id="copyAcctBtn" type="button">複製</button>
               </div>
             </div>
             <div class="last5Label" style="margin-top:14px;">匯款帳號末五碼</div>
@@ -504,19 +503,19 @@
     }
 
     async function showSuccess(p, isPreview){
-      const payTxt = p.paymentLabel + (p.payment === 'transfer' ? '（末五碼 ' + p.last5 + '）' : '');
       const html =
         '<div class="orderSummary">' +
           '<div class="osId">訂單編號 ' + p.orderId + '</div>' +
           '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:#c77b34;">● 待確認</span></div>' +
           '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + p.categoryLabel + '</span></div>' +
-          '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + p.planLabel + '（' + p.credits + ' 堂）</span></div>' +
+          '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + p.planLabel + '</span></div>' +
           '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(p.amount) + '</span></div>' +
-          '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + payTxt + '</span></div>' +
+          '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + p.paymentLabel + '</span></div>' +
+          (p.payment === 'transfer' && p.last5 ? '<div class="osRow"><span class="osKey">末五碼</span><span class="osVal">' + p.last5 + '</span></div>' : '') +
         '</div>' +
         (isPreview ? '<div style="margin-top:12px;font-size:13px;color:#c77b34;text-align:left;font-weight:800;">🔧 預覽模式：未實際送出。</div>' : '') +
         '<ol style="margin:12px 0 0;padding-left:20px;font-size:13px;color:#555;line-height:1.7;text-align:left;">' +
-          '<li>「我的購買紀錄」可查看訂單狀態。</li>' +
+          '<li>「購買紀錄」可查看訂單狀態。</li>' +
           '<li>訂單款項經確認後將自動加入購買堂數。</li>' +
         '</ol>';
       await Swal.fire({ icon: 'success', title: isPreview ? '預覽：訂單已送出' : '訂單已送出', html, confirmButtonText: 'OK', confirmButtonColor: '#63732e' });
@@ -524,31 +523,34 @@
 
     /* 回傳給會員的「待確認」購課卡片（Flex）；點 OK 後送到 LINE 聊天室並關閉 LIFF */
     function createPurchaseFlex(p){
-      const payTxt = p.paymentLabel + (p.payment === 'transfer' && p.last5 ? '（末五碼 ' + p.last5 + '）' : '');
       const recordUri = 'https://liff.line.me/' + LIFF_ID + '?page=record';
+      const orderDate = (() => { const d = new Date(p.reportedAt); return isNaN(d) ? '' : fmtDate(d); })();
       const row = (k, v, color) => ({ type: 'box', layout: 'baseline', spacing: 'sm', contents: [
-        { type: 'text', text: k, color: '#9a9a9a', size: 'sm', flex: 2 },
-        { type: 'text', text: v, color: color || '#333333', size: 'sm', flex: 5, wrap: true, weight: color ? 'bold' : 'regular' }
+        { type: 'text', text: k, color: '#9a9a9a', size: 'sm', flex: 3 },
+        { type: 'text', text: v, color: color || '#333333', size: 'sm', flex: 6, wrap: true, weight: color ? 'bold' : 'regular', align: 'end' }
       ]});
+      const bodyRows = [
+        row('狀態', '待確認', '#c77b34'),
+        row('類別', p.categoryLabel),
+        row('方案', p.planLabel),
+        row('金額', 'NT$ ' + money(p.amount), '#111111'),
+        row('付款', p.paymentLabel)
+      ];
+      if(p.payment === 'transfer' && p.last5) bodyRows.push(row('末五碼', p.last5));
+      if(orderDate) bodyRows.push(row('訂單日期', orderDate));
+      bodyRows.push({ type: 'separator', margin: 'lg', color: '#e7eed3' });
+      bodyRows.push({ type: 'text', text: '待教練核實付款後將自動加入購買堂數，並以 LINE 通知您。', wrap: true, size: 'xs', color: '#999999', margin: 'lg' });
       return {
-        type: 'flex', altText: '購買申報已送出（待確認）｜訂單 ' + p.orderId,
+        type: 'flex', altText: '訂單已送出（待確認）｜訂單 ' + p.orderId,
         contents: { type: 'bubble',
-          header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '16px', contents: [
-            { type: 'text', text: '購買申報已送出', color: '#ffffff', weight: 'bold', size: 'lg' },
-            { type: 'text', text: '訂單 ' + p.orderId, color: '#e7eed3', size: 'sm', margin: 'sm' }
+          header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '18px', spacing: 'xs', contents: [
+            { type: 'text', text: '✓ 訂單已送出', color: '#ffffff', weight: 'bold', size: 'lg' },
+            { type: 'text', text: '訂單編號 ' + p.orderId, color: '#e7eed3', size: 'sm' }
           ]},
-          body: { type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px', contents: [
-            row('狀態', '● 待確認', '#c77b34'),
-            row('類別', p.categoryLabel),
-            row('方案', p.planLabel + '（' + p.credits + ' 堂）'),
-            row('金額', 'NT$ ' + money(p.amount)),
-            row('付款', payTxt),
-            { type: 'separator', margin: 'lg' },
-            { type: 'text', text: '待櫃檯核實付款後才會加入堂數，並以 LINE 通知您。', wrap: true, size: 'xs', color: '#999999', margin: 'lg' }
-          ]},
-          footer: { type: 'box', layout: 'vertical', contents: [
+          body: { type: 'box', layout: 'vertical', spacing: 'md', paddingAll: '18px', contents: bodyRows },
+          footer: { type: 'box', layout: 'vertical', paddingAll: '14px', paddingTop: '0px', contents: [
             { type: 'button', style: 'primary', color: '#63732e', height: 'sm',
-              action: { type: 'uri', label: '查看我的購買紀錄', uri: recordUri } }
+              action: { type: 'uri', label: '查看購買紀錄', uri: recordUri } }
           ]}
         }
       };
@@ -625,17 +627,15 @@
       return null;
     }
     function fmtDate(d){ const p2 = (n) => String(n).padStart(2, '0'); return d.getFullYear() + '/' + p2(d.getMonth()+1) + '/' + p2(d.getDate()); }
-    function expiryText(r, confirmed){
-      const explicit = r.expireAt || r.expiresAt || r.expiryDate || r.validUntil;
-      if(explicit){ const d = new Date(explicit); if(!isNaN(d)) return '至 ' + fmtDate(d); }
+    function expiryParts(r, confirmed){
       const months = (r.months != null) ? Number(r.months) : planMonthsFor(r.categoryLabel, r.credits);
-      if(months === 0 || Number(r.credits) === 1) return '單堂・不可延期保留';
-      if(months == null) return '—';
-      if(!confirmed) return '核實後起算 ' + months + ' 個月';
-      const base = new Date(r.reportedAt);
-      if(isNaN(base)) return months + ' 個月';
-      const exp = new Date(base); exp.setMonth(exp.getMonth() + months);
-      return months + ' 個月（至 ' + fmtDate(exp) + '）';
+      if(months === 0 || Number(r.credits) === 1) return { term: '單堂・不可延期保留', date: '' };
+      let date = '';
+      const explicit = r.expireAt || r.expiresAt || r.expiryDate || r.validUntil;
+      if(explicit){ const d = new Date(explicit); if(!isNaN(d)) date = fmtDate(d); }
+      else if(confirmed){ const base = new Date(r.reportedAt); if(!isNaN(base)){ const exp = new Date(base); exp.setMonth(exp.getMonth() + months); date = fmtDate(exp); } }
+      if(months == null) return { term: '—', date: date };
+      return { term: months + ' 個月', date: date };
     }
 
     /* 點紀錄卡 → 訂單詳情（含使用期限） */
@@ -644,14 +644,17 @@
       const confirmed = /確認|完成|已加|success|ok/i.test(r.status || '') && !/待/.test(r.status || '');
       const statusColor = confirmed ? '#63732e' : '#c77b34';
       const statusTxt = confirmed ? '● 已確認' : '● 待確認';
+      const ex = expiryParts(r, confirmed);
+      const orderDate = (() => { const d = new Date(r.reportedAt); return isNaN(d) ? '' : fmtDate(d); })();
       const rows =
         '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:' + statusColor + ';">' + statusTxt + '</span></div>' +
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
-        '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '（' + (r.credits != null ? r.credits : '—') + ' 堂）</span></div>' +
+        '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(r.amount || 0) + '</span></div>' +
         '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + (r.paymentLabel || '') + '</span></div>' +
-        '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + expiryText(r, confirmed) + '</span></div>' +
-        '<div class="osRow"><span class="osKey">申報時間</span><span class="osVal">' + fmtTime(r.reportedAt) + '</span></div>';
+        '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + ex.term + '</span></div>' +
+        (ex.date ? '<div class="osRow"><span class="osKey">到期日</span><span class="osVal">' + ex.date + '</span></div>' : '') +
+        '<div class="osRow"><span class="osKey">訂單日期</span><span class="osVal">' + orderDate + '</span></div>';
       Swal.fire({
         title: '訂單 ' + (r.orderId || ''),
         html: '<div class="orderSummary" style="margin-top:2px;">' + rows + '</div>',
@@ -689,7 +692,7 @@
           '<div class="gateBody">' + PURCHASE_RULES_HTML + '</div>' +
           '<div class="gateFoot">' +
             '<div class="agreeRow"><input type="checkbox" id="gateChk" /><label for="gateChk">我已閱讀並同意上述購買規章</label></div>' +
-            '<button class="btn btnPrimary" id="gateBtn" disabled>我已閱讀，開始購買</button>' +
+            '<button class="btn btnPrimary" id="gateBtn" disabled>開始購買</button>' +
           '</div>' +
         '</div>';
       document.body.appendChild(gate);
@@ -721,6 +724,10 @@
       });
       btnSubmit.onclick = submit;
       navToggle.onclick = () => switchView(state.view === 'record' ? 'purchase' : 'record');
+      $('chatBack').onclick = () => {
+        try { if(window.liff && liff.isInClient && liff.isInClient()){ liff.closeWindow(); return; } } catch(e){}
+        showToast('（預覽）將返回聊天室');
+      };
       $('agreeChk').addEventListener('change', (e) => { state.agreed = e.target.checked; refresh(); });
       $('viewRules').addEventListener('click', (e) => { e.preventDefault(); showRules(); });
 
