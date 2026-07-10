@@ -261,11 +261,12 @@
     const CAT_ORDER = ['pt1', 'pt2', 'class', 'group'];
 
     /* ====== 購買規章 ====== */
-    const RULES_VERSION = '2026-07-07';
+    const RULES_VERSION = '2026-07-11';
     const PURCHASE_RULES_HTML =
       '<div class="rules">' +
         '<h4>一、堂數與使用期限</h4>' +
         '<ol>' +
+          '<li><b>使用期限自教練核實付款、訂單確認後起算</b>；送出訂單當下尚未開始計算效期。</li>' +
           '<li>購買後依方案享有使用期限，逾期未使用之堂數即失效、不予保留：<ul>' +
             '<li>12 堂：5 個月</li><li>24 堂：9 個月</li>' +
             '<li>36 堂（私人課／包班）：12 個月</li><li>48 堂（團體課）：12 個月</li>' +
@@ -653,7 +654,6 @@
         '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(r.amount || 0) + '</span></div>' +
         '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + (r.paymentLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + ex.term + '</span></div>' +
-        (ex.date ? '<div class="osRow"><span class="osKey">到期日</span><span class="osVal">' + ex.date + '</span></div>' : '') +
         '<div class="osRow"><span class="osKey">訂單日期</span><span class="osVal">' + orderDate + '</span></div>';
       Swal.fire({
         title: '訂單 ' + (r.orderId || ''),
