@@ -209,7 +209,7 @@
     const ENABLE_CARD = false;   // 預留刷卡，接金流後改 true
 
     /* 匯款資訊（本館收款帳號，顯示於轉帳說明；部署前請填入正確資料） */
-    const BANK_INFO = { code: '（銀行代碼，例 013）', account: '（本館收款帳號）' };
+    const BANK_INFO = { code: '013', account: '084100009511' };
 
     /* 類別小圖示（線條 SVG，stroke=currentColor 隨主色/選中色變化） */
     const SVG = (inner) => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
@@ -496,8 +496,8 @@
         resetForm();
         setStatus('');
       } catch(err){
-        setStatus('送出失敗，請稍後再試或聯繫櫃檯', true);
-        Swal.fire({ icon: 'error', title: '送出失敗', html: '申報未能送出，請檢查網路後再試，或直接聯繫櫃檯。<br><small style="color:#999">' + String(err.message || err).slice(0,120) + '</small>', confirmButtonColor: '#b23a2b' });
+        setStatus('系統異常，請聯繫教練處理', true);
+        Swal.fire({ icon: 'error', title: '系統異常', html: '<div style="font-size:13px;color:#666;white-space:nowrap;">系統異常訂單送出失敗，請聯繫教練處理。</div>', confirmButtonColor: '#b23a2b' });
       } finally {
         btnSubmit.disabled = false; btnSubmit.textContent = '送出訂單'; refresh();
       }
