@@ -14,9 +14,24 @@
     .top { padding: 12px 16px 6px; padding-top: calc(12px + var(--safeT)); flex: 0 0 auto; }
     .chatBack { background: none; border: 0; color: var(--muted); font-size: 13px; font-weight: 850; padding: 0 0 8px; margin: 0; cursor: pointer; display: inline-flex; align-items: center; }
     .chatBack:active { opacity: 0.55; }
+    .idGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .idBtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 30px 12px; background: #fff; border: 2px solid var(--border); border-radius: 16px; cursor: pointer; transition: all 0.15s; }
+    .idBtn:active { transform: scale(0.97); border-color: var(--primary); }
+    .idName { font-size: 22px; font-weight: 950; color: #111; }
+    .idDesc { font-size: 13px; font-weight: 800; color: var(--primary); }
+    .switchRole { background: none; border: 0; color: var(--muted); font-size: 13px; font-weight: 850; padding: 0 0 10px; margin: 0; cursor: pointer; }
+    .switchRole:active { opacity: 0.55; }
+    .ph { text-align: center; color: var(--muted); font-weight: 800; line-height: 2; padding: 34px 12px; }
+    .qtyInput { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid var(--border); font-size: 20px; font-weight: 900; text-align: center; color: var(--text); outline: none; margin-top: 8px; }
+    .qtyInput:focus { border-color: var(--primary); }
+    .priceTable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
+    .priceTable th { text-align: left; font-weight: 900; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid var(--border); }
+    .priceTable td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text); }
+    .priceTable tr:last-child td { border-bottom: 0; }
     .titleWrap { min-width: 0; flex: 1; }
     .pageTitle { font-size: 19px; font-weight: 950; color: var(--text); margin: 0; line-height: 1.25; }
-    .greeting { font-size: 17px; font-weight: 900; color: #111310; margin-top: 7px; }
+    .greetRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+    .greeting { font-size: 17px; font-weight: 900; color: #111310; flex: 1 1 auto; min-width: 0; }
     .main { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 14px 12px; display: flex; flex-direction: column; min-height: 0; gap: 12px; }
     .card { flex: 0 0 auto; display: flex; flex-direction: column; width: 100%; gap: 12px; }
     .sec { flex: 0 0 auto; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 18px; }
@@ -59,7 +74,7 @@
     .copyToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .hint { font-size: 14px; font-weight: 800; color: var(--muted); text-align: center; padding: 22px 8px; line-height: 1.6; }
     .topRow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .navPill { flex: 0 0 auto; background: #fff; border: 1.5px solid var(--border); color: var(--primary); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 950; cursor: pointer; box-shadow: 0 2px 8px rgba(70,82,30,0.06); transition: all 0.15s; margin-top: 5px; white-space: nowrap; }
+    .navPill { flex: 0 0 auto; background: #fff; border: 1.5px solid var(--border); color: var(--primary); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 950; cursor: pointer; box-shadow: 0 2px 8px rgba(70,82,30,0.06); transition: all 0.15s; white-space: nowrap; }
     .navPill:active { transform: scale(0.96); }
     .recCount { font-size: 14px; font-weight: 900; color: var(--onBg); flex: 0 0 auto; margin: 0 0 2px 4px; }
     .recordList { display: flex; flex-direction: column; gap: 12px; }
@@ -131,16 +146,51 @@
   <div class="wrap">
     <div class="top">
       <button class="chatBack" id="chatBack" type="button">‹ 返回聊天室</button>
-      <div class="topRow">
-        <div class="titleWrap">
-          <h1 class="pageTitle" id="pageTitle">支點運動空間｜購買課程</h1>
-        </div>
+      <h1 class="pageTitle" id="pageTitle">支點運動空間｜購買課程</h1>
+      <div class="greetRow">
+        <div class="greeting" id="greeting"></div>
         <button class="navPill" id="navToggle" type="button">購買紀錄 ›</button>
       </div>
-      <div class="greeting" id="greeting"></div>
     </div>
     <div class="main">
-      <div class="card" id="mainCard">
+      <div class="card" id="idCard">
+        <div class="sec">
+          <div class="idGrid">
+            <button class="idBtn" data-mode="course" type="button"><span class="idName">學員</span><span class="idDesc">購買課程堂數</span></button>
+            <button class="idBtn" data-mode="venue" type="button"><span class="idName">教練</span><span class="idDesc">購買場租堂數</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="card hide" id="venueCard">
+        <button class="switchRole" id="switchRoleV" type="button">‹ 切換身分</button>
+        <div class="sec">
+          <div class="secTitle"><span class="secNum">1</span>選擇場租方案</div>
+          <div class="planList" id="venuePlanList"></div>
+          <div id="venueCustomBox" class="hide">
+            <div class="last5Label" style="margin-top:12px;">輸入堂數</div>
+            <input id="venueQtyInput" class="qtyInput" inputmode="numeric" placeholder="請輸入堂數" />
+            <div id="venueCustomPreview" class="last5Tip" style="text-align:center;"></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="secTitle">場租價目表</div>
+          <table class="priceTable">
+            <thead><tr><th>堂數</th><th>場租單價</th><th>使用期限</th></tr></thead>
+            <tbody>
+              <tr><td>1–4 堂</td><td>350 元/堂</td><td>1 個月</td></tr>
+              <tr><td>5–8 堂</td><td>330 元/堂</td><td>2 個月</td></tr>
+              <tr><td>9–12 堂</td><td>320 元/堂</td><td>3 個月</td></tr>
+              <tr><td>13–16 堂</td><td>310 元/堂</td><td>4 個月</td></tr>
+              <tr><td>17–20 堂</td><td>300 元/堂</td><td>5 個月</td></tr>
+              <tr><td>21–24 堂</td><td>295 元/堂</td><td>6 個月</td></tr>
+              <tr><td>25–29 堂</td><td>290 元/堂</td><td>9 個月</td></tr>
+              <tr><td>30 堂以上</td><td>280 元/堂</td><td>12 個月</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card hide" id="mainCard">
+        <button class="switchRole" id="switchRoleC" type="button">‹ 切換身分</button>
         <div class="sec">
           <div class="secTitle"><span class="secNum">1</span>選擇課程類別</div>
           <div class="catGrid" id="catGrid"></div>
@@ -151,26 +201,26 @@
             <div class="hint">請先選擇上方類別</div>
           </div>
         </div>
-        <div class="sec hide" id="paySec">
-          <div class="secTitle"><span class="secNum">3</span>付款方式</div>
-          <div class="payRow" id="payRow"></div>
-          <div class="last5Box hide" id="last5Box">
-            <div class="last5Tip" style="margin:0 0 8px;">請匯款至以下<b>本館收款帳號</b>，完成後填寫末五碼供對帳：</div>
-            <div class="bankBox">
-              <div class="bankLine">
-                <span class="bankKey">銀行代碼</span>
-                <span class="bankVal" id="bankName">—</span>
-              </div>
-              <div class="bankLine">
-                <span class="bankKey">匯款帳號</span>
-                <span class="bankVal acct" id="bankAccount">—</span>
-                <button class="copyBtn" id="copyAcctBtn" type="button">複製</button>
-              </div>
+      </div>
+      <div class="card hide" id="paySec">
+        <div class="secTitle">付款方式</div>
+        <div class="payRow" id="payRow"></div>
+        <div class="last5Box hide" id="last5Box">
+          <div class="last5Tip" style="margin:0 0 8px;">請匯款至以下<b>本館收款帳號</b>，完成後填寫末五碼供對帳：</div>
+          <div class="bankBox">
+            <div class="bankLine">
+              <span class="bankKey">銀行代碼</span>
+              <span class="bankVal" id="bankName">—</span>
             </div>
-            <div class="last5Label" style="margin-top:14px;">匯款帳號末五碼</div>
-            <input class="last5Input" id="last5Input" inputmode="numeric" maxlength="5" placeholder="＿＿＿＿＿" />
-            <div class="last5Tip" style="text-align:center;">訂單款項經核實後將會自動加入購買堂數。</div>
+            <div class="bankLine">
+              <span class="bankKey">匯款帳號</span>
+              <span class="bankVal acct" id="bankAccount">—</span>
+              <button class="copyBtn" id="copyAcctBtn" type="button">複製</button>
+            </div>
           </div>
+          <div class="last5Label" style="margin-top:14px;">匯款帳號末五碼</div>
+          <input class="last5Input" id="last5Input" inputmode="numeric" maxlength="5" placeholder="＿＿＿＿＿" />
+          <div class="last5Tip" style="text-align:center;">訂單款項經核實後將會自動加入購買堂數。</div>
         </div>
       </div>
       <div class="card hide" id="recordCard">
@@ -180,7 +230,7 @@
         </div>
       </div>
     </div>
-    <div class="footer" id="footer">
+    <div class="footer hide" id="footer">
       <div class="footRow">
         <div class="agreeRow">
           <input type="checkbox" id="agreeChk" />
@@ -301,7 +351,48 @@
         '<div class="ver">購買規章版本 ' + RULES_VERSION + '</div>' +
       '</div>';
 
-    const state = { previewMode: false, uid: null, name: '', view: 'purchase', category: null, plan: null, payment: null, last5: '', agreed: false, recordsLoaded: false };
+    /* ====== 場租購買規章（草稿；效期依價目表、退費採已使用堂數以實際使用量級距單價重算） ====== */
+    const VENUE_RULES_VERSION = '2026-07-11-draft';
+    const VENUE_RULES_HTML =
+      '<div class="rules">' +
+        '<h4>一、場租堂數與使用期限</h4>' +
+        '<ol>' +
+          '<li>場租堂數供自由教練租借本館場地使用，單價與使用期限依購買堂數分級：<ul>' +
+            '<li>1–4 堂：350 元/堂，效期 1 個月</li>' +
+            '<li>5–8 堂：330 元/堂，效期 2 個月</li>' +
+            '<li>9–12 堂：320 元/堂，效期 3 個月</li>' +
+            '<li>13–16 堂：310 元/堂，效期 4 個月</li>' +
+            '<li>17–20 堂：300 元/堂，效期 5 個月</li>' +
+            '<li>21–24 堂：295 元/堂，效期 6 個月</li>' +
+            '<li>25–29 堂：290 元/堂，效期 9 個月</li>' +
+            '<li>30 堂以上：280 元/堂，效期 12 個月</li>' +
+          '</ul></li>' +
+          '<li><b>使用期限自館方核實付款、訂單確認後起算</b>，逾期未使用之堂數即失效、不予保留。</li>' +
+        '</ol>' +
+        '<h4>二、購買與付款核實</h4>' +
+        '<ol>' +
+          '<li>於本頁送出「購買訂單」後，尚不代表已完成購買。</li>' +
+          '<li>須經館方核實款項後，場租堂數才會加入帳戶。</li>' +
+        '</ol>' +
+        '<h4>三、退費機制</h4>' +
+        '<div class="refund"><ol>' +
+          '<li>單堂方案不適用退費；已使用及已逾期之堂數不予退費。</li>' +
+          '<li><b>可退費堂數 ＝ 總堂數 − 已使用 − 已逾期</b>；退費金額 ＝ <b>可退費堂數 × 對應級距單價 × 90%</b>（即另收 10% 手續費）。</li>' +
+          '<li>例：購買 24 堂（單價 295 元／堂），已使用 5 堂、無逾期 → 可退 19 堂，退費 ＝ 19 × 295 × 90% ≈ 5,045 元。</li>' +
+          '<li>退費申請以原購買訂單編號為依據，請務必保留您的訂單編號。</li>' +
+        '</ol></div>' +
+        '<h4>四、預約與使用規範</h4>' +
+        '<ol>' +
+          '<li>場地使用須事先透過本館系統預約，並依現場規範操作使用。</li>' +
+          '<li>租借者應愛惜場地與設備，如有損壞需照價賠償。</li>' +
+          '<li>取消／改期規定依本館場租系統公告為準。</li>' +
+        '</ol>' +
+        '<h4>五、其他</h4>' +
+        '<ol><li>方案與價格以現場公告為準，本館保留調整之權利。</li></ol>' +
+        '<div class="ver">場租購買規章版本 ' + VENUE_RULES_VERSION + '（草稿）</div>' +
+      '</div>';
+
+    const state = { previewMode: false, uid: null, name: '', view: 'purchase', mode: null, category: null, plan: null, venueQty: null, venueCustom: false, payment: null, last5: '', agreed: false, recordsLoaded: false };
 
     /* ====== DOM ====== */
     const $ = (id) => document.getElementById(id);
@@ -335,6 +426,102 @@
     }
 
     function currentPlan(){ if(!state.category || !state.plan) return null; return PRODUCTS[state.category].plans.find(p => p.id === state.plan) || null; }
+
+    /* ====== 場租：分級單價 + 效期 ====== */
+    const VENUE_FIXED = [1, 8, 12, 24];
+    const VENUE_TIERS = [
+      { min: 1,  max: 4,        unit: 350, months: 1 },
+      { min: 5,  max: 8,        unit: 330, months: 2 },
+      { min: 9,  max: 12,       unit: 320, months: 3 },
+      { min: 13, max: 16,       unit: 310, months: 4 },
+      { min: 17, max: 20,       unit: 300, months: 5 },
+      { min: 21, max: 24,       unit: 295, months: 6 },
+      { min: 25, max: 29,       unit: 290, months: 9 },
+      { min: 30, max: Infinity, unit: 280, months: 12 },
+    ];
+    function venueTier(qty){ qty = Number(qty) || 0; return VENUE_TIERS.find(t => qty >= t.min && qty <= t.max) || null; }
+
+    function renderVenuePlans(){
+      const list = $('venuePlanList'); if(!list) return;
+      list.innerHTML = '';
+      VENUE_FIXED.forEach(q => {
+        const t = venueTier(q);
+        const sel = !state.venueCustom && Number(state.venueQty) === q;
+        const el = document.createElement('div');
+        el.className = 'planCard' + (sel ? ' sel' : '');
+        const label = q === 1 ? '單堂' : (q + '堂');
+        el.innerHTML =
+          '<div class="planLeft"><div class="planName">' + label + '</div>' +
+            '<div class="planAvg">效期 ' + t.months + ' 個月・' + t.unit + ' 元/堂</div></div>' +
+          '<div class="planPrice">NT$ ' + money(q * t.unit) + '</div>';
+        el.onclick = () => selectVenuePlan(q, false);
+        list.appendChild(el);
+      });
+      const custom = document.createElement('div');
+      custom.className = 'planCard' + (state.venueCustom ? ' sel' : '');
+      custom.innerHTML = '<div class="planLeft"><div class="planName">自行輸入堂數</div>' +
+        '<div class="planAvg">依價目表計價</div></div><div class="planPrice">＋</div>';
+      custom.onclick = () => selectVenuePlan(null, true);
+      list.appendChild(custom);
+    }
+
+    function selectVenuePlan(q, isCustom){
+      state.venueCustom = !!isCustom;
+      const box = $('venueCustomBox');
+      if(isCustom){
+        state.venueQty = null;
+        if(box) box.classList.remove('hide');
+        renderVenuePlans();
+        updateVenueCustom();
+        return;
+      }
+      if(box) box.classList.add('hide');
+      state.venueQty = q;
+      renderVenuePlans();
+      paySec.classList.remove('hide');
+      if(!state.payment) selectPayment('transfer', true);
+      refresh();
+    }
+
+    function updateVenueCustom(){
+      const inp = $('venueQtyInput'), pv = $('venueCustomPreview');
+      const v = parseInt((inp && inp.value) || '', 10);
+      if(!v || v < 1){
+        state.venueQty = null;
+        if(pv) pv.textContent = '請輸入 1 堂以上';
+        paySec.classList.add('hide');
+        refresh();
+        return;
+      }
+      state.venueQty = v;
+      const t = venueTier(v);
+      if(pv) pv.textContent = v + ' 堂 × ' + t.unit + ' 元 ＝ NT$ ' + money(v * t.unit) + '（效期 ' + t.months + ' 個月）';
+      paySec.classList.remove('hide');
+      if(!state.payment) selectPayment('transfer', true);
+      refresh();
+    }
+
+    /* 統一「目前選購項目」：課程/場租共用，供 refresh 與 submit 使用 */
+    function currentItem(){
+      if(state.mode === 'venue'){
+        const q = Number(state.venueQty);
+        if(!q || q < 1) return null;
+        const t = venueTier(q); if(!t) return null;
+        return {
+          category: 'venue', categoryLabel: '場租', pool: '場租堂數',
+          planId: (VENUE_FIXED.indexOf(q) >= 0 ? 'v' + q : 'vcustom'),
+          planLabel: (q === 1 ? '單堂' : q + '堂'),
+          credits: q, price: q * t.unit, unitPrice: t.unit, months: t.months
+        };
+      }
+      const p = currentPlan(); if(!p) return null;
+      const cat = PRODUCTS[state.category];
+      return {
+        category: state.category, categoryLabel: cat.label, pool: cat.pool,
+        planId: p.id, planLabel: p.label,
+        credits: p.credits, price: p.price, unitPrice: Math.round(p.price / p.credits), months: p.months
+      };
+    }
 
     /* ====== 渲染 ====== */
     function renderCategories(){
@@ -414,10 +601,10 @@
     }
 
     function refresh(){
-      const plan = currentPlan();
-      sumAmount.textContent = plan ? money(plan.price) : '0';
+      const item = currentItem();
+      sumAmount.textContent = item ? money(item.price) : '0';
       const validLast5 = state.payment !== 'transfer' || /^\d{5}$/.test(state.last5);
-      btnSubmit.disabled = !(plan && state.payment && validLast5 && state.agreed);
+      btnSubmit.disabled = !(item && state.payment && validLast5 && state.agreed);
     }
 
     /* ====== 送出 ====== */
@@ -431,8 +618,8 @@
     }
 
     async function submit(){
-      const cat = PRODUCTS[state.category]; const plan = currentPlan();
-      if(!cat || !plan || !state.payment) return;
+      const item = currentItem();
+      if(!item || !state.payment) return;
       if(state.payment === 'transfer' && !/^\d{5}$/.test(state.last5)){
         Swal.fire({ icon: 'warning', title: '請填寫末五碼', html: '轉帳需填入匯款帳號末五碼（5 碼數字）。', confirmButtonColor: '#63732e' });
         return;
@@ -441,11 +628,11 @@
       const payload = {
         action: 'purchaseReport', service: SERVICE, orderId: genOrderId(),
         userId: state.uid, displayName: state.name,
-        category: state.category, categoryLabel: cat.label, pool: cat.pool,
-        plan: plan.id, planLabel: plan.label, credits: plan.credits, amount: plan.price,
-        unitPrice: Math.round(plan.price / plan.credits), months: plan.months,
+        category: item.category, categoryLabel: item.categoryLabel, pool: item.pool,
+        plan: item.planId, planLabel: item.planLabel, credits: item.credits, amount: item.price,
+        unitPrice: item.unitPrice, months: item.months,
         payment: state.payment, paymentLabel, last5: state.last5 || '',
-        rulesVersion: RULES_VERSION, agreedRules: true,
+        rulesVersion: (state.mode === 'venue' ? VENUE_RULES_VERSION : RULES_VERSION), agreedRules: true,
         status: '待確認', reportedAt: new Date().toISOString(),
       };
 
@@ -558,11 +745,14 @@
     }
 
     function resetForm(){
-      state.category = null; state.plan = null; state.payment = null; state.last5 = '';
+      state.category = null; state.plan = null; state.venueQty = null; state.venueCustom = false; state.payment = null; state.last5 = '';
       state.recordsLoaded = false;   // 送出後讓紀錄頁下次重新載入
       last5Input.value = '';
+      const vqi = $('venueQtyInput'); if(vqi) vqi.value = '';
+      const vcb = $('venueCustomBox'); if(vcb) vcb.classList.add('hide');
       btnSubmit.disabled = false; btnSubmit.textContent = '送出訂單';
-      renderCategories(); renderPlans(); paySec.classList.add('hide'); last5Box.classList.add('hide');
+      if(state.mode === 'venue'){ renderVenuePlans(); } else { renderCategories(); renderPlans(); }
+      paySec.classList.add('hide'); last5Box.classList.add('hide');
       refresh();
       const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
     }
@@ -573,19 +763,62 @@
       { orderId: 'P20260703-1907', categoryLabel: '團課', planLabel: '單堂', credits: 1, amount: 400, paymentLabel: '現金', status: '待確認', reportedAt: '2026-07-03T19:40:00+08:00' },
     ];
 
-    function switchView(view){
-      state.view = view;
-      const isRecord = view === 'record';
-      mainCard.classList.toggle('hide', isRecord);
-      recordCard.classList.toggle('hide', !isRecord);
-      footer.classList.toggle('hide', isRecord);
-      pageTitle.textContent = isRecord ? '支點運動空間｜購買紀錄' : '支點運動空間｜購買課程';
-      navToggle.textContent = isRecord ? '‹ 返回購買' : '購買紀錄 ›';
-      $('greeting').textContent = isRecord
-        ? ('HI~ ' + state.name + '，以下是您的購買紀錄')
-        : ('HI~ ' + state.name + '，請選擇您要購買的方案');
+    function greetFor(view){
+      const n = state.name || '';
+      if(view === 'record') return 'HI~ ' + n + '，以下是您的購買紀錄';
+      if(state.mode === 'venue') return (n ? n + ' 教練您好' : '教練您好') + '，請選擇場租方案';
+      if(state.mode === 'course') return 'HI~ ' + n + '，請選擇您要購買的課程方案';
+      return 'HI~ ' + n + '，請先選擇您的身分';
+    }
+    function maybeShowGate(mode){
+      const storeKey = mode === 'venue' ? 'venueAgreed' : 'purchaseAgreed';
+      let agreed = false;
+      try { agreed = sessionStorage.getItem(storeKey) === '1'; } catch(e){}
+      const fc = $('agreeChk');
+      if(agreed){ state.agreed = true; if(fc) fc.checked = true; refresh(); }
+      else { state.agreed = false; if(fc) fc.checked = false; refresh(); showGate(mode); }
+    }
+    function showIdentity(){
+      state.mode = null; state.view = 'identity';
+      $('idCard').classList.remove('hide');
+      mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); recordCard.classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
+      pageTitle.textContent = '支點運動空間｜購買課程';
+      navToggle.textContent = '購買紀錄 ›';
+      $('greeting').textContent = greetFor('identity');
       const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
-      if(isRecord && !state.recordsLoaded) loadRecords();
+    }
+    function showModeView(){
+      state.view = 'purchase';
+      const venue = state.mode === 'venue';
+      $('idCard').classList.add('hide'); recordCard.classList.add('hide');
+      mainCard.classList.toggle('hide', venue);
+      $('venueCard').classList.toggle('hide', !venue);
+      footer.classList.remove('hide');
+      pageTitle.textContent = '支點運動空間｜' + (venue ? '購買場租' : '購買課程');
+      navToggle.textContent = '購買紀錄 ›';
+      $('greeting').textContent = greetFor('purchase');
+      const rl = $('viewRules'); if(rl) rl.textContent = venue ? '場租購買規章' : '購買規章';
+      const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
+    }
+    function enterMode(mode){
+      state.mode = mode;
+      showModeView();
+      resetForm();
+      maybeShowGate(mode);
+    }
+    function switchView(view){
+      if(view === 'record'){
+        state.view = 'record';
+        $('idCard').classList.add('hide'); mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
+        recordCard.classList.remove('hide');
+        pageTitle.textContent = '支點運動空間｜購買紀錄';
+        navToggle.textContent = '‹ 返回購買';
+        $('greeting').textContent = greetFor('record');
+        const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
+        if(!state.recordsLoaded) loadRecords();
+      } else {
+        if(state.mode) showModeView(); else showIdentity();
+      }
     }
 
     function fmtTime(iso){
@@ -679,27 +912,34 @@
     }
 
     /* ====== 購買規章：彈窗 + 首次進入閘門 ====== */
-    function showRules(){
-      Swal.fire({ title: '支點運動空間｜購買規章', html: PURCHASE_RULES_HTML, width: 520, confirmButtonText: '關閉', confirmButtonColor: '#63732e', customClass: { htmlContainer: 'rulesSwal' } });
+    function showRules(mode){
+      const isVenue = mode === 'venue';
+      Swal.fire({ title: isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章', html: isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML, width: 520, confirmButtonText: '關閉', confirmButtonColor: '#63732e', customClass: { htmlContainer: 'rulesSwal' } });
     }
 
-    function showGate(){
+    function showGate(mode){
+      const isVenue = mode === 'venue';
+      const rulesHtml = isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML;
+      const headTitle = isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章';
+      const storeKey = isVenue ? 'venueAgreed' : 'purchaseAgreed';
       const gate = document.createElement('div');
       gate.className = 'gate';
       gate.innerHTML =
         '<div class="gateCard">' +
-          '<div class="gateHead">支點運動空間｜購買規章</div>' +
-          '<div class="gateBody">' + PURCHASE_RULES_HTML + '</div>' +
+          '<div class="gateHead">' + headTitle + '</div>' +
+          '<div class="gateBody">' + rulesHtml + '</div>' +
           '<div class="gateFoot">' +
-            '<div class="agreeRow"><input type="checkbox" id="gateChk" /><label for="gateChk">我已閱讀並同意上述購買規章</label></div>' +
+            '<button class="switchRole" id="gateBack" type="button">‹ 切換身分</button>' +
+            '<div class="agreeRow"><input type="checkbox" id="gateChk" /><label for="gateChk">我已閱讀並同意上述規章</label></div>' +
             '<button class="btn btnPrimary" id="gateBtn" disabled>開始購買</button>' +
           '</div>' +
         '</div>';
       document.body.appendChild(gate);
       const chk = gate.querySelector('#gateChk'), btn = gate.querySelector('#gateBtn');
       chk.onchange = () => { btn.disabled = !chk.checked; };
+      gate.querySelector('#gateBack').onclick = () => { gate.remove(); showIdentity(); };
       btn.onclick = () => {
-        try { sessionStorage.setItem('purchaseAgreed', '1'); } catch(e){}
+        try { sessionStorage.setItem(storeKey, '1'); } catch(e){}
         state.agreed = true; const fc = $('agreeChk'); if(fc) fc.checked = true; refresh();
         gate.remove();
       };
@@ -728,8 +968,12 @@
         try { if(window.liff && liff.isInClient && liff.isInClient()){ liff.closeWindow(); return; } } catch(e){}
         showToast('（預覽）將返回聊天室');
       };
+      document.querySelectorAll('.idBtn').forEach(b => { b.onclick = () => enterMode(b.dataset.mode); });
+      $('switchRoleC').onclick = showIdentity;
+      $('switchRoleV').onclick = showIdentity;
       $('agreeChk').addEventListener('change', (e) => { state.agreed = e.target.checked; refresh(); });
-      $('viewRules').addEventListener('click', (e) => { e.preventDefault(); showRules(); });
+      $('viewRules').addEventListener('click', (e) => { e.preventDefault(); showRules(state.mode); });
+      $('venueQtyInput').addEventListener('input', () => { const inp = $('venueQtyInput'); inp.value = inp.value.replace(/\D/g, '').slice(0, 4); updateVenueCustom(); });
 
       const params = new URLSearchParams(window.location.search);
       if(params.get('preview') === '1'){
@@ -744,27 +988,28 @@
         }
       }
 
-      $('greeting').textContent = 'HI~ ' + state.name + '，請選擇您要購買的方案';
       $('bankName').textContent = BANK_INFO.code;
       $('bankAccount').textContent = BANK_INFO.account;
       $('copyAcctBtn').onclick = () => copyText(BANK_INFO.account, '已複製帳號');
 
-      // 入口參數 ?type= 直達某類別
-      const type = params.get('type');
-      const hit = CAT_ORDER.find(k => k === type || PRODUCTS[k].param === type);
-      if(hit) selectCategory(hit);
-
       if(state.previewMode){ setStatus('🔧 預覽模式：未連線 LINE，資料不會送出'); addPreviewNav(); }
 
-      // 入口參數 ?page=record 直接進紀錄頁（購買成功 Flex 的「查看紀錄」按鈕可帶此參數）
+      // 入口路由：?mode=course|venue、?type=（課程直達類別）、?page=record；皆無則顯示身分選擇
+      const modeParam = params.get('mode');
+      const typeParam = params.get('type');
       const isRecordEntry = params.get('page') === 'record';
-      if(isRecordEntry) switchView('record');
-
-      // 首次進入顯示購買規章閘門（紀錄頁入口跳過；本次 session 已同意則跳過）
-      let agreedThisSession = false;
-      try { agreedThisSession = sessionStorage.getItem('purchaseAgreed') === '1'; } catch(e){}
-      if(agreedThisSession){ state.agreed = true; $('agreeChk').checked = true; refresh(); }
-      else if(!isRecordEntry){ showGate(); }
+      if(isRecordEntry){
+        if(modeParam === 'venue' || modeParam === 'course') state.mode = modeParam;
+        switchView('record');
+      } else if(modeParam === 'venue'){
+        enterMode('venue');
+      } else if(modeParam === 'course' || typeParam){
+        enterMode('course');
+        const hit = CAT_ORDER.find(k => k === typeParam || PRODUCTS[k].param === typeParam);
+        if(hit) selectCategory(hit);
+      } else {
+        showIdentity();
+      }
     }
 
     init();
