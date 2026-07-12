@@ -14,6 +14,7 @@
     .top { padding: 12px 16px 6px; padding-top: calc(12px + var(--safeT)); flex: 0 0 auto; }
     .chatBack { background: none; border: 0; color: var(--muted); font-size: 13px; font-weight: 850; padding: 0 0 8px; margin: 0; cursor: pointer; display: inline-flex; align-items: center; }
     .chatBack:active { opacity: 0.55; }
+    .topBar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .idGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .idBtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 30px 12px; background: #fff; border: 2px solid var(--border); border-radius: 16px; cursor: pointer; transition: all 0.15s; }
     .idBtn:active { transform: scale(0.97); border-color: var(--primary); }
@@ -24,6 +25,12 @@
     .ph { text-align: center; color: var(--muted); font-weight: 800; line-height: 2; padding: 34px 12px; }
     .qtyInput { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid var(--border); font-size: 20px; font-weight: 900; text-align: center; color: var(--text); outline: none; margin-top: 8px; }
     .qtyInput:focus { border-color: var(--primary); }
+    .qtyInline { flex: 0 0 auto; width: 96px; padding: 9px 10px; border-radius: 12px; border: 2px solid var(--border); font-size: 18px; font-weight: 900; text-align: center; color: var(--text); outline: none; background: #fff; }
+    .qtyInline:focus { border-color: var(--primary); }
+    .secTitleRow { justify-content: space-between; }
+    .secTitleL { display: flex; align-items: center; gap: 9px; }
+    .secLink { font-size: 13px; font-weight: 900; color: var(--primary); text-decoration: underline; cursor: pointer; white-space: nowrap; }
+    .secLink:active { opacity: 0.6; }
     .priceTable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
     .priceTable th { text-align: left; font-weight: 900; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid var(--border); }
     .priceTable td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text); }
@@ -145,7 +152,10 @@
 <body>
   <div class="wrap">
     <div class="top">
-      <button class="chatBack" id="chatBack" type="button">‹ 返回聊天室</button>
+      <div class="topBar">
+        <button class="chatBack" id="chatBack" type="button">‹ 返回聊天室</button>
+        <button class="switchRole hide" id="switchRole" type="button">切換身分 ›</button>
+      </div>
       <h1 class="pageTitle" id="pageTitle">支點運動空間｜購買課程</h1>
       <div class="greetRow">
         <div class="greeting" id="greeting"></div>
@@ -162,41 +172,21 @@
         </div>
       </div>
       <div class="card hide" id="venueCard">
-        <button class="switchRole" id="switchRoleV" type="button">‹ 切換身分</button>
         <div class="sec">
-          <div class="secTitle"><span class="secNum">1</span>選擇場租方案</div>
+          <div class="secTitle secTitleRow"><span class="secTitleL"><span class="secNum">1</span>選擇場租方案</span><a class="secLink" id="viewVenuePrices">價目表 ›</a></div>
           <div class="planList" id="venuePlanList"></div>
           <div id="venueCustomBox" class="hide">
-            <div class="last5Label" style="margin-top:12px;">輸入堂數</div>
-            <input id="venueQtyInput" class="qtyInput" inputmode="numeric" placeholder="請輸入堂數" />
-            <div id="venueCustomPreview" class="last5Tip" style="text-align:center;"></div>
+            <div id="venueCustomPreview" class="last5Tip" style="text-align:center;margin-top:10px;"></div>
           </div>
-        </div>
-        <div class="sec">
-          <div class="secTitle">場租價目表</div>
-          <table class="priceTable">
-            <thead><tr><th>堂數</th><th>場租單價</th><th>使用期限</th></tr></thead>
-            <tbody>
-              <tr><td>1–4 堂</td><td>350 元/堂</td><td>1 個月</td></tr>
-              <tr><td>5–8 堂</td><td>330 元/堂</td><td>2 個月</td></tr>
-              <tr><td>9–12 堂</td><td>320 元/堂</td><td>3 個月</td></tr>
-              <tr><td>13–16 堂</td><td>310 元/堂</td><td>4 個月</td></tr>
-              <tr><td>17–20 堂</td><td>300 元/堂</td><td>5 個月</td></tr>
-              <tr><td>21–24 堂</td><td>295 元/堂</td><td>6 個月</td></tr>
-              <tr><td>25–29 堂</td><td>290 元/堂</td><td>9 個月</td></tr>
-              <tr><td>30 堂以上</td><td>280 元/堂</td><td>12 個月</td></tr>
-            </tbody>
-          </table>
         </div>
       </div>
       <div class="card hide" id="mainCard">
-        <button class="switchRole" id="switchRoleC" type="button">‹ 切換身分</button>
         <div class="sec">
           <div class="secTitle"><span class="secNum">1</span>選擇課程類別</div>
           <div class="catGrid" id="catGrid"></div>
         </div>
         <div class="sec" id="planSec">
-          <div class="secTitle"><span class="secNum">2</span>選擇方案</div>
+          <div class="secTitle"><span class="secNum">2</span>選擇課堂方案</div>
           <div class="planList" id="planList">
             <div class="hint">請先選擇上方類別</div>
           </div>
@@ -351,8 +341,8 @@
         '<div class="ver">購買規章版本 ' + RULES_VERSION + '</div>' +
       '</div>';
 
-    /* ====== 場租購買規章（草稿；效期依價目表、退費採已使用堂數以實際使用量級距單價重算） ====== */
-    const VENUE_RULES_VERSION = '2026-07-11-draft';
+    /* ====== 場租購買規章（效期依價目表、退費採已使用堂數以實際使用量級距單價重算） ====== */
+    const VENUE_RULES_VERSION = '2026-07-11';
     const VENUE_RULES_HTML =
       '<div class="rules">' +
         '<h4>一、場租堂數與使用期限</h4>' +
@@ -389,7 +379,7 @@
         '</ol>' +
         '<h4>五、其他</h4>' +
         '<ol><li>方案與價格以現場公告為準，本館保留調整之權利。</li></ol>' +
-        '<div class="ver">場租購買規章版本 ' + VENUE_RULES_VERSION + '（草稿）</div>' +
+        '<div class="ver">場租購買規章版本 ' + VENUE_RULES_VERSION + '</div>' +
       '</div>';
 
     const state = { previewMode: false, uid: null, name: '', view: 'purchase', mode: null, category: null, plan: null, venueQty: null, venueCustom: false, payment: null, last5: '', agreed: false, recordsLoaded: false };
@@ -459,9 +449,14 @@
       });
       const custom = document.createElement('div');
       custom.className = 'planCard' + (state.venueCustom ? ' sel' : '');
-      custom.innerHTML = '<div class="planLeft"><div class="planName">自行輸入堂數</div>' +
-        '<div class="planAvg">依價目表計價</div></div><div class="planPrice">＋</div>';
-      custom.onclick = () => selectVenuePlan(null, true);
+      custom.innerHTML = '<div class="planLeft"><div class="planName">自訂堂數</div>' +
+        '<div class="planAvg">依價目表計價</div></div>' +
+        '<input id="venueQtyInput" class="qtyInline" inputmode="numeric" placeholder="堂數" value="' + (state.venueCustom && state.venueQty ? state.venueQty : '') + '" />';
+      const inp = custom.querySelector('#venueQtyInput');
+      // 點卡片（非輸入框）→ 進入自訂模式並聚焦
+      custom.onclick = (e) => { if(e.target === inp) return; selectVenuePlan(null, true); };
+      inp.addEventListener('focus', () => { if(!state.venueCustom){ state.venueCustom = true; state.venueQty = null; custom.classList.add('sel'); const box = $('venueCustomBox'); if(box) box.classList.remove('hide'); } });
+      inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D/g, '').slice(0, 4); updateVenueCustom(); });
       list.appendChild(custom);
     }
 
@@ -473,6 +468,7 @@
         if(box) box.classList.remove('hide');
         renderVenuePlans();
         updateVenueCustom();
+        const inp = $('venueQtyInput'); if(inp) inp.focus();
         return;
       }
       if(box) box.classList.add('hide');
@@ -554,7 +550,7 @@
         el.className = 'planCard' + (state.plan === p.id ? ' sel' : '');
         const isBest = p.credits > 1 && p.id === plans[plans.length - 1].id;
         const sub = (p.credits > 1)
-          ? ('效期：' + p.months + ' 個月')
+          ? ('效期 ' + p.months + ' 個月')
           : '單堂・不可延期保留';
         el.innerHTML =
           '<div class="planLeft">' +
@@ -767,7 +763,7 @@
       const n = state.name || '';
       if(view === 'record') return 'HI~ ' + n + '，以下是您的購買紀錄';
       if(state.mode === 'venue') return (n ? n + ' 教練您好' : '教練您好') + '，請選擇場租方案';
-      if(state.mode === 'course') return 'HI~ ' + n + '，請選擇您要購買的課程方案';
+      if(state.mode === 'course') return 'HI~學員，請選擇購課方案';
       return 'HI~ ' + n + '，請先選擇您的身分';
     }
     function maybeShowGate(mode){
@@ -782,6 +778,7 @@
       state.mode = null; state.view = 'identity';
       $('idCard').classList.remove('hide');
       mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); recordCard.classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
+      $('switchRole').classList.add('hide');
       pageTitle.textContent = '支點運動空間｜購買課程';
       navToggle.textContent = '購買紀錄 ›';
       $('greeting').textContent = greetFor('identity');
@@ -794,6 +791,7 @@
       mainCard.classList.toggle('hide', venue);
       $('venueCard').classList.toggle('hide', !venue);
       footer.classList.remove('hide');
+      $('switchRole').classList.remove('hide');
       pageTitle.textContent = '支點運動空間｜' + (venue ? '購買場租' : '購買課程');
       navToggle.textContent = '購買紀錄 ›';
       $('greeting').textContent = greetFor('purchase');
@@ -811,6 +809,7 @@
         state.view = 'record';
         $('idCard').classList.add('hide'); mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
         recordCard.classList.remove('hide');
+        $('switchRole').classList.add('hide');
         pageTitle.textContent = '支點運動空間｜購買紀錄';
         navToggle.textContent = '‹ 返回購買';
         $('greeting').textContent = greetFor('record');
@@ -917,6 +916,18 @@
       Swal.fire({ title: isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章', html: isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML, width: 520, confirmButtonText: '關閉', confirmButtonColor: '#63732e', customClass: { htmlContainer: 'rulesSwal' } });
     }
 
+    function showVenuePrices(){
+      const rows = VENUE_TIERS.map(t => {
+        const range = t.max === Infinity ? (t.min + ' 堂以上') : (t.min + '–' + t.max + ' 堂');
+        return '<tr><td>' + range + '</td><td>' + t.unit + ' 元/堂</td><td>' + t.months + ' 個月</td></tr>';
+      }).join('');
+      Swal.fire({
+        title: '場租價目表',
+        html: '<table class="priceTable"><thead><tr><th>堂數</th><th>場租單價</th><th>使用期限</th></tr></thead><tbody>' + rows + '</tbody></table>',
+        width: 420, confirmButtonText: '關閉', confirmButtonColor: '#63732e'
+      });
+    }
+
     function showGate(mode){
       const isVenue = mode === 'venue';
       const rulesHtml = isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML;
@@ -969,11 +980,10 @@
         showToast('（預覽）將返回聊天室');
       };
       document.querySelectorAll('.idBtn').forEach(b => { b.onclick = () => enterMode(b.dataset.mode); });
-      $('switchRoleC').onclick = showIdentity;
-      $('switchRoleV').onclick = showIdentity;
+      $('switchRole').onclick = showIdentity;
       $('agreeChk').addEventListener('change', (e) => { state.agreed = e.target.checked; refresh(); });
       $('viewRules').addEventListener('click', (e) => { e.preventDefault(); showRules(state.mode); });
-      $('venueQtyInput').addEventListener('input', () => { const inp = $('venueQtyInput'); inp.value = inp.value.replace(/\D/g, '').slice(0, 4); updateVenueCustom(); });
+      $('viewVenuePrices').addEventListener('click', (e) => { e.preventDefault(); showVenuePrices(); });
 
       const params = new URLSearchParams(window.location.search);
       if(params.get('preview') === '1'){
