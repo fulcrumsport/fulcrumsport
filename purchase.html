@@ -738,23 +738,23 @@
     function createPurchaseFlex(p){
       const recordUri = 'https://liff.line.me/' + LIFF_ID + '?page=record';
       const orderDate = (() => { const d = new Date(p.reportedAt); return isNaN(d) ? '' : fmtDate(d); })();
-      const line = (t, color, size, weight) => ({ type: 'text', text: t, wrap: true, size: size || 'sm', color: color || '#444444', weight: weight || 'regular' });
+      const line = (t, color, size, weight) => ({ type: 'text', text: t, wrap: true, size: size || 'sm', color: color || '#111111', weight: weight || 'regular' });
       const info = [
         line('金額：NT$ ' + money(p.amount)),
         line('付款：' + p.paymentLabel + (p.payment === 'transfer' && p.last5 ? '（末五碼 ' + p.last5 + '）' : '')),
         line('狀態：待確認', '#c77b34', 'sm', 'bold')
       ];
       if(orderDate) info.push(line('訂單日期：' + orderDate));
-      info.push(line('訂單編號：' + p.orderId, '#aaaaaa', 'xs'));
+      info.push(line('訂單編號：' + p.orderId));
       const bodyContents = [
-        { type: 'text', text: p.categoryLabel + ' · ' + p.planLabel, weight: 'bold', size: 'xl', color: '#2b2e22', wrap: true },
+        { type: 'text', text: p.categoryLabel + ' (' + p.planLabel + ')', weight: 'bold', size: 'xl', color: '#111111', wrap: true },
         { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'lg', contents: info },
         { type: 'separator', margin: 'xl', color: '#e7eed3' },
         { type: 'text', text: '溫馨提醒', weight: 'bold', color: '#c0392b', size: 'sm', margin: 'lg' },
         { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'md', contents: [
-          line('・此訂單尚待教練核對款項，尚未完成購買。', '#8a8a8a', 'xs'),
-          line('・確認款項後將自動加給堂數。', '#8a8a8a', 'xs'),
-          line('・「查看購買紀錄」可查詢訂單狀態。', '#8a8a8a', 'xs')
+          line('・此訂單尚待教練核對款項，尚未完成購買。', '#111111', 'xs'),
+          line('・確認款項後將自動加給堂數。', '#111111', 'xs'),
+          line('・「查看購買紀錄」可查詢訂單狀態。', '#111111', 'xs')
         ]}
       ];
       return {
