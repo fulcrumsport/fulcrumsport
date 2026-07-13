@@ -679,15 +679,34 @@
         // 以 Make 回傳的權威訂單編號為準（退費依據）
         if(r.j && typeof r.j === 'object'){ payload.orderId = r.j.orderId || r.j.orderNo || r.j.orderNumber || r.j.OrderId || payload.orderId; }
         await showSuccess(payload, false);
-        // 點 OK 後：回傳「待確認」購課卡片到 LINE 聊天室，並關閉 LIFF 視窗
-        // 卡片送出與關閉視窗拆開：即使 sendMessages 失敗（例如未連結官方帳號/未授權），仍要關閉視窗回聊天室
-        if(window.liff && liff.isInClient && liff.isInClient()){
-          try { await liff.sendMessages([createPurchaseFlex(payload)]); }
-          catch(e){ /* 卡片送出失敗（多半是 chat_message.write 未授權或 LIFF 未連結官方帳號），仍繼續關閉視窗 */ }
-          try { liff.closeWindow(); } catch(e){}
-        }
+
+        // ===== 送出後：送卡片(盡力) + 關閉視窗(一定嘗試) =====
+        let inClient = false, sendErr = '';
+        try { inClient = !!(window.liff && liff.isInClient && liff.isInClient()); } catch(e){}
+        // 1) 送「待確認」卡片到聊天室（best-effort，失敗不擋關閉）
+        try {
+          if(window.liff && liff.sendMessages){ await liff.sendMessages([createPurchaseFlex(payload)]); }
+        } catch(e){ sendErr = (e && (e.message || e.code)) || String(e); }
+
         resetForm();
         setStatus('');
+
+        // 2) 關閉 LIFF 視窗回聊天室（不再用 isInClient 當閘門，直接嘗試）
+        try { if(window.liff && liff.closeWindow){ liff.closeWindow(); } } catch(e){}
+
+        // 3) 一次性診斷：若 1.2 秒後仍在此頁（代表沒關成功/不在 LINE 內），顯示狀態以便定位
+        setTimeout(() => {
+          Swal.fire({
+            icon: 'info',
+            title: '無法自動返回聊天室',
+            html: '<div style="font-size:12.5px;text-align:left;line-height:1.85">'
+                + 'isInClient：<b>' + inClient + '</b><br>'
+                + 'sendMessages：<b>' + (sendErr ? ('失敗｜' + sendErr) : (inClient ? '已送出' : '未執行(非LINE內)')) + '</b><br>'
+                + 'LIFF_ID：<b>' + LIFF_ID + '</b><br>'
+                + '請截這張圖回報，以便從根本定位。</div>',
+            confirmButtonText: '知道了', confirmButtonColor: '#63732e'
+          });
+        }, 1200);
       } catch(err){
         setStatus('系統異常，請聯繫教練處理', true);
         Swal.fire({ icon: 'error', title: '系統異常', html: '<div style="font-size:13px;color:#666;white-space:nowrap;">系統異常訂單送出失敗，請聯繫教練處理。</div>', confirmButtonColor: '#b23a2b' });
