@@ -32,7 +32,7 @@
     .secTitleL { display: flex; align-items: center; gap: 9px; }
     .secLink { font-size: 13px; font-weight: 900; color: var(--primary); text-decoration: underline; cursor: pointer; white-space: nowrap; }
     .secLink:active { opacity: 0.6; }
-    .planAvg .secLink { color: #c0512e; text-decoration: underline; text-decoration-color: #c0512e; text-decoration-thickness: 2px; text-underline-offset: 2px; font-weight: 900; }
+    .planAvg .secLink { color: #c08663; text-decoration: underline; text-decoration-color: #c08663; text-decoration-thickness: 2px; text-underline-offset: 2px; font-weight: 900; }
     .priceTable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
     .priceTable th { text-align: left; font-weight: 900; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid var(--border); }
     .priceTable td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text); }
@@ -118,8 +118,10 @@
     .rules .refund b { color: var(--danger); }
     .rules .ver { text-align: center; color: #b5b0a6; font-size: 12px; margin-top: 14px; font-weight: 800; }
     .rules .vprList { margin: 7px 0 4px; }
-    .rules .vprRow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px 14px; font-size: 13.5px; line-height: 1.9; color: #3a332b; font-weight: 700; }
-    .rules .vprRow .vc { display: flex; justify-content: space-between; align-items: baseline; }
+    .rules .vprRow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px 8px; font-size: 13.5px; line-height: 1.9; color: #3a332b; font-weight: 700; }
+    .rules .vprRow span:nth-child(1) { text-align: left; }
+    .rules .vprRow span:nth-child(2) { text-align: center; }
+    .rules .vprRow span:nth-child(3) { text-align: right; }
     .footer { flex: 0 0 auto; padding: 6px 16px calc(2px + var(--safeB)); background: linear-gradient(0deg, var(--bg) 85%, rgba(255,255,255,0)); }
     .footRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 4px 7px; }
     .footRow .agreeRow { flex: 1 1 auto; min-width: 0; padding: 0; align-items: center; }
@@ -345,15 +347,6 @@
         '<div class="ver">購買規章版本 ' + RULES_VERSION + '</div>' +
       '</div>';
 
-    /* 場租規章分級列：每欄兩端對齊（Word 分散對齊）— 開頭一排、結尾單位一排各自對齊 */
-    function vprRow(range, price, term){
-      return '<div class="vprRow">' +
-        '<span class="vc"><span>' + range + '</span><span>堂</span></span>' +
-        '<span class="vc"><span>' + price + '</span><span>元/堂</span></span>' +
-        '<span class="vc"><span>效期</span><span>' + term + ' 個月</span></span>' +
-      '</div>';
-    }
-
     /* ====== 場租購買規章（效期依價目表、退費採已使用堂數以實際使用量級距單價重算） ====== */
     const VENUE_RULES_VERSION = '2026-07-11';
     const VENUE_RULES_HTML =
@@ -362,14 +355,14 @@
         '<ol>' +
           '<li>場租堂數供自由教練租借本館場地使用，單價與使用期限依購買堂數分級：' +
             '<div class="vprList">' +
-              vprRow('1–4', '350', '1') +
-              vprRow('5–8', '330', '2') +
-              vprRow('9–12', '320', '3') +
-              vprRow('13–16', '310', '4') +
-              vprRow('17–20', '300', '5') +
-              vprRow('21–24', '295', '6') +
-              vprRow('25–29', '290', '9') +
-              vprRow('30 以上', '280', '12') +
+              '<div class="vprRow"><span>1–4 堂</span><span>350 元/堂</span><span>效期 1 個月</span></div>' +
+              '<div class="vprRow"><span>5–8 堂</span><span>330 元/堂</span><span>效期 2 個月</span></div>' +
+              '<div class="vprRow"><span>9–12 堂</span><span>320 元/堂</span><span>效期 3 個月</span></div>' +
+              '<div class="vprRow"><span>13–16 堂</span><span>310 元/堂</span><span>效期 4 個月</span></div>' +
+              '<div class="vprRow"><span>17–20 堂</span><span>300 元/堂</span><span>效期 5 個月</span></div>' +
+              '<div class="vprRow"><span>21–24 堂</span><span>295 元/堂</span><span>效期 6 個月</span></div>' +
+              '<div class="vprRow"><span>25–29 堂</span><span>290 元/堂</span><span>效期 9 個月</span></div>' +
+              '<div class="vprRow"><span>30 堂以上</span><span>280 元/堂</span><span>效期 12 個月</span></div>' +
             '</div></li>' +
           '<li><b>使用期限自館方核實付款、訂單確認後起算</b>，逾期未使用之堂數即失效、不予保留。</li>' +
         '</ol>' +
