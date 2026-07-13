@@ -680,12 +680,12 @@
         if(r.j && typeof r.j === 'object'){ payload.orderId = r.j.orderId || r.j.orderNo || r.j.orderNumber || r.j.OrderId || payload.orderId; }
         await showSuccess(payload, false);
         // 點 OK 後：回傳「待確認」購課卡片到 LINE 聊天室，並關閉 LIFF 視窗
-        try{
-          if(window.liff && liff.isInClient && liff.isInClient()){
-            await liff.sendMessages([createPurchaseFlex(payload)]);
-            liff.closeWindow();
-          }
-        }catch(e){}
+        // 卡片送出與關閉視窗拆開：即使 sendMessages 失敗（例如未連結官方帳號/未授權），仍要關閉視窗回聊天室
+        if(window.liff && liff.isInClient && liff.isInClient()){
+          try { await liff.sendMessages([createPurchaseFlex(payload)]); }
+          catch(e){ /* 卡片送出失敗（多半是 chat_message.write 未授權或 LIFF 未連結官方帳號），仍繼續關閉視窗 */ }
+          try { liff.closeWindow(); } catch(e){}
+        }
         resetForm();
         setStatus('');
       } catch(err){
