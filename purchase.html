@@ -719,29 +719,32 @@
     function createPurchaseFlex(p){
       const recordUri = 'https://liff.line.me/' + LIFF_ID + '?page=record';
       const orderDate = (() => { const d = new Date(p.reportedAt); return isNaN(d) ? '' : fmtDate(d); })();
-      const row = (k, v, color) => ({ type: 'box', layout: 'baseline', spacing: 'sm', contents: [
-        { type: 'text', text: k, color: '#9a9a9a', size: 'sm', flex: 3 },
-        { type: 'text', text: v, color: color || '#333333', size: 'sm', flex: 6, wrap: true, weight: color ? 'bold' : 'regular', align: 'end' }
-      ]});
-      const bodyRows = [
-        row('狀態', '待確認', '#c77b34'),
-        row('類別', p.categoryLabel),
-        row('方案', p.planLabel),
-        row('金額', 'NT$ ' + money(p.amount), '#111111'),
-        row('付款', p.paymentLabel)
+      const line = (t, color, size, weight) => ({ type: 'text', text: t, wrap: true, size: size || 'sm', color: color || '#444444', weight: weight || 'regular' });
+      const info = [
+        line('金額：NT$ ' + money(p.amount)),
+        line('付款：' + p.paymentLabel + (p.payment === 'transfer' && p.last5 ? '（末五碼 ' + p.last5 + '）' : '')),
+        line('狀態：待確認', '#c77b34', 'sm', 'bold')
       ];
-      if(p.payment === 'transfer' && p.last5) bodyRows.push(row('末五碼', p.last5));
-      if(orderDate) bodyRows.push(row('訂單日期', orderDate));
-      bodyRows.push({ type: 'separator', margin: 'lg', color: '#e7eed3' });
-      bodyRows.push({ type: 'text', text: '待教練核實付款後將自動加入購買堂數，並以 LINE 通知您。', wrap: true, size: 'xs', color: '#999999', margin: 'lg' });
+      if(orderDate) info.push(line('訂單日期：' + orderDate));
+      info.push(line('訂單編號：' + p.orderId, '#aaaaaa', 'xs'));
+      const bodyContents = [
+        { type: 'text', text: '• ' + p.categoryLabel + ' · ' + p.planLabel, weight: 'bold', size: 'lg', color: '#333333', wrap: true },
+        { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'md', contents: info },
+        { type: 'separator', margin: 'lg', color: '#e7eed3' },
+        { type: 'text', text: '溫馨提醒', weight: 'bold', color: '#c0392b', size: 'sm', margin: 'lg' },
+        { type: 'box', layout: 'vertical', spacing: 'xs', margin: 'sm', contents: [
+          line('・本訂單尚待教練核實付款，尚未完成購買。', '#999999', 'xs'),
+          line('・核實後將自動加入購買堂數，並以 LINE 通知您。', '#999999', 'xs')
+        ]}
+      ];
       return {
         type: 'flex', altText: '訂單已送出（待確認）｜訂單 ' + p.orderId,
         contents: { type: 'bubble',
           header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '18px', spacing: 'xs', contents: [
-            { type: 'text', text: '✓ 訂單已送出', color: '#ffffff', weight: 'bold', size: 'lg' },
-            { type: 'text', text: '訂單編號 ' + p.orderId, color: '#e7eed3', size: 'sm' }
+            { type: 'text', text: '訂單已送出', color: '#ffffff', weight: 'bold', size: 'xl' },
+            { type: 'text', text: '支點運動空間', color: '#e7eed3', size: 'sm' }
           ]},
-          body: { type: 'box', layout: 'vertical', spacing: 'md', paddingAll: '18px', contents: bodyRows },
+          body: { type: 'box', layout: 'vertical', paddingAll: '18px', contents: bodyContents },
           footer: { type: 'box', layout: 'vertical', paddingAll: '14px', paddingTop: '0px', contents: [
             { type: 'button', style: 'primary', color: '#63732e', height: 'sm',
               action: { type: 'uri', label: '查看購買紀錄', uri: recordUri } }
