@@ -15,7 +15,7 @@
     .chatBack { background: none; border: 0; color: var(--muted); font-size: 13px; font-weight: 850; padding: 0 0 8px; margin: 0; cursor: pointer; display: inline-flex; align-items: center; }
     .chatBack:active { opacity: 0.55; }
     .titleRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .titleRow .switchRole { flex: 0 0 auto; padding: 0; margin: 0; }
+    .titleRow .switchRole { flex: 0 0 auto; padding: 0 13.5px 0 0; margin: 0; }
     .idGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .idBtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 30px 12px; background: #fff; border: 2px solid var(--border); border-radius: 16px; cursor: pointer; transition: all 0.15s; }
     .idBtn:active { transform: scale(0.97); border-color: var(--primary); }
@@ -32,6 +32,7 @@
     .secTitleL { display: flex; align-items: center; gap: 9px; }
     .secLink { font-size: 13px; font-weight: 900; color: var(--primary); text-decoration: underline; cursor: pointer; white-space: nowrap; }
     .secLink:active { opacity: 0.6; }
+    .planAvg .secLink { color: #c0512e; text-decoration: underline; text-decoration-color: #c0512e; text-decoration-thickness: 2px; text-underline-offset: 2px; font-weight: 900; }
     .priceTable { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 8px; }
     .priceTable th { text-align: left; font-weight: 900; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid var(--border); }
     .priceTable td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text); }
@@ -117,7 +118,10 @@
     .rules .refund b { color: var(--danger); }
     .rules .ver { text-align: center; color: #b5b0a6; font-size: 12px; margin-top: 14px; font-weight: 800; }
     .rules .vprList { margin: 7px 0 4px; }
-    .rules .vprRow { display: grid; grid-template-columns: 5.5em 6em 1fr; gap: 4px 10px; font-size: 13.5px; line-height: 1.9; color: #3a332b; font-weight: 700; }
+    .rules .vprRow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px 8px; font-size: 13.5px; line-height: 1.9; color: #3a332b; font-weight: 700; }
+    .rules .vprRow span:nth-child(1) { text-align: left; }
+    .rules .vprRow span:nth-child(2) { text-align: center; }
+    .rules .vprRow span:nth-child(3) { text-align: right; }
     .footer { flex: 0 0 auto; padding: 6px 16px calc(2px + var(--safeB)); background: linear-gradient(0deg, var(--bg) 85%, rgba(255,255,255,0)); }
     .footRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 4px 7px; }
     .footRow .agreeRow { flex: 1 1 auto; min-width: 0; padding: 0; align-items: center; }
@@ -919,7 +923,21 @@
     /* ====== 購買規章：彈窗 + 首次進入閘門 ====== */
     function showRules(mode){
       const isVenue = mode === 'venue';
-      Swal.fire({ title: isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章', html: isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML, width: 520, confirmButtonText: '關閉', confirmButtonColor: '#63732e', customClass: { htmlContainer: 'rulesSwal' } });
+      const rulesHtml = isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML;
+      const headTitle = isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章';
+      const gate = document.createElement('div');
+      gate.className = 'gate';
+      gate.innerHTML =
+        '<div class="gateCard">' +
+          '<div class="gateHead">' + headTitle + '</div>' +
+          '<div class="gateBody">' + rulesHtml + '</div>' +
+          '<div class="gateFoot">' +
+            '<button class="btn btnPrimary" id="rulesClose" type="button">關閉</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(gate);
+      gate.querySelector('#rulesClose').onclick = () => gate.remove();
+      gate.addEventListener('click', (e) => { if(e.target === gate) gate.remove(); });
     }
 
     function showVenuePrices(){
