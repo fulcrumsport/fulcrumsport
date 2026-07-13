@@ -747,26 +747,28 @@
       if(orderDate) info.push(line('訂單日期：' + orderDate));
       info.push(line('訂單編號：' + p.orderId, '#aaaaaa', 'xs'));
       const bodyContents = [
-        { type: 'text', text: '• ' + p.categoryLabel + ' · ' + p.planLabel, weight: 'bold', size: 'lg', color: '#333333', wrap: true },
-        { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'md', contents: info },
-        { type: 'separator', margin: 'lg', color: '#e7eed3' },
+        { type: 'text', text: p.categoryLabel + ' · ' + p.planLabel, weight: 'bold', size: 'xl', color: '#2b2e22', wrap: true },
+        { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'lg', contents: info },
+        { type: 'separator', margin: 'xl', color: '#e7eed3' },
         { type: 'text', text: '溫馨提醒', weight: 'bold', color: '#c0392b', size: 'sm', margin: 'lg' },
-        { type: 'box', layout: 'vertical', spacing: 'xs', margin: 'sm', contents: [
-          line('・本訂單尚待教練核實付款，尚未完成購買。', '#999999', 'xs'),
-          line('・核實後將自動加入購買堂數，並以 LINE 通知您。', '#999999', 'xs')
+        { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'md', contents: [
+          line('・此訂單尚待教練核對款項，尚未完成購買。', '#8a8a8a', 'xs'),
+          line('・確認款項後將自動加給堂數。', '#8a8a8a', 'xs'),
+          line('・「查看購買紀錄」可查詢訂單狀態。', '#8a8a8a', 'xs')
         ]}
       ];
       return {
         type: 'flex', altText: '訂單已送出（待確認）｜訂單 ' + p.orderId,
         contents: { type: 'bubble',
-          header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '18px', spacing: 'xs', contents: [
+          header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '20px', spacing: 'xs', contents: [
             { type: 'text', text: '訂單已送出', color: '#ffffff', weight: 'bold', size: 'xl' },
             { type: 'text', text: '支點運動空間', color: '#e7eed3', size: 'sm' }
           ]},
-          body: { type: 'box', layout: 'vertical', paddingAll: '18px', contents: bodyContents },
-          footer: { type: 'box', layout: 'vertical', paddingAll: '14px', paddingTop: '0px', contents: [
-            { type: 'button', style: 'primary', color: '#63732e', height: 'sm',
-              action: { type: 'uri', label: '查看購買紀錄', uri: recordUri } }
+          body: { type: 'box', layout: 'vertical', paddingAll: '20px', contents: bodyContents },
+          footer: { type: 'box', layout: 'vertical', paddingAll: '16px', paddingTop: '4px', contents: [
+            { type: 'box', layout: 'vertical', backgroundColor: '#63732e', cornerRadius: '10px', paddingAll: '14px',
+              action: { type: 'uri', label: '查看購買紀錄', uri: recordUri },
+              contents: [ { type: 'text', text: '查看購買紀錄', color: '#ffffff', weight: 'bold', size: 'md', align: 'center' } ] }
           ]}
         }
       };
