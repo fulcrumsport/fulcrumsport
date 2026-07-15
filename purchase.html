@@ -933,13 +933,20 @@
 
     /* ====== 購買紀錄：把 Make 回傳的「試算表原始欄位」轉成前端格式 ======
        試算表為「一列一筆訂單」，類別/堂數藏在購買X欄、金額由方案推算、狀態看購買日期。 */
+    /* 每欄同時記「欄名」與「數字 key（＝欄位位置-1，Make aggregator 有時會用數字當 key）」，雙軌讀取 */
     const RECORD_CATS = [
-      { col: '購買團課', label: '團課', key: 'group' },
-      { col: '購買1v1', label: '1對1', key: 'pt1' },
-      { col: '購買1v2', label: '1對2', key: 'pt2' },
-      { col: '購買包班', label: '包班', key: 'class' },
-      { col: '購買場租', label: '場租', key: 'venue' },
+      { col: '購買團課', num: '2', label: '團課', key: 'group' },
+      { col: '購買1v1', num: '3', label: '1對1', key: 'pt1' },
+      { col: '購買1v2', num: '4', label: '1對2', key: 'pt2' },
+      { col: '購買包班', num: '5', label: '包班', key: 'class' },
+      { col: '購買場租', num: '6', label: '場租', key: 'venue' },
     ];
+    /* 先讀欄名、讀不到再讀數字 key */
+    function recGet(r, name, num){
+      if(r[name] !== undefined && r[name] !== null && r[name] !== '') return r[name];
+      if(num != null && r[num] !== undefined && r[num] !== null && r[num] !== '') return r[num];
+      return '';
+    }
     function orderIdToISO(orderId){
       const m = /^P(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/.exec(String(orderId || ''));
       if(!m) return '';
@@ -953,25 +960,26 @@
       return 0;
     }
     function normalizeRecord(r){
-      // 若已是前端格式（預覽假資料）就原樣返回
-      if(!('購買訂單編號' in r) && !('購買1v1' in r) && !('購買團課' in r)) return r;
+      // 判斷是否為試算表原始資料（欄名或數字 key 任一存在）；否則為前端格式（預覽假資料）原樣返回
+      const isSheet = ['購買訂單編號','購買團課','購買1v1','21','2','3'].some(k => k in r);
+      if(!isSheet) return r;
       let categoryLabel = '', credits = 0, catKey = '';
       for(const c of RECORD_CATS){
-        const v = parseInt(r[c.col], 10);
+        const v = parseInt(recGet(r, c.col, c.num), 10);
         if(v > 0){ categoryLabel = c.label; credits = v; catKey = c.key; break; }
       }
-      const orderId = r['購買訂單編號'] || '';
-      const paidDate = String(r['購買日期'] || '').trim();
+      const orderId = recGet(r, '購買訂單編號', '21') || '';
+      const paidDate = String(recGet(r, '購買日期', '12') || '').trim();
       return {
         orderId: orderId,
         categoryLabel: categoryLabel,
         planLabel: credits === 1 ? '單堂' : (credits + '堂'),
         credits: credits,
         amount: amountFor(catKey, credits),
-        paymentLabel: r['付款方式'] || '',
+        paymentLabel: recGet(r, '付款方式', '14') || '',
         status: paidDate ? '已確認' : '待確認',
         reportedAt: orderIdToISO(orderId) || paidDate || '',
-        expireAt: r['到期日'] || ''
+        expireAt: recGet(r, '到期日', '13') || ''
       };
     }
 
