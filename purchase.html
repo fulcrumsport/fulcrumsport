@@ -931,6 +931,50 @@
       });
     }
 
+    /* ====== 購買紀錄：把 Make 回傳的「試算表原始欄位」轉成前端格式 ======
+       試算表為「一列一筆訂單」，類別/堂數藏在購買X欄、金額由方案推算、狀態看購買日期。 */
+    const RECORD_CATS = [
+      { col: '購買團課', label: '團課', key: 'group' },
+      { col: '購買1v1', label: '1對1', key: 'pt1' },
+      { col: '購買1v2', label: '1對2', key: 'pt2' },
+      { col: '購買包班', label: '包班', key: 'class' },
+      { col: '購買場租', label: '場租', key: 'venue' },
+    ];
+    function orderIdToISO(orderId){
+      const m = /^P(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/.exec(String(orderId || ''));
+      if(!m) return '';
+      return m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5] + ':' + m[6] + '+08:00';
+    }
+    function amountFor(catKey, credits){
+      credits = Number(credits) || 0;
+      if(catKey === 'venue'){ const t = venueTier(credits); return t ? credits * t.unit : 0; }
+      const cat = PRODUCTS[catKey];
+      if(cat){ const pl = cat.plans.find(p => Number(p.credits) === credits); if(pl) return pl.price; }
+      return 0;
+    }
+    function normalizeRecord(r){
+      // 若已是前端格式（預覽假資料）就原樣返回
+      if(!('購買訂單編號' in r) && !('購買1v1' in r) && !('購買團課' in r)) return r;
+      let categoryLabel = '', credits = 0, catKey = '';
+      for(const c of RECORD_CATS){
+        const v = parseInt(r[c.col], 10);
+        if(v > 0){ categoryLabel = c.label; credits = v; catKey = c.key; break; }
+      }
+      const orderId = r['購買訂單編號'] || '';
+      const paidDate = String(r['購買日期'] || '').trim();
+      return {
+        orderId: orderId,
+        categoryLabel: categoryLabel,
+        planLabel: credits === 1 ? '單堂' : (credits + '堂'),
+        credits: credits,
+        amount: amountFor(catKey, credits),
+        paymentLabel: r['付款方式'] || '',
+        status: paidDate ? '已確認' : '待確認',
+        reportedAt: orderIdToISO(orderId) || paidDate || '',
+        expireAt: r['到期日'] || ''
+      };
+    }
+
     async function loadRecords(){
       recordList.innerHTML = '<div class="hint">載入中…</div>'; recCount.textContent = '';
       if(state.previewMode){ state.recordsLoaded = true; renderRecords(SAMPLE_RECORDS); return; }
@@ -940,6 +984,7 @@
         let data; try { data = JSON.parse(raw); } catch(e){ data = []; }
         let list = data.Results || data.results || data.records || data.orders || data;
         if(!Array.isArray(list)) list = (list && typeof list === 'object') ? [list] : [];
+        list = list.map(normalizeRecord);
         state.recordsLoaded = true;
         renderRecords(list);
       } catch(err){
