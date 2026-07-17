@@ -7,10 +7,15 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    :root { --bg: #ffffff; --card: #ffffff; --text: #2b2e22; --muted: #7c8168; --primary: #63732e; --radius: 22px; --danger: #b23a2b; --selBg: #eef2e0; --selText: #46521c; --border: rgba(99,115,46,0.22); --shadow: 0 6px 18px rgba(70,82,30,0.10); --onBg: #4d5531; --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); }
+    /* 配色 A：購買＝中性墨黑（交易層，不搶類別色）＋米白底＋金線點綴；
+       --accent 依 mode 切換成類別色（課程=青山綠 / 場租=藍），只用於小面積點綴。 */
+    :root { --bg: #f4f1e8; --card: #ffffff; --text: #2f3230; --muted: #8a8b83; --primary: #2f3230; --radius: 22px; --danger: #b23a2b; --gold: #a9762f;
+      --accent: #2f3230; --accentBg: #ecebe3;
+      --selBg: var(--accentBg); --selText: var(--accent); --border: rgba(47,50,48,0.18); --shadow: 0 6px 18px rgba(47,50,48,0.08); --onBg: #2f3230;
+      --safeB: env(safe-area-inset-bottom, 0px); --safeT: env(safe-area-inset-top, 0px); }
     * { box-sizing: border-box; }
     html, body { height: 100%; overflow: hidden; margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
-    .wrap { height: 100dvh; display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; position: relative; z-index: 1; box-shadow: 0 0 0 1px rgba(70,82,30,0.06); }
+    .wrap { height: 100dvh; display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; position: relative; z-index: 1; box-shadow: 0 0 0 1px rgba(47,50,48,0.06); }
     .top { padding: 12px 16px 6px; padding-top: calc(12px + var(--safeT)); flex: 0 0 auto; }
     .chatBack { background: none; border: 0; color: var(--muted); font-size: 13px; font-weight: 850; padding: 0 0 8px; margin: 0; cursor: pointer; display: inline-flex; align-items: center; }
     .chatBack:active { opacity: 0.55; }
@@ -46,25 +51,25 @@
     .sec { flex: 0 0 auto; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 18px; }
     .secTitle { font-weight: 950; font-size: 17px; color: var(--text); margin: 14px 0 9px; display: flex; align-items: center; gap: 9px; }
     .secTitle:first-child { margin-top: 2px; }
-    .secNum { width: 24px; height: 24px; border-radius: 999px; background: var(--primary); color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .secNum { width: 24px; height: 24px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
     .catGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .catCard { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 9px; padding: 14px 8px; border-radius: 15px; background: #fff; border: 2px solid var(--border); cursor: pointer; transition: all 0.15s; user-select: none; }
-    .catCard.sel { border-color: var(--primary); background: var(--selBg); }
+    .catCard.sel { border-color: var(--accent); background: var(--selBg); }
     .catIconWrap { width: 34px; height: 34px; border-radius: 999px; background: var(--selBg); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 950; color: var(--primary); letter-spacing: -0.5px; line-height: 1; flex: 0 0 auto; transition: all 0.15s; }
-    .catCard.sel .catIconWrap { background: var(--primary); color: #fff; }
+    .catCard.sel .catIconWrap { background: var(--accent); color: #fff; }
     .catName { font-weight: 950; font-size: 17px; color: var(--text); }
     .catCard.sel .catName { color: var(--selText); }
     .planList { display: flex; flex-direction: column; gap: 11px; }
     .planCard { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-radius: 18px; background: #fff; border: 2px solid var(--border); cursor: pointer; transition: all 0.15s; user-select: none; }
-    .planCard.sel { border-color: var(--primary); background: var(--selBg); box-shadow: 0 0 0 2px rgba(99,115,46,.1) inset; }
+    .planCard.sel { border-color: var(--accent); background: var(--selBg); box-shadow: 0 0 0 2px rgba(47,50,48,.1) inset; }
     .planLeft { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .planName { font-weight: 950; font-size: 20px; color: var(--text); display: flex; align-items: center; }
     .planAvg { font-size: 13px; font-weight: 800; color: var(--muted); }
     .planPrice { font-weight: 950; font-size: 19px; color: #111; white-space: nowrap; flex: 0 0 auto; }
     .planBadge { font-size: 11px; font-weight: 900; color: #fff; background: var(--danger); border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
     .payRow { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .payChip { padding: 16px 6px; border-radius: 18px; background: #edf0e4; font-weight: 950; font-size: 17px; cursor: pointer; border: 2px solid transparent; text-align: center; transition: all 0.15s; user-select: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .payChip.sel { background: var(--selBg); border-color: var(--primary); color: var(--selText); }
+    .payChip { padding: 16px 6px; border-radius: 18px; background: #ecebe3; font-weight: 950; font-size: 17px; cursor: pointer; border: 2px solid transparent; text-align: center; transition: all 0.15s; user-select: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .payChip.sel { background: var(--selBg); border-color: var(--accent); color: var(--selText); }
     .paySub { font-size: 12px; font-weight: 800; color: var(--muted); }
     .payChip.sel .paySub { color: var(--selText); }
     .last5Box { margin-top: 14px; }
@@ -72,7 +77,7 @@
     .last5Input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid var(--border); font-size: 24px; font-weight: 900; letter-spacing: 8px; text-align: center; color: var(--text); outline: none; transition: border-color 0.15s; }
     .last5Input:focus { border-color: var(--primary); }
     .last5Tip { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 7px; line-height: 1.55; }
-    .bankBox { margin-top: 10px; background: #f5f7ee; border: 1px dashed rgba(99,115,46,0.35); border-radius: 16px; padding: 14px 16px; color: var(--text); display: flex; flex-direction: column; gap: 11px; }
+    .bankBox { margin-top: 10px; background: #faf8f1; border: 1px dashed rgba(47,50,48,0.35); border-radius: 16px; padding: 14px 16px; color: var(--text); display: flex; flex-direction: column; gap: 11px; }
     .bankLine { display: flex; align-items: center; gap: 10px; }
     .bankLine .bankKey { flex: 0 0 64px; font-size: 12.5px; font-weight: 800; color: var(--muted); }
     .bankLine .bankVal { font-size: 18px; font-weight: 950; color: var(--text); letter-spacing: 0.5px; }
@@ -83,12 +88,12 @@
     .copyToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .hint { font-size: 14px; font-weight: 800; color: var(--muted); text-align: center; padding: 22px 8px; line-height: 1.6; }
     .topRow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .navPill { flex: 0 0 auto; background: #fff; border: 1.5px solid var(--border); color: var(--primary); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 950; cursor: pointer; box-shadow: 0 2px 8px rgba(70,82,30,0.06); transition: all 0.15s; white-space: nowrap; }
+    .navPill { flex: 0 0 auto; background: #fff; border: 1.5px solid var(--border); color: var(--primary); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 950; cursor: pointer; box-shadow: 0 2px 8px rgba(47,50,48,0.06); transition: all 0.15s; white-space: nowrap; }
     .navPill:active { transform: scale(0.96); }
     .recCount { font-size: 14px; font-weight: 900; color: var(--onBg); flex: 0 0 auto; margin: 0 0 2px 4px; }
     .recordList { display: flex; flex-direction: column; gap: 12px; }
-    .recItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 16px; padding: 14px 16px; box-shadow: 0 3px 10px rgba(70,82,30,0.04); display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; cursor: pointer; transition: transform 0.1s, box-shadow 0.15s; }
-    .recItem:active { transform: scale(0.99); box-shadow: 0 2px 6px rgba(70,82,30,0.08); }
+    .recItem { background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 16px; padding: 14px 16px; box-shadow: 0 3px 10px rgba(47,50,48,0.04); display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; cursor: pointer; transition: transform 0.1s, box-shadow 0.15s; }
+    .recItem:active { transform: scale(0.99); box-shadow: 0 2px 6px rgba(47,50,48,0.08); }
     .recItem.pending { border-left-color: #d98a3d; }
     .recTop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .recId { font-size: 12.5px; font-weight: 900; color: var(--muted); letter-spacing: 0.3px; }
@@ -117,7 +122,7 @@
     .rules p { font-size: 13.5px; line-height: 1.7; color: #3a332b; font-weight: 600; margin: 4px 0; }
     .rules ol, .rules ul { padding-left: 20px; margin: 4px 0; }
     .rules li { font-size: 13.5px; line-height: 1.7; color: #3a332b; font-weight: 600; margin-bottom: 3px; }
-    .rules .refund { background: #fbe7dd; border: 1px solid rgba(99,115,46,0.35); border-radius: 12px; padding: 11px 14px; margin: 8px 0; font-size: 13.5px; line-height: 1.75; color: #3a332b; font-weight: 700; }
+    .rules .refund { background: #fbe7dd; border: 1px solid rgba(47,50,48,0.35); border-radius: 12px; padding: 11px 14px; margin: 8px 0; font-size: 13.5px; line-height: 1.75; color: #3a332b; font-weight: 700; }
     .rules .refund b { color: var(--danger); }
     .rules .ver { text-align: center; color: #b5b0a6; font-size: 12px; margin-top: 14px; font-weight: 800; }
     .rules .vprList { margin: 7px 0 4px; }
@@ -134,7 +139,7 @@
     .sumLabel { font-size: 13.5px; font-weight: 900; color: var(--muted); }
     .sumAmount { font-size: 23px; font-weight: 950; color: #111; }
     .sumAmount small { font-size: 13px; font-weight: 900; }
-    .btn { width: 100%; border: 0; border-radius: 15px; padding: 13px 12px; font-size: 17px; font-weight: 950; cursor: pointer; box-shadow: 0 5px 14px rgba(99,115,46,0.16); transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+    .btn { width: 100%; border: 0; border-radius: 15px; padding: 13px 12px; font-size: 17px; font-weight: 950; cursor: pointer; box-shadow: 0 5px 14px rgba(47,50,48,0.16); transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
     .btn:active { transform: scale(0.98); }
     .btnPrimary { background: var(--primary); color: #fff; }
     .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -151,11 +156,13 @@
     .swal2-styled.swal2-confirm, .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; padding: 10px 24px !important; font-size: 15px !important; box-shadow: none !important; min-width: 100px !important; margin: 0 !important; }
     .swal2-styled.swal2-confirm { background-color: var(--primary) !important; color: #fff !important; }
     .swal2-styled.swal2-cancel { color: #111 !important; background: #f0ebe4 !important; }
-    .orderSummary { text-align: left !important; background: #f5f7ee; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.9; }
+    .orderSummary { text-align: left !important; background: #faf8f1; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.9; }
     .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; }
     .orderSummary .osKey { color: var(--muted); font-weight: 800; }
     .orderSummary .osVal { color: var(--text); font-weight: 950; }
     .orderSummary .osId { font-size: 12px; color: var(--primary); font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .orderSummary .osCopy { cursor: pointer; }
+    .orderSummary .osCopy small { color: var(--gold); font-weight: 900; font-size: 11px; margin-left: 6px; text-decoration: underline; }
     .swal2-html-container .rules { text-align: left !important; }
   </style>
 </head>
@@ -630,7 +637,7 @@
       const item = currentItem();
       if(!item || !state.payment) return;
       if(state.payment === 'transfer' && !/^\d{5}$/.test(state.last5)){
-        Swal.fire({ icon: 'warning', title: '請填寫末五碼', html: '轉帳需填入匯款帳號末五碼（5 碼數字）。', confirmButtonColor: '#63732e' });
+        Swal.fire({ icon: 'warning', title: '請填寫末五碼', html: '轉帳需填入匯款帳號末五碼（5 碼數字）。', confirmButtonColor: '#2f3230' });
         return;
       }
       const paymentLabel = state.payment === 'transfer' ? '轉帳' : (state.payment === 'cash' ? '現金' : '刷卡');
@@ -707,7 +714,7 @@
                 + 'sendMessages：<b>' + (sendErr ? ('失敗｜' + sendErr) : (inClient ? '已送出' : '未執行(非LINE內)')) + '</b><br>'
                 + 'LIFF_ID：<b>' + LIFF_ID + '</b><br>'
                 + '請截這張圖回報，以便從根本定位。</div>',
-            confirmButtonText: '知道了', confirmButtonColor: '#63732e'
+            confirmButtonText: '知道了', confirmButtonColor: '#2f3230'
           });
         }, 1200);
       } catch(err){
@@ -734,7 +741,7 @@
           '<li>「購買紀錄」可查看訂單狀態。</li>' +
           '<li>訂單款項經確認後將自動加入購買堂數。</li>' +
         '</ol>';
-      await Swal.fire({ icon: 'success', title: isPreview ? '預覽：訂單已送出' : '訂單已送出', html, confirmButtonText: 'OK', confirmButtonColor: '#63732e' });
+      await Swal.fire({ icon: 'success', title: isPreview ? '預覽：訂單已送出' : '訂單已送出', html, confirmButtonText: 'OK', confirmButtonColor: '#2f3230' });
     }
 
     /* 回傳給會員的「待確認」購課卡片（Flex）；點 OK 後送到 LINE 聊天室並關閉 LIFF */
@@ -752,7 +759,7 @@
       const bodyContents = [
         { type: 'text', text: p.categoryLabel + ' (' + p.planLabel + ')', weight: 'bold', size: 'xl', color: '#111111', wrap: true },
         { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'lg', contents: info },
-        { type: 'separator', margin: 'xl', color: '#e7eed3' },
+        { type: 'separator', margin: 'xl', color: '#d8d5c9' },
         { type: 'text', text: '溫馨提醒', weight: 'bold', color: '#c0392b', size: 'sm', margin: 'lg' },
         { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'md', contents: [
           line('・此訂單尚待教練核對款項，尚未完成購買。', '#111111', 'xs'),
@@ -763,13 +770,13 @@
       return {
         type: 'flex', altText: '訂單已送出（待確認）｜訂單 ' + p.orderId,
         contents: { type: 'bubble',
-          header: { type: 'box', layout: 'vertical', backgroundColor: '#63732e', paddingAll: '20px', spacing: 'xs', contents: [
+          header: { type: 'box', layout: 'vertical', backgroundColor: '#2f3230', paddingAll: '20px', spacing: 'xs', contents: [
             { type: 'text', text: '訂單已送出', color: '#ffffff', weight: 'bold', size: 'xl' },
-            { type: 'text', text: '支點運動空間', color: '#e7eed3', size: 'sm' }
+            { type: 'text', text: '支點運動空間', color: '#d8d5c9', size: 'sm' }
           ]},
           body: { type: 'box', layout: 'vertical', paddingAll: '20px', contents: bodyContents },
           footer: { type: 'box', layout: 'vertical', paddingAll: '16px', paddingTop: '4px', contents: [
-            { type: 'box', layout: 'vertical', backgroundColor: '#63732e', cornerRadius: '10px', paddingAll: '14px',
+            { type: 'box', layout: 'vertical', backgroundColor: '#2f3230', cornerRadius: '10px', paddingAll: '14px',
               action: { type: 'uri', label: '查看購買紀錄', uri: recordUri },
               contents: [ { type: 'text', text: '查看購買紀錄', color: '#ffffff', weight: 'bold', size: 'md', align: 'center' } ] }
           ]}
@@ -811,8 +818,22 @@
       if(agreed){ state.agreed = true; if(fc) fc.checked = true; refresh(); }
       else { state.agreed = false; if(fc) fc.checked = false; refresh(); showGate(mode); }
     }
+    /* 類別 accent：購買頁主色維持中性墨黑，只用小面積點綴標示「你正在買哪一類」。
+       課程＝私課青山綠、場租＝藍，與各自系統的識別色一致；身分選擇/紀錄頁用中性。 */
+    const MODE_ACCENT = {
+      course: { accent: '#3e7e6e', bg: '#e9f0ed' },
+      venue:  { accent: '#3a6ea5', bg: '#e8eef7' },
+    };
+    function applyAccent(mode){
+      const a = MODE_ACCENT[mode] || { accent: '#2f3230', bg: '#ecebe3' };
+      const root = document.documentElement;
+      root.style.setProperty('--accent', a.accent);
+      root.style.setProperty('--accentBg', a.bg);
+    }
+
     function showIdentity(){
       state.mode = null; state.view = 'identity';
+      applyAccent(null);
       $('idCard').classList.remove('hide');
       mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); recordCard.classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
       $('switchRole').classList.add('hide');
@@ -824,6 +845,7 @@
     function showModeView(){
       state.view = 'purchase';
       const venue = state.mode === 'venue';
+      applyAccent(state.mode);
       $('idCard').classList.add('hide'); recordCard.classList.add('hide');
       mainCard.classList.toggle('hide', venue);
       $('venueCard').classList.toggle('hide', !venue);
@@ -878,7 +900,10 @@
       });
       recCount.textContent = list.length ? ('共 ' + list.length + ' 筆購買紀錄' + (state.previewMode ? '（範例資料）' : '')) : '';
       if(!list.length){
-        recordList.innerHTML = '<div class="recEmpty">目前沒有購買紀錄<br>點右上「‹ 返回購買」開始選購</div>';
+        recordList.innerHTML = '<div class="recEmpty">目前沒有購買紀錄' +
+          '<button class="btn btnPrimary" id="emptyBuyBtn" type="button" style="max-width:190px;margin:16px auto 0;">開始選購</button></div>';
+        const eb = $('emptyBuyBtn');
+        if(eb) eb.onclick = () => switchView('purchase');
         return;
       }
       state.currentRecords = list;
@@ -918,7 +943,7 @@
     function openOrderDetail(r){
       if(!r) return;
       const confirmed = isConfirmed(r);
-      const statusColor = confirmed ? '#63732e' : '#c77b34';
+      const statusColor = confirmed ? '#2f3230' : '#c77b34';
       const statusTxt = confirmed ? '● 已確認' : '● 待確認';
       const ex = expiryParts(r, confirmed);
       const startDate = (() => {
@@ -929,6 +954,7 @@
       })();
       const startVal = confirmed ? (startDate || '已確認') : '款項確認後起算';
       const rows =
+        '<div class="osRow"><span class="osKey">訂單編號</span><span class="osVal osCopy" id="copyOrderIdBtn">' + (r.orderId || '') + '<small>複製</small></span></div>' +
         '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:' + statusColor + ';">' + statusTxt + '</span></div>' +
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '</span></div>' +
@@ -937,9 +963,13 @@
         '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + ex.term + '</span></div>' +
         '<div class="osRow"><span class="osKey">效期起算</span><span class="osVal">' + startVal + '</span></div>';
       Swal.fire({
-        title: '訂單 ' + (r.orderId || ''),
+        title: '訂單詳情',
         html: '<div class="orderSummary" style="margin-top:2px;">' + rows + '</div>',
-        confirmButtonText: '關閉', confirmButtonColor: '#63732e'
+        confirmButtonText: '關閉', confirmButtonColor: '#2f3230',
+        didOpen: () => {
+          const el = document.getElementById('copyOrderIdBtn');
+          if(el && r.orderId) el.onclick = () => copyText(r.orderId, '已複製訂單編號');
+        }
       });
     }
 
@@ -1041,7 +1071,7 @@
       Swal.fire({
         title: '場租價目表',
         html: '<table class="priceTable"><thead><tr><th>堂數</th><th>場租單價</th><th>使用期限</th></tr></thead><tbody>' + rows + '</tbody></table>',
-        width: 420, confirmButtonText: '關閉', confirmButtonColor: '#63732e'
+        width: 420, confirmButtonText: '關閉', confirmButtonColor: '#2f3230'
       });
     }
 
