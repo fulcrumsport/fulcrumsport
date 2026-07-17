@@ -98,6 +98,7 @@
     .recBadge { font-size: 12.5px; font-weight: 950; padding: 4px 12px; border-radius: 999px; flex: 0 0 auto; }
     .recBadge.ok { background: var(--selBg); color: var(--primary); }
     .recBadge.pending { background: #fbead6; color: #b06a2e; }
+    .recBadge.soon { background: #fde8d2; color: #a85a1a; }
     .recMid { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     .recName { font-size: 18px; font-weight: 950; color: var(--text); }
     .recAmount { font-size: 20px; font-weight: 950; color: #111; flex: 0 0 auto; }
@@ -797,8 +798,9 @@
 
     /* ====== 我的購買紀錄 ====== */
     const SAMPLE_RECORDS = [
-      { orderId: 'P20260705-4821', categoryLabel: '1對1', planLabel: '24堂', credits: 24, amount: 27600, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-07-05T10:12:00+08:00' },
+      { orderId: 'P20260705-4821', categoryLabel: '1對1', planLabel: '24堂', credits: 24, amount: 27600, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-07-05T10:12:00+08:00', confirmedAt: '2026/07/06 09:30' },
       { orderId: 'P20260703-1907', categoryLabel: '團課', planLabel: '單堂', credits: 1, amount: 400, paymentLabel: '現金', status: '待確認', reportedAt: '2026-07-03T19:40:00+08:00' },
+      { orderId: 'P20260620-3355', categoryLabel: '場租', planLabel: '4堂', credits: 4, months: 1, amount: 1400, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-06-20T14:05:00+08:00', confirmedAt: '2026/06/25 11:00' },
     ];
 
     function greetFor(view){
@@ -894,7 +896,10 @@
       state.currentRecords = list;
       recordList.innerHTML = list.map((r, i) => {
         const confirmed = isConfirmed(r);
-        const badge = confirmed ? '' : '<span class="recBadge pending">待確認</span>';
+        const dl = confirmed ? daysLeftFor(r) : null;
+        const badge = confirmed
+          ? (dl != null ? '<span class="recBadge soon">' + (dl === 0 ? '今天到期' : '剩 ' + dl + ' 天到期') + '</span>' : '')
+          : '<span class="recBadge pending">待確認</span>';
         return '<div class="recItem' + (confirmed ? '' : ' pending') + '" data-idx="' + i + '">' +
           '<div class="recTop"><span class="recId">' + (r.orderId || '—') + '</span>' + badge + '</div>' +
           '<div class="recMid"><span class="recName">' + (r.categoryLabel || '') + ' · ' + (r.planLabel || '') + '</span>' +
@@ -919,9 +924,20 @@
       let date = '';
       const explicit = r.expireAt || r.expiresAt || r.expiryDate || r.validUntil;
       if(explicit){ const d = new Date(explicit); if(!isNaN(d)) date = fmtDate(d); }
-      else if(confirmed){ const base = new Date(r.reportedAt); if(!isNaN(base)){ const exp = new Date(base); exp.setMonth(exp.getMonth() + months); date = fmtDate(exp); } }
+      else if(confirmed){ const base = new Date(r.confirmedAt); if(!isNaN(base)){ const exp = new Date(base); exp.setMonth(exp.getMonth() + months); date = fmtDate(exp); } }
       if(months == null) return { term: '—', date: date };
       return { term: months + ' 個月', date: date };
+    }
+
+    /* 剩餘天數：僅在 0~14 天內回傳整數，其餘（未到期／已過期／單堂／算不出）回 null */
+    function daysLeftFor(r){
+      const date = expiryParts(r, true).date;
+      if(!date) return null;
+      const exp = new Date(date + ' 23:59:59');
+      if(isNaN(exp)) return null;
+      const now = new Date();
+      const d = Math.ceil((exp - now) / 86400000);
+      return (d >= 0 && d <= 14) ? d : null;
     }
 
     /* 點紀錄卡 → 訂單詳情（含使用期限） */
