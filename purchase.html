@@ -863,10 +863,19 @@
       return d.getFullYear() + '/' + p2(d.getMonth()+1) + '/' + p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
     }
 
+    /* 訂單是否已確認（清單、排序、詳情共用同一判斷） */
+    function isConfirmed(r){
+      return /確認|完成|已加|success|ok/i.test((r && r.status) || '') && !/待/.test((r && r.status) || '');
+    }
+
     function renderRecords(list){
       list = Array.isArray(list) ? list : [];
-      // 新到舊
-      list = list.slice().sort((a, b) => new Date(b.reportedAt || 0) - new Date(a.reportedAt || 0));
+      // 待確認置頂；各組內再依訂單時間新到舊
+      list = list.slice().sort((a, b) => {
+        const pa = isConfirmed(a) ? 1 : 0, pb = isConfirmed(b) ? 1 : 0;
+        if(pa !== pb) return pa - pb;
+        return new Date(b.reportedAt || 0) - new Date(a.reportedAt || 0);
+      });
       recCount.textContent = list.length ? ('共 ' + list.length + ' 筆購買紀錄' + (state.previewMode ? '（範例資料）' : '')) : '';
       if(!list.length){
         recordList.innerHTML = '<div class="recEmpty">目前沒有購買紀錄<br>點右上「‹ 返回購買」開始選購</div>';
@@ -874,7 +883,7 @@
       }
       state.currentRecords = list;
       recordList.innerHTML = list.map((r, i) => {
-        const confirmed = /確認|完成|已加|success|ok/i.test(r.status || '') && !/待/.test(r.status || '');
+        const confirmed = isConfirmed(r);
         const badge = confirmed ? '' : '<span class="recBadge pending">待確認</span>';
         return '<div class="recItem' + (confirmed ? '' : ' pending') + '" data-idx="' + i + '">' +
           '<div class="recTop"><span class="recId">' + (r.orderId || '—') + '</span>' + badge + '</div>' +
@@ -908,7 +917,7 @@
     /* 點紀錄卡 → 訂單詳情（含使用期限） */
     function openOrderDetail(r){
       if(!r) return;
-      const confirmed = /確認|完成|已加|success|ok/i.test(r.status || '') && !/待/.test(r.status || '');
+      const confirmed = isConfirmed(r);
       const statusColor = confirmed ? '#63732e' : '#c77b34';
       const statusTxt = confirmed ? '● 已確認' : '● 待確認';
       const ex = expiryParts(r, confirmed);
