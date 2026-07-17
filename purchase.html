@@ -875,13 +875,10 @@
       state.currentRecords = list;
       recordList.innerHTML = list.map((r, i) => {
         const confirmed = /確認|完成|已加|success|ok/i.test(r.status || '') && !/待/.test(r.status || '');
-        const badge = confirmed
-          ? '<span class="recBadge ok">✓ 已確認</span>'
-          : '<span class="recBadge pending">待確認</span>';
-        const creditsTxt = (r.credits != null) ? ('（' + r.credits + ' 堂）') : '';
+        const badge = confirmed ? '' : '<span class="recBadge pending">待確認</span>';
         return '<div class="recItem' + (confirmed ? '' : ' pending') + '" data-idx="' + i + '">' +
           '<div class="recTop"><span class="recId">' + (r.orderId || '—') + '</span>' + badge + '</div>' +
-          '<div class="recMid"><span class="recName">' + (r.categoryLabel || '') + ' · ' + (r.planLabel || '') + creditsTxt + '</span>' +
+          '<div class="recMid"><span class="recName">' + (r.categoryLabel || '') + ' · ' + (r.planLabel || '') + '</span>' +
             '<span class="recAmount">NT$ ' + money(r.amount || 0) + '</span></div>' +
           '<div class="recSub"><span>' + (r.paymentLabel || '') + ' · ' + fmtTime(r.reportedAt) + '</span><span class="recMore">訂單詳情 ›</span></div>' +
         '</div>';
@@ -915,7 +912,13 @@
       const statusColor = confirmed ? '#63732e' : '#c77b34';
       const statusTxt = confirmed ? '● 已確認' : '● 待確認';
       const ex = expiryParts(r, confirmed);
-      const orderDate = (() => { const d = new Date(r.reportedAt); return isNaN(d) ? '' : fmtDate(d); })();
+      const startDate = (() => {
+        const raw = String(r.confirmedAt || '').trim();
+        if(!raw) return '';
+        const d = new Date(raw);
+        return isNaN(d) ? raw.split(' ')[0] : fmtDate(d);
+      })();
+      const startVal = confirmed ? (startDate || '已確認') : '款項確認後起算';
       const rows =
         '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:' + statusColor + ';">' + statusTxt + '</span></div>' +
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
@@ -923,7 +926,7 @@
         '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(r.amount || 0) + '</span></div>' +
         '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + (r.paymentLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + ex.term + '</span></div>' +
-        '<div class="osRow"><span class="osKey">訂單日期</span><span class="osVal">' + orderDate + '</span></div>';
+        '<div class="osRow"><span class="osKey">效期起算</span><span class="osVal">' + startVal + '</span></div>';
       Swal.fire({
         title: '訂單 ' + (r.orderId || ''),
         html: '<div class="orderSummary" style="margin-top:2px;">' + rows + '</div>',
@@ -979,6 +982,7 @@
         paymentLabel: recGet(r, '付款方式', '14') || '',
         status: paidDate ? '已確認' : '待確認',
         reportedAt: orderIdToISO(orderId) || paidDate || '',
+        confirmedAt: paidDate,   // 購買日期＝款項確認後、效期起算日
         expireAt: recGet(r, '到期日', '13') || ''
       };
     }
