@@ -79,6 +79,7 @@
     .bankLine { display: flex; align-items: center; gap: 10px; }
     .bankLine .bankKey { flex: 0 0 64px; font-size: 12.5px; font-weight: 800; color: var(--muted); }
     .bankLine .bankVal { font-size: 18px; font-weight: 950; color: var(--text); letter-spacing: 0.5px; }
+    .bankLine .bankVal .bankNote { font-size: 12.5px; font-weight: 800; color: var(--muted); letter-spacing: 0; }
     .bankLine .bankVal.acct { flex: 1 1 auto; min-width: 0; color: #111; word-break: break-all; }
     .bankLine .copyBtn { flex: 0 0 auto; background: var(--primary); color: #fff; border: 0; border-radius: 8px; padding: 6px 13px; font-size: 13px; font-weight: 900; cursor: pointer; transition: opacity 0.15s; }
     .bankLine .copyBtn:active { opacity: 0.82; }
@@ -1142,7 +1143,7 @@
         }
       }
 
-      $('bankName').textContent = BANK_INFO.code + '（' + BANK_INFO.bank + '）';
+      $('bankName').innerHTML = BANK_INFO.code + '<span class="bankNote">（' + BANK_INFO.bank + '）</span>';
       $('bankAccount').textContent = BANK_INFO.account;
       $('copyAcctBtn').onclick = () => copyText(BANK_INFO.account, '已複製帳號');
 
