@@ -159,6 +159,8 @@
     .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
     .orderSummary .osKey { color: var(--muted); font-weight: 800; white-space: nowrap; flex: 0 0 auto; }
     .orderSummary .osVal { color: var(--text); font-weight: 950; text-align: right; min-width: 0; word-break: break-all; }
+    .orderSummary .osRowId { flex-direction: column; align-items: flex-start; gap: 2px; }
+    .orderSummary .osRowId .osVal { text-align: left; width: 100%; word-break: normal; white-space: nowrap; font-size: 15px; letter-spacing: 0.3px; }
     .orderSummary .osId { font-size: 12px; color: var(--primary); font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: 0.5px; }
     .swal2-html-container .rules { text-align: left !important; }
   </style>
@@ -798,7 +800,7 @@
     const SAMPLE_RECORDS = [
       { orderId: 'P20260705101200-48', categoryLabel: '1對1', planLabel: '24堂', credits: 24, amount: 27600, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-07-05T10:12:00+08:00', confirmedAt: '2026/07/06 09:30' },
       { orderId: 'P20260703194000-19', categoryLabel: '團課', planLabel: '單堂', credits: 1, amount: 400, paymentLabel: '現金', status: '待確認', reportedAt: '2026-07-03T19:40:00+08:00' },
-      { orderId: 'P20260620140500-33', categoryLabel: '場租', planLabel: '4堂', credits: 4, months: 1, amount: 1400, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-06-20T14:05:00+08:00', confirmedAt: '2026/06/25 11:00' },
+      { orderId: 'P20260620140500-33', categoryLabel: '場租', planLabel: '15堂', credits: 15, amount: 4650, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-06-20T14:05:00+08:00', confirmedAt: '2026/06/25 11:00' },
     ];
 
     function greetFor(view){
@@ -912,6 +914,8 @@
 
     /* 使用期限：優先用 Make 回傳的到期日；否則由方案 months + 申報時間推算 */
     function planMonthsFor(categoryLabel, credits){
+      // 場租是級距（可自訂堂數），依 VENUE_TIERS 推月數，而非固定方案
+      if(categoryLabel === '場租'){ const t = venueTier(credits); return t ? t.months : null; }
       for(const k of CAT_ORDER){ const cat = PRODUCTS[k]; if(cat && cat.label === categoryLabel){ const pl = cat.plans.find(p => Number(p.credits) === Number(credits)); if(pl) return pl.months; } }
       return null;
     }
@@ -947,7 +951,7 @@
       const ex = expiryParts(r, confirmed);
       const expiryVal = confirmed ? (ex.date || '—') : '款項確認後計算';
       const rows =
-        '<div class="osRow"><span class="osKey">訂單編號</span><span class="osVal">' + (r.orderId || '') + '</span></div>' +
+        '<div class="osRow osRowId"><span class="osKey">訂單編號</span><span class="osVal osIdVal">' + (r.orderId || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:' + statusColor + ';">' + statusTxt + '</span></div>' +
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '</span></div>' +
