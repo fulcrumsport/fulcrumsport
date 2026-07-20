@@ -158,11 +158,8 @@
     .orderSummary { text-align: left !important; background: #f5f7ee; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.9; }
     .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
     .orderSummary .osKey { color: var(--muted); font-weight: 800; white-space: nowrap; flex: 0 0 auto; }
-    .orderSummary .osVal { color: var(--text); font-weight: 950; text-align: right; min-width: 0; }
-    .orderSummary .osVal.osCopy { word-break: break-all; }
+    .orderSummary .osVal { color: var(--text); font-weight: 950; text-align: right; min-width: 0; word-break: break-all; }
     .orderSummary .osId { font-size: 12px; color: var(--primary); font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: 0.5px; }
-    .orderSummary .osCopy { cursor: pointer; }
-    .orderSummary .osCopy small { color: var(--gold); font-weight: 900; font-size: 11px; margin-left: 6px; text-decoration: underline; }
     .swal2-html-container .rules { text-align: left !important; }
   </style>
 </head>
@@ -948,30 +945,20 @@
       const statusColor = confirmed ? '#63732e' : '#c77b34';
       const statusTxt = confirmed ? '● 已確認' : '● 待確認';
       const ex = expiryParts(r, confirmed);
-      const startDate = (() => {
-        const raw = String(r.confirmedAt || '').trim();
-        if(!raw) return '';
-        const d = new Date(raw);
-        return isNaN(d) ? raw.split(' ')[0] : fmtDate(d);
-      })();
-      const startVal = confirmed ? (startDate || '已確認') : '款項確認後起算';
+      const expiryVal = confirmed ? (ex.date || '—') : '款項確認後計算';
       const rows =
-        '<div class="osRow"><span class="osKey">訂單編號</span><span class="osVal osCopy" id="copyOrderIdBtn">' + (r.orderId || '') + '<small>複製</small></span></div>' +
+        '<div class="osRow"><span class="osKey">訂單編號</span><span class="osVal">' + (r.orderId || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:' + statusColor + ';">' + statusTxt + '</span></div>' +
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(r.amount || 0) + '</span></div>' +
         '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + (r.paymentLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + ex.term + '</span></div>' +
-        '<div class="osRow"><span class="osKey">效期起算</span><span class="osVal">' + startVal + '</span></div>';
+        '<div class="osRow"><span class="osKey">到期日</span><span class="osVal">' + expiryVal + '</span></div>';
       Swal.fire({
         title: '訂單詳情',
         html: '<div class="orderSummary" style="margin-top:2px;">' + rows + '</div>',
-        confirmButtonText: '關閉', confirmButtonColor: '#63732e',
-        didOpen: () => {
-          const el = document.getElementById('copyOrderIdBtn');
-          if(el && r.orderId) el.onclick = () => copyText(r.orderId, '已複製訂單編號');
-        }
+        confirmButtonText: '關閉', confirmButtonColor: '#63732e'
       });
     }
 
