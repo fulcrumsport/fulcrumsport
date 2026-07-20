@@ -159,8 +159,6 @@
     .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
     .orderSummary .osKey { color: var(--muted); font-weight: 800; white-space: nowrap; flex: 0 0 auto; }
     .orderSummary .osVal { color: var(--text); font-weight: 950; text-align: right; min-width: 0; word-break: break-all; }
-    .orderSummary .osRowId { flex-direction: column; align-items: flex-start; gap: 2px; }
-    .orderSummary .osRowId .osVal { text-align: left; width: 100%; word-break: normal; white-space: nowrap; font-size: 15px; letter-spacing: 0.3px; }
     .orderSummary .osId { font-size: 12px; color: var(--primary); font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: 0.5px; }
     .swal2-html-container .rules { text-align: left !important; }
   </style>
@@ -920,13 +918,21 @@
       return null;
     }
     function fmtDate(d){ const p2 = (n) => String(n).padStart(2, '0'); return d.getFullYear() + '/' + p2(d.getMonth()+1) + '/' + p2(d.getDate()); }
+    /* 跨瀏覽器日期解析：iOS Safari 無法解析 "2026/07/20 12:11" 這類格式，這裡手動拆解 */
+    function parseLocalDate(s){
+      s = String(s || '').trim(); if(!s) return null;
+      const m = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/);
+      if(m) return new Date(+m[1], +m[2]-1, +m[3], +(m[4]||0), +(m[5]||0));
+      const d = new Date(s); return isNaN(d) ? null : d;
+    }
     function expiryParts(r, confirmed){
       const months = (r.months != null) ? Number(r.months) : planMonthsFor(r.categoryLabel, r.credits);
       if(months === 0 || Number(r.credits) === 1) return { term: '單堂・不可延期保留', date: '' };
       let date = '';
       const explicit = r.expireAt || r.expiresAt || r.expiryDate || r.validUntil;
-      if(explicit){ const d = new Date(explicit); if(!isNaN(d)) date = fmtDate(d); }
-      else if(confirmed){ const base = new Date(r.confirmedAt); if(!isNaN(base)){ const exp = new Date(base); exp.setMonth(exp.getMonth() + months); date = fmtDate(exp); } }
+      const ed = explicit ? parseLocalDate(explicit) : null;
+      if(ed){ date = fmtDate(ed); }
+      else if(confirmed){ const base = parseLocalDate(r.confirmedAt); if(base){ const exp = new Date(base); exp.setMonth(exp.getMonth() + months); date = fmtDate(exp); } }
       if(months == null) return { term: '—', date: date };
       return { term: months + ' 個月', date: date };
     }
@@ -951,7 +957,7 @@
       const ex = expiryParts(r, confirmed);
       const expiryVal = confirmed ? (ex.date || '—') : '款項確認後計算';
       const rows =
-        '<div class="osRow osRowId"><span class="osKey">訂單編號</span><span class="osVal osIdVal">' + (r.orderId || '') + '</span></div>' +
+        '<div class="osId">訂單編號 ' + (r.orderId || '') + '</div>' +
         '<div class="osRow"><span class="osKey">狀態</span><span class="osVal" style="color:' + statusColor + ';">' + statusTxt + '</span></div>' +
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '</span></div>' +
