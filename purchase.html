@@ -156,9 +156,10 @@
     .swal2-styled.swal2-confirm { background-color: var(--primary) !important; color: #fff !important; }
     .swal2-styled.swal2-cancel { color: #111 !important; background: #f0ebe4 !important; }
     .orderSummary { text-align: left !important; background: #f5f7ee; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.9; }
-    .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; }
-    .orderSummary .osKey { color: var(--muted); font-weight: 800; }
-    .orderSummary .osVal { color: var(--text); font-weight: 950; }
+    .orderSummary .osRow { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .orderSummary .osKey { color: var(--muted); font-weight: 800; white-space: nowrap; flex: 0 0 auto; }
+    .orderSummary .osVal { color: var(--text); font-weight: 950; text-align: right; min-width: 0; }
+    .orderSummary .osVal.osCopy { word-break: break-all; }
     .orderSummary .osId { font-size: 12px; color: var(--primary); font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: 0.5px; }
     .orderSummary .osCopy { cursor: pointer; }
     .orderSummary .osCopy small { color: var(--gold); font-weight: 900; font-size: 11px; margin-left: 6px; text-decoration: underline; }
@@ -263,7 +264,7 @@
     const ENABLE_CARD = false;   // 預留刷卡，接金流後改 true
 
     /* 匯款資訊（本館收款帳號，顯示於轉帳說明；部署前請填入正確資料） */
-    const BANK_INFO = { code: '013', account: '084100009511' };
+    const BANK_INFO = { code: '013', bank: '國泰世華', account: '084100009511' };
 
     /* 類別小圖示（線條 SVG，stroke=currentColor 隨主色/選中色變化） */
     const SVG = (inner) => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
@@ -798,9 +799,9 @@
 
     /* ====== 我的購買紀錄 ====== */
     const SAMPLE_RECORDS = [
-      { orderId: 'P20260705-4821', categoryLabel: '1對1', planLabel: '24堂', credits: 24, amount: 27600, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-07-05T10:12:00+08:00', confirmedAt: '2026/07/06 09:30' },
-      { orderId: 'P20260703-1907', categoryLabel: '團課', planLabel: '單堂', credits: 1, amount: 400, paymentLabel: '現金', status: '待確認', reportedAt: '2026-07-03T19:40:00+08:00' },
-      { orderId: 'P20260620-3355', categoryLabel: '場租', planLabel: '4堂', credits: 4, months: 1, amount: 1400, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-06-20T14:05:00+08:00', confirmedAt: '2026/06/25 11:00' },
+      { orderId: 'P20260705101200-48', categoryLabel: '1對1', planLabel: '24堂', credits: 24, amount: 27600, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-07-05T10:12:00+08:00', confirmedAt: '2026/07/06 09:30' },
+      { orderId: 'P20260703194000-19', categoryLabel: '團課', planLabel: '單堂', credits: 1, amount: 400, paymentLabel: '現金', status: '待確認', reportedAt: '2026-07-03T19:40:00+08:00' },
+      { orderId: 'P20260620140500-33', categoryLabel: '場租', planLabel: '4堂', credits: 4, months: 1, amount: 1400, paymentLabel: '轉帳', status: '已確認', reportedAt: '2026-06-20T14:05:00+08:00', confirmedAt: '2026/06/25 11:00' },
     ];
 
     function greetFor(view){
@@ -1144,7 +1145,7 @@
         }
       }
 
-      $('bankName').textContent = BANK_INFO.code;
+      $('bankName').textContent = BANK_INFO.code + '（' + BANK_INFO.bank + '）';
       $('bankAccount').textContent = BANK_INFO.account;
       $('copyAcctBtn').onclick = () => copyText(BANK_INFO.account, '已複製帳號');
 
