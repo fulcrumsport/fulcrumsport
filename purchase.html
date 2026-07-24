@@ -638,7 +638,9 @@
         Swal.fire({ icon: 'warning', title: '請填寫末五碼', html: '轉帳需填入匯款帳號末五碼（5 碼數字）。', confirmButtonColor: '#63732e' });
         return;
       }
-      const paymentLabel = state.payment === 'transfer' ? '轉帳' : (state.payment === 'cash' ? '現金' : '刷卡');
+      const paymentBase = state.payment === 'transfer' ? '轉帳' : (state.payment === 'cash' ? '現金' : '刷卡');
+      // 轉帳時把末五碼併進 paymentLabel，存進試算表 O 欄後，核實卡片（Make 讀 O）也會自帶末五碼
+      const paymentLabel = paymentBase + (state.payment === 'transfer' && /^\d{5}$/.test(state.last5) ? '（末五碼 ' + state.last5 + '）' : '');
       const payload = {
         action: 'purchaseReport', service: SERVICE, orderId: genOrderId(),
         userId: state.uid, displayName: state.name,
@@ -732,7 +734,6 @@
           '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + p.planLabel + '</span></div>' +
           '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(p.amount) + '</span></div>' +
           '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + p.paymentLabel + '</span></div>' +
-          (p.payment === 'transfer' && p.last5 ? '<div class="osRow"><span class="osKey">末五碼</span><span class="osVal">' + p.last5 + '</span></div>' : '') +
         '</div>' +
         (isPreview ? '<div style="margin-top:12px;font-size:13px;color:#c77b34;text-align:left;font-weight:800;">🔧 預覽模式：未實際送出。</div>' : '') +
         '<ol style="margin:12px 0 0;padding-left:20px;font-size:13px;color:#555;line-height:1.7;text-align:left;">' +
@@ -749,7 +750,7 @@
       const line = (t, color, size, weight) => ({ type: 'text', text: t, wrap: true, size: size || 'sm', color: color || '#111111', weight: weight || 'regular' });
       const info = [
         line('金額：NT$ ' + money(p.amount)),
-        line('付款：' + p.paymentLabel + (p.payment === 'transfer' && p.last5 ? '（末五碼 ' + p.last5 + '）' : '')),
+        line('付款：' + p.paymentLabel),
         line('狀態：待確認', '#c77b34', 'sm', 'bold')
       ];
       if(orderDate) info.push(line('訂單日期：' + orderDate));
