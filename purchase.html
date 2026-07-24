@@ -869,8 +869,10 @@
     function fmtTime(iso){
       const d = new Date(iso); if(isNaN(d)) return String(iso || '');
       const p2 = (n) => String(n).padStart(2, '0');
-      return d.getFullYear() + '/' + p2(d.getMonth()+1) + '/' + p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+      return d.getFullYear() + '/' + p2(d.getMonth()+1) + '/' + p2(d.getDate());
     }
+    // 購買紀錄顯示付款方式時，去掉併進 paymentLabel 的「（末五碼 …）」
+    function payDisplay(label){ return String(label || '').replace(/（末五碼[^）]*）/g, '').trim(); }
 
     /* 訂單是否已確認（清單、排序、詳情共用同一判斷） */
     function isConfirmed(r){
@@ -904,7 +906,7 @@
           '<div class="recTop"><span class="recId">' + (r.orderId || '—') + '</span>' + badge + '</div>' +
           '<div class="recMid"><span class="recName">' + (r.categoryLabel || '') + ' · ' + (r.planLabel || '') + '</span>' +
             '<span class="recAmount">NT$ ' + money(r.amount || 0) + '</span></div>' +
-          '<div class="recSub"><span>' + (r.paymentLabel || '') + ' · ' + fmtTime(r.reportedAt) + '</span><span class="recMore">訂單詳情 ›</span></div>' +
+          '<div class="recSub"><span>' + payDisplay(r.paymentLabel) + ' · ' + fmtTime(r.reportedAt) + '</span><span class="recMore">訂單詳情 ›</span></div>' +
         '</div>';
       }).join('');
       recordList.querySelectorAll('.recItem').forEach(el => {
@@ -964,7 +966,7 @@
         '<div class="osRow"><span class="osKey">類別</span><span class="osVal">' + (r.categoryLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">方案</span><span class="osVal">' + (r.planLabel || '') + '</span></div>' +
         '<div class="osRow"><span class="osKey">金額</span><span class="osVal">NT$ ' + money(r.amount || 0) + '</span></div>' +
-        '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + (r.paymentLabel || '') + '</span></div>' +
+        '<div class="osRow"><span class="osKey">付款</span><span class="osVal">' + payDisplay(r.paymentLabel) + '</span></div>' +
         '<div class="osRow"><span class="osKey">效期</span><span class="osVal">' + ex.term + '</span></div>' +
         '<div class="osRow"><span class="osKey">到期日</span><span class="osVal">' + expiryVal + '</span></div>';
       Swal.fire({
