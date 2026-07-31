@@ -286,7 +286,6 @@
 
   // 場地租借使用規章（同時用於首次強制閱讀閘門與確認頁「查看規章」）
   const RENT_RULES_HTML = `
-    <div style="background:#e3f0f9; border:1px solid rgba(14,107,168,0.25); border-radius:12px; padding:11px 13px; margin-bottom:14px; font-weight:900; color:#0a4d78; font-size:14px;">📅 場地租借僅開放預約「<b>未來 7 天內</b>」之時段。</div>
     <div class="rules-sec">一、會員資格與付款（扣堂制）</div>
     <ol start="1">
       <li>場地租借採<b>扣堂制</b>，租借者須先<b>加入會員並購買堂數</b>後，方可進行場地租借預約。</li>
@@ -299,14 +298,15 @@
       <li>逾時使用且影響後續使用者者，請立即退場；本場館保留調整或暫停其預約權限之權利。</li>
       <li>提早到場者，請於前一組使用者退場並整理完畢後再行進入。</li>
     </ol>
-    <div class="rules-sec">三、取消與改期</div>
+    <div class="rules-sec">三、預約、取消與改期</div>
     <ol start="7">
+      <li>場地租借<b>僅開放預約未來 7 天內</b>之時段，逾此範圍暫不開放預約。</li>
       <li>取消或改期，<b>須於租借日的前一天完成</b>（非開課前 24 小時）。例：24 日的預約，請於 23 日內完成預約、改期或取消操作，逾期恕不接受預約、取消或改期。</li>
       <li>於期限內完成之取消，將返還對應堂數；改期視同重新預約，以新時段是否仍可預約為準。</li>
       <li>無故未到（No-show）者，<b>該堂數不予返還</b>。</li>
     </ol>
     <div class="rules-sec">四、場地與器材使用規範</div>
-    <ol start="10">
+    <ol start="11">
       <li>場內器材採<b>共用制</b>，凡目前無人使用之器材，租借者皆可自由使用，使用後請歸回原位並保持整潔。</li>
       <li><span style="color:#b23a2b; font-weight:950; text-decoration:underline; text-decoration-color:#b23a2b; text-decoration-thickness:2px; text-underline-offset:3px;">KEISER 氣壓式多功能訓練機禁止對外開放使用，場租者不得使用該設備</span>；如有需求請另洽場館人員。</li>
       <li>入場請更換<b>室內專用運動鞋</b>，禁止穿著室外鞋、皮鞋、釘鞋進入場地。</li>
@@ -314,28 +314,28 @@
       <li>租借人數不得超過場地公告之人數上限（含教練最多 7 人）；如需額外人數請事先告知。</li>
     </ol>
     <div class="rules-sec">五、安全與責任</div>
-    <ol start="15">
+    <ol start="16">
       <li>租借者應自行評估身體狀況、量力而為；<b>運動具一定風險，本場館不承擔因個人因素造成之運動傷害責任</b>。</li>
       <li>未成年或行動需協助者，請由家長／監護人陪同並全程看護。</li>
       <li>場內請注意自身與他人安全，禁止危險及嬉鬧行為；個人財物請自行保管，遺失恕不負責。</li>
     </ol>
     <div class="rules-sec">六、設備損壞與賠償</div>
-    <ol start="18">
+    <ol start="19">
       <li>因使用不當造成場地或器材損壞者，須照價賠償或負擔修復費用。</li>
       <li>使用前如發現設備異常，請立即停止使用並通知場館人員。</li>
     </ol>
     <div class="rules-sec">七、禁止事項</div>
-    <ol start="20">
+    <ol start="21">
       <li>未經同意，<b>禁止轉租、轉讓</b>租借時段，或從事營利、對外教學、商業拍攝等用途。</li>
-      <li>禁止使用 KEISER 氣壓式多功能訓練機（如第 11 條）、攜帶寵物（合格服務犬除外）及危險物品入場。</li>
+      <li>禁止使用 KEISER 氣壓式多功能訓練機（如第 12 條）、攜帶寵物（合格服務犬除外）及危險物品入場。</li>
       <li>請維持適當音量，勿影響相鄰使用者或鄰里。</li>
     </ol>
     <div class="rules-sec">八、個資與影像</div>
-    <ol start="23">
+    <ol start="24">
       <li>場館設有監視器以維護安全；租借者同意本場館為場地管理目的蒐集、處理相關使用紀錄。</li>
     </ol>
     <div class="rules-sec">九、其他</div>
-    <ol start="24">
+    <ol start="25">
       <li>遇天災、停電、設備故障等不可抗力，本場館將協助改期或返還堂數，不另負賠償責任。</li>
       <li>本規章未盡事宜，本場館保留最終解釋與修改之權利，並以現場公告為準。</li>
     </ol>
