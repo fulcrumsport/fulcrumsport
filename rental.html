@@ -27,7 +27,8 @@
     #card1 { overflow-y: auto; } 
     .h { margin: 0 0 12px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; flex: 0 0 auto; }
-    .courseGrid { display: flex; gap: 10px; width: 100%; flex: 0 0 auto; }
+    .courseGrid { display: flex; justify-content: center; gap: 14px; width: 100%; flex: 0 0 auto; }
+    .courseGrid .chip { flex: 0 0 auto; min-width: 118px; padding: 12px 34px; }
     .chip { padding: 12px 6px; border-radius: 16px; background: #eef2f1; font-weight: 950; font-size: 18px; cursor: pointer; border: 2px solid transparent; text-align: center; flex: 1 1 0; min-width: 0; transition: all 0.2s; user-select: none; }
     .chip.sel { background: var(--selBg); border-color: rgba(14,107,168,.45); color: var(--selText); }
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
@@ -287,8 +288,8 @@
   const RENT_RULES_HTML = `
     <div class="rules-sec">一、會員資格與付款（扣堂制）</div>
     <ol start="1">
-      <li>場地租借採<b>扣堂制</b>，租借者須先<b>加入會員並購買堂數</b>後，方可進行場地租借預約。</li>
-      <li><b>一堂為一小時</b>，依實際預約之時段數扣除場租堂數；場租堂數不足者無法完成預約。線上租借人數為 <b>1–2 人</b>；<span style="color:#b23a2b; font-weight:950;">3 人以上（包班）之場地租借請另行私訊教練安排</span>。</li>
+      <li>場地租借採<b>扣堂制</b>，租借者須先<b>加入會員並購買堂數</b>後，方可進行場地租借預約；場地租借<b>僅開放預約未來 7 天內</b>之時段。</li>
+      <li><b>一堂為一小時</b>，依實際預約之時段數扣除場租堂數；場租堂數不足者無法完成預約。線上租借人數為 <b>1–2 人</b>。</li>
       <li>預約一經成立，即視為租借者已詳閱並同意本規章全部內容。</li>
     </ol>
     <div class="rules-sec">二、使用時間</div>
