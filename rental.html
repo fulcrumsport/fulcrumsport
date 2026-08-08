@@ -28,7 +28,12 @@
     .label.active { color: var(--text); }
     .main { flex: 1 1 auto; overflow: hidden; padding: 0 14px 4px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
     .card { flex: 1 1 auto; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px 16px 12px 16px; display: flex; flex-direction: column; width: 100%; overflow: hidden; min-height: 0; }
-    #card1 { overflow-y: auto; } 
+    #card1 { overflow-y: auto; padding-top: 22px; }
+    #card1 .greeting { margin: 0 0 24px; }
+    #card1 .h { margin: 0 0 8px; }
+    #card1 .subTitle { margin: 0 0 30px; color: var(--muted); font-weight: 800; font-size: 14px; line-height: 1.5; }
+    #card1 #studentRow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; margin: 0; }
+    #card1 .chip { max-width: none; padding: 26px 10px; font-size: 19px; border-radius: 18px; }
     .h { margin: 0 0 12px; font-weight: 950; font-size: 20px; color: var(--text); flex: 0 0 auto; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; flex: 0 0 auto; }
     .courseGrid { display: flex; justify-content: center; gap: 14px; width: 100%; flex: 0 0 auto; }
@@ -134,20 +139,21 @@
     .swal2-styled.swal2-cancel { color: #111 !important; background: #eef2f1 !important; }
     .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; flex: 0 0 auto; }
     /* 問候語 */
-    .greeting { font-size: 24px; font-weight: 950; color: var(--primary); margin: 0 0 18px; flex: 0 0 auto; }
+    .greeting { font-size: 20px; font-weight: 950; color: var(--primary); margin: 0 0 4px; flex: 0 0 auto; }
     /* 規章同意閘門 */
-    .agreement-gate { position: absolute; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column; padding: calc(14px + var(--safeT)) 14px calc(12px + var(--safeB)); }
-    .agreement-head { flex: 0 0 auto; padding: 6px 4px 12px; }
-    .agreement-title { font-size: 22px; font-weight: 950; color: var(--text); }
+    .agreement-gate { position: fixed; inset: 0; z-index: 200; background: rgba(20,32,44,0.55); display: flex; align-items: center; justify-content: center; padding: 18px; }
+    .agreement-card { background: var(--card); border-radius: 22px; max-width: 520px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.32); }
+    .agreement-head { flex: 0 0 auto; padding: 18px 20px 12px; border-bottom: 1px solid var(--border); }
+    .agreement-title { font-size: 20px; font-weight: 950; color: var(--text); line-height: 1.3; }
     .agreement-sub { font-size: 13px; font-weight: 900; color: var(--primary); margin-top: 4px; }
-    .agreement-body { flex: 1 1 auto; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 16px 18px; -webkit-overflow-scrolling: touch; }
-    .rules-sec { font-size: 16px; font-weight: 950; color: var(--primary); margin: 18px 0 7px; letter-spacing: 0.3px; -webkit-text-stroke: 0.4px var(--primary); }
-    .rules-sec:first-child { margin-top: 0; }
-    .agreement-body ol { padding-left: 20px; margin: 0; }
-    .agreement-body li { font-size: 13.5px; line-height: 1.6; font-weight: 600; color: #2b3634; margin-bottom: 7px; }
+    .agreement-body { flex: 1 1 auto; overflow-y: auto; padding: 4px 20px 16px; -webkit-overflow-scrolling: touch; }
+    .rules-sec { font-size: 16.5px; font-weight: 950; color: var(--primary); margin: 16px 0 7px; padding-left: 9px; border-left: 4px solid var(--primary); line-height: 1.3; }
+    .rules-sec:first-child { margin-top: 4px; }
+    .agreement-body ol { padding-left: 20px; margin: 4px 0; }
+    .agreement-body li { font-size: 13.5px; line-height: 1.7; font-weight: 600; color: #3a332b; margin-bottom: 3px; }
     .agreement-body li b { color: var(--text); font-weight: 950; }
-    .rules-ver { margin-top: 18px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 12px; font-weight: 900; color: var(--muted); text-align: right; }
-    .agreement-foot { flex: 0 0 auto; padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .rules-ver { text-align: center; color: #b5b0a6; font-size: 12px; margin-top: 14px; font-weight: 800; }
+    .agreement-foot { flex: 0 0 auto; padding: 12px 20px calc(14px + var(--safeB)); border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
     .agree-check { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 900; color: var(--text); cursor: pointer; user-select: none; padding: 4px 2px; }
     .agree-check input { width: 22px; height: 22px; accent-color: var(--primary); flex: 0 0 auto; cursor: pointer; }
     /* 確認頁精簡同意列 */
@@ -159,14 +165,15 @@
 <body>
 <div class="wrap">
   <div id="agreementGate" class="agreement-gate hide">
-    <div class="agreement-head">
-      <div class="agreement-title">支點運動空間｜場地租借使用規章</div>
-      <div class="agreement-sub">請詳閱後同意</div>
-    </div>
-    <div class="agreement-body" id="agreementBody"></div>
-    <div class="agreement-foot">
-      <label class="agree-check"><input type="checkbox" id="agreeChk"><span>我已詳閱並同意上述場地租借規章</span></label>
-      <button id="agreeBtn" class="btn btnPrimary" disabled>開始預約</button>
+    <div class="agreement-card">
+      <div class="agreement-head">
+        <div class="agreement-title">支點運動空間｜場地租借使用規章</div>
+      </div>
+      <div class="agreement-body" id="agreementBody"></div>
+      <div class="agreement-foot">
+        <label class="agree-check"><input type="checkbox" id="agreeChk"><span>我已詳閱並同意上述場地租借規章</span></label>
+        <button id="agreeBtn" class="btn btnPrimary" disabled>開始預約</button>
+      </div>
     </div>
   </div>
   <div class="top">
@@ -184,8 +191,8 @@
     <div id="card1" class="card">
       <div id="greetingBar" class="greeting">Hello~ 教練</div>
       <div class="h">Step 1｜選擇學生人數</div>
-      <div class="subTitle" style="margin-top:0;">場租時段將依人數篩選出可預約時段</div>
-      <div id="studentRow" class="courseGrid" style="margin-top:32px; gap:14px;"></div>
+      <div class="subTitle">場租時段將依人數篩選出可預約時段</div>
+      <div id="studentRow" class="courseGrid"></div>
     </div>
     <div id="card2" class="card hide">
       <div class="step2Box">
@@ -344,7 +351,7 @@
       <li>遇天災、停電、設備故障等不可抗力，本場館將協助改期或返還堂數，不另負賠償責任。</li>
       <li>本規章未盡事宜，本場館保留最終解釋與修改之權利，並以現場公告為準。</li>
     </ol>
-    <div class="rules-ver">本規章版本：${RULES_VERSION}</div>`;
+    <div class="rules-ver">場地租借規章版本 ${RULES_VERSION}</div>`;
 
   const state = {
     step: 1, uid: '', name: '', coach: null, students: null, course: null, weekStart: null, dateKey: null, tab: 'am', recordTab: '1對1',
