@@ -204,7 +204,7 @@
           <div class="h" style="margin:0;">Step 2｜選擇日期及時段</div>
           <div id="coachName2" class="coachTag">—</div>
         </div>
-        <div id="rescheduleTipBox" class="reschedule-tip hide">更改時段中作業中...</div>
+        <div id="rescheduleTipBox" class="reschedule-tip hide">更改場租時段作業中...</div>
         <div id="coachTags2" style="display:none;"></div>
         <div class="cal">
           <div class="calHead">
@@ -448,12 +448,12 @@
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
       const oD = String(record.date || "").replace(/\//g,'-'), [yyyy, mm, dd] = oD.split('-'), m = parseInt(mm, 10), d = parseInt(dd, 10), oWd = record.weekday || weekdayZhFromDateKey(record.date), oTime = record.time;
-      let htmlText = isExpired ? `<div style="white-space: nowrap;">此堂購買效期已過，僅供更改時段乙次。</div><div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</div>` : `<div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</div>`;
+      let htmlText = isExpired ? `<div style="white-space: nowrap;">此堂購買效期已過，僅供更改時段乙次。</div><div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的場租預約時段？</div>` : `<div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的場租預約時段？</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#0e6ba8' }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule'; state.rescheduleSource = record;
               state.students = normalizePlan(record.students || record.people || 1);
-              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 ${oTime}(${oWd})時段作業中...`;
+              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 ${oTime}(${oWd}) 場租時段作業中...`;
               loadOptionsForCoach();
           }
       });
@@ -499,7 +499,7 @@
 
   function showInsufficientCredits(){
       const canBuy = !!PURCHASE_LIFF_URL;
-      Swal.fire({ icon:'warning', title:'堂數不足', html:`<div style="text-align:left; text-wrap:balance; line-height:1.7;">您目前的場租剩餘 <b style="font-weight:950;">${state.remainingCredits}</b> 堂，請加值堂數後再預約。</div>`, showCancelButton: canBuy, confirmButtonText: canBuy ? '前往購買堂數' : '我知道了', cancelButtonText:'返回', confirmButtonColor:'#0e6ba8' })
+      Swal.fire({ icon:'warning', title:'堂數不足', html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">您目前的場租剩餘 <b style="font-weight:950;">${state.remainingCredits}</b> 堂，請加值堂數後再預約。</div>`, showCancelButton: canBuy, confirmButtonText: canBuy ? '前往購買堂數' : '我知道了', cancelButtonText:'返回', confirmButtonColor:'#0e6ba8' })
         .then(async r=>{ if(!(r.isConfirmed && canBuy)) return; openPurchase(); });
   }
   function openPurchase(){
