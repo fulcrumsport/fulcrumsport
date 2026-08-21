@@ -12,7 +12,7 @@
     html, body { height: 100%; overflow: hidden; margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
     .wrap { height: 100dvh; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
     .top { padding: 8px 14px 6px; padding-top: calc(8px + var(--safeT)); background: linear-gradient(180deg, var(--bg) 75%, rgba(241,246,250,0)); flex: 0 0 auto; }
-    .topRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .topRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; padding-left: 16px; }
     .pageTitle { margin: 0; font-size: 18px; font-weight: 950; color: var(--text); line-height: 1.2; }
     .navPill { flex: 0 0 auto; background: #fff; border: 1.5px solid rgba(14,107,168,0.3); color: var(--primary); border-radius: 999px; padding: 8px 12px; font-size: 12.5px; font-weight: 950; cursor: pointer; box-shadow: 0 2px 8px rgba(14,107,168,0.08); transition: all 0.15s; white-space: nowrap; }
     .navPill:active { transform: scale(0.96); }
@@ -44,9 +44,9 @@
     .chip.disabled { opacity: 0.5; pointer-events: none; background: #f0f0f0; color: #999; }
     .subTitle { margin: 12px 0 8px; font-weight: 950; font-size: 15px; color: var(--text); flex: 0 0 auto; }
     .step2Box { display: flex; flex-direction: column; gap: 6px; width: 100%; flex: 1 1 auto; overflow: hidden; min-height: 0; }
-    .coachIntro { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border); border-radius: 18px; padding: 12px 16px; background: #fff; flex: 0 0 auto; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .coachIntro { display: inline-flex; gap: 8px; align-items: center; border: none; border-radius: 999px; padding: 7px 15px; background: var(--selBg); flex: 0 0 auto; width: auto; align-self: flex-start; box-shadow: none; }
     .coachMeta { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
-    .coachName { font-weight: 950; font-size: 22px; color: var(--text); margin: 0 0 0 8px; line-height: 1.1; }
+    .coachName { font-weight: 900; font-size: 14px; color: var(--selText); margin: 0; line-height: 1.2; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .tag { padding: 3px 10px; border-radius: 999px; background: var(--selBg); color: var(--selText); font-weight: 900; font-size: 12px; white-space: nowrap; }
     .cal { border-radius: 20px; border: 1px solid var(--border); padding: 10px 12px; background: #fff; flex: 0 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
@@ -190,9 +190,9 @@
   </div>
   <div class="main">
     <div id="card1" class="card">
-      <div id="greetingBar" class="greeting">Hello~ 教練</div>
+      <div id="greetingBar" class="greeting">您好，教練！</div>
       <div class="h">Step 1｜選擇學生人數</div>
-      <div class="subTitle">場租時段將依人數篩選出可預約時段</div>
+      <div class="subTitle">將依所選人數篩選出可預約的場租時段。</div>
       <div id="studentRow" class="courseGrid"></div>
     </div>
     <div id="card2" class="card hide">
@@ -220,9 +220,7 @@
               <div class="tab" data-tab="pm">下午</div>
               <div class="tab" data-tab="night">晚上</div>
             </div>
-            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">
-              <span id="displayCredits" style="color: var(--primary); font-size: 18px; margin: 0 2px;">--</span> 堂
-            </div>
+            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;">可用 <span id="displayCredits" style="color: var(--primary); font-size: 21px; margin: 0 2px;">--</span> 堂</div>
           </div>
           <div id="slotGrid2" class="slotGrid"></div>
         </div>
@@ -263,8 +261,8 @@
             </div>
             <div class="remindBox">
                 <ol>
-                  <li>取消或改期，請於租借日前一天完成。</li>
-                  <li>KEISER 氣壓式多功能訓練機禁止對外開放使用。</li>
+                  <li>取消或改期，請於場租日前一天完成。</li>
+                  <li>KEISER訓練機未開放於場租使用。</li>
                   <li>如有任何疑問，請於官方 LINE 聯繫我們。</li>
                 </ol>
             </div>
@@ -306,20 +304,20 @@
       <li>預約一經成立，即視為租借者已詳閱並同意本規章全部內容。</li>
     </ol>
     <div class="rules-sec">二、使用時間</div>
-    <ol start="4">
+    <ol>
       <li>請於預約時段之開始時間準時入場，<b>場地整理與器材歸位時間須包含在租借時段內</b>。</li>
       <li>逾時使用且影響後續使用者者，請立即退場；本場館保留調整或暫停其預約權限之權利。</li>
       <li>提早到場者，請於前一組使用者退場並整理完畢後再行進入。</li>
     </ol>
     <div class="rules-sec">三、預約、取消與改期</div>
-    <ol start="7">
+    <ol>
       <li>場地租借<b>僅開放預約未來 7 天內</b>之時段，逾此範圍暫不開放預約。</li>
       <li>取消或改期，<b>須於租借日的前一天完成</b>（非開課前 24 小時）。例：24 日的預約，請於 23 日內完成預約、改期或取消操作，逾期恕不接受預約、取消或改期。</li>
       <li>於期限內完成之取消，將返還對應堂數；改期視同重新預約，以新時段是否仍可預約為準。</li>
       <li>無故未到（No-show）者，<b>該堂數不予返還</b>。</li>
     </ol>
     <div class="rules-sec">四、場地與器材使用規範</div>
-    <ol start="11">
+    <ol>
       <li>場內器材採<b>共用制</b>，凡目前無人使用之器材，租借者皆可自由使用，使用後請歸回原位並保持整潔。</li>
       <li><span style="color:#b23a2b; font-weight:950; text-decoration:underline; text-decoration-color:#b23a2b; text-decoration-thickness:2px; text-underline-offset:3px;">KEISER 氣壓式多功能訓練機禁止對外開放使用，場租者不得使用該設備</span>；如有需求請另洽場館人員。</li>
       <li>入場請更換<b>室內專用運動鞋</b>，禁止穿著室外鞋、皮鞋、釘鞋進入場地。</li>
@@ -327,28 +325,28 @@
       <li>租借人數不得超過場地公告之人數上限（含教練最多 7 人）；如需額外人數請事先告知。</li>
     </ol>
     <div class="rules-sec">五、安全與責任</div>
-    <ol start="16">
+    <ol>
       <li>租借者應自行評估身體狀況、量力而為；<b>運動具一定風險，本場館不承擔因個人因素造成之運動傷害責任</b>。</li>
       <li>未成年或行動需協助者，請由家長／監護人陪同並全程看護。</li>
       <li>場內請注意自身與他人安全，禁止危險及嬉鬧行為；個人財物請自行保管，遺失恕不負責。</li>
     </ol>
     <div class="rules-sec">六、設備損壞與賠償</div>
-    <ol start="19">
+    <ol>
       <li>因使用不當造成場地或器材損壞者，須照價賠償或負擔修復費用。</li>
       <li>使用前如發現設備異常，請立即停止使用並通知場館人員。</li>
     </ol>
     <div class="rules-sec">七、禁止事項</div>
-    <ol start="21">
+    <ol>
       <li>未經同意，<b>禁止轉租、轉讓</b>租借時段，或從事營利、對外教學、商業拍攝等用途。</li>
-      <li>禁止使用 KEISER 氣壓式多功能訓練機（如第 12 條）、攜帶寵物（合格服務犬除外）及危險物品入場。</li>
+      <li>禁止使用 KEISER 氣壓式多功能訓練機（詳見第四點）、攜帶寵物（合格服務犬除外）及危險物品入場。</li>
       <li>請維持適當音量，勿影響相鄰使用者或鄰里。</li>
     </ol>
     <div class="rules-sec">八、個資與影像</div>
-    <ol start="24">
+    <ol>
       <li>場館設有監視器以維護安全；租借者同意本場館為場地管理目的蒐集、處理相關使用紀錄。</li>
     </ol>
     <div class="rules-sec">九、其他</div>
-    <ol start="25">
+    <ol>
       <li>遇天災、停電、設備故障等不可抗力，本場館將協助改期或返還堂數，不另負賠償責任。</li>
       <li>本規章未盡事宜，本場館保留最終解釋與修改之權利，並以現場公告為準。</li>
     </ol>
@@ -430,7 +428,7 @@
               if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
               actionContent += `<div style="cursor:pointer; display:flex; align-items:center;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
           }
-          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">教練：${r.coach} &nbsp; 學生：${studentDisplay}</span></div><div class="step3Del">${actionContent}</div></div>`;
+          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">教練：${r.coach} / 學生：${studentDisplay}</span></div><div class="step3Del">${actionContent}</div></div>`;
       });
       $('#myRecordCount').textContent = `共 ${filteredCount} 堂`;
       recordList.innerHTML = filteredCount === 0 ? '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>' : html;
@@ -464,17 +462,17 @@
       if (state.cart.length === 0) { btnNext.disabled = true; confirmInfo.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">預約清單已空</div>'; return; }
       const cAgreeReset = document.getElementById('confirmAgreeChk'); if (cAgreeReset) cAgreeReset.checked = false;
       const step3Header = document.getElementById('step3Header'); if (step3Header) step3Header.textContent = state.mode === 'reschedule' ? 'Step 3｜確認更改時段內容' : 'Step 3｜確認場地租借內容';
-      const studentDisplay = planDisplay(); let html = '';
+      const studentDisplay = isGroupPlan() ? '包班' : `學生：${state.students}人`; let html = '';
       if (state.mode === 'reschedule' && state.rescheduleSource) {
           const oldDateFmt = String(state.rescheduleSource.date).replace(/\//g, '-'), oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date), oldTime = state.rescheduleSource.time;
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const newDateFmt = String(item.date).replace(/\//g, '-'), newWd = weekdayZhFromDateKey(item.date), newTime = item.time; html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; justify-content: space-between; width: 100%; align-items: center;"><div style="display:flex; flex-direction: column; gap: 6px; flex: 1;"><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#dcecf7; padding:2px 6px; border-radius:4px; margin-right:8px;">新</span><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div style="font-size:13px; font-weight:900; color:var(--muted); margin-top:2px; margin-left:36px;">教練：${state.coach.name} &nbsp; ${studentDisplay}</div></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`; });
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const newDateFmt = String(item.date).replace(/\//g, '-'), newWd = weekdayZhFromDateKey(item.date), newTime = item.time; html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; justify-content: space-between; width: 100%; align-items: center;"><div style="display:flex; flex-direction: column; gap: 6px; flex: 1;"><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#dcecf7; padding:2px 6px; border-radius:4px; margin-right:8px;">新</span><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div style="font-size:13px; font-weight:900; color:var(--muted); margin-top:2px; margin-left:36px;">教練：${state.coach.name} / ${studentDisplay}</div></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`; });
       } else {
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">教練：${state.coach.name} &nbsp; ${studentDisplay}</span></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${item.time}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">教練：${state.coach.name} / ${studentDisplay}</span></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
       }
       confirmInfo.innerHTML = html;
       if (state.mode !== 'reschedule') { document.getElementById('step3RemainingContainer').style.display = 'block'; document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       } else { document.getElementById('step3RemainingContainer').style.display = 'none'; }
-      let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，僅供更改時段乙次，取消亦無法退還。</div>` : `<ol><li>取消或改期，請於租借日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
+      let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，僅供更改時段乙次，取消亦無法退還。</div>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
       $('#step3RemindBox').innerHTML = remindHtml; setStatus(''); updateStep3Next();
   }
 
@@ -669,10 +667,10 @@
               header: { type: "box", layout: "vertical", backgroundColor: headerColor, paddingAll: "20px", contents: [ { type: "text", text: String(modeStr), color: "#ffffff", weight: "bold", size: "xl" }, { type: "text", text: "支點運動空間", color: "#dcecf7", size: "sm", margin: "sm" } ] },
               body: { type: "box", layout: "vertical", spacing: "none", paddingAll: "20px", contents: [
                       ...dateBoxes,
-                      { type: "text", text: String(`教練：${state.coach ? state.coach.name : "教練"}`), size: "sm", color: "#333333", margin: "lg" }, { type: "text", text: String(isGroupPlan() ? '租借類型：包班場租' : `學生人數：${state.students} 人（一般場租）`), size: "sm", color: "#333333", margin: "sm" }, { type: "text", text: String(`剩餘：${safeRemain} 堂`), size: "sm", color: "#333333", margin: "sm" },
+                      { type: "text", text: String(`教練：${state.coach ? state.coach.name : "教練"}`), size: "sm", color: "#333333", margin: "lg" }, { type: "text", text: String(`課程：${planCourseLabel()}`), size: "sm", color: "#333333", margin: "sm" }, { type: "text", text: String(`剩餘：${safeRemain} 堂`), size: "sm", color: "#333333", margin: "sm" },
                       { type: "separator", margin: "md", color: "#eeeeee" }, { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
-                      { type: "text", text: "• 取消或改期，請於租借日前一天完成。", color: "#333333", size: "xs", margin: "sm", wrap: false },
-                      { type: "text", text: "• KEISER 訓練機禁止對外開放使用。", color: "#333333", size: "xs", margin: "sm", wrap: false },
+                      { type: "text", text: "• 取消或改期，請於場租日前一天完成。", color: "#333333", size: "xs", margin: "sm", wrap: false },
+                      { type: "text", text: "• KEISER訓練機未開放於場租使用。", color: "#333333", size: "xs", margin: "sm", wrap: false },
                       { type: "text", text: "• 如有任何疑問，請於官方Line聯繫我們。", color: "#333333", size: "xs", margin: "sm", wrap: false },
                       { type: "box", layout: "vertical", backgroundColor: "#0e6ba8", cornerRadius: "8px", paddingAll: "12px", margin: "xl", action: { type: "uri", label: "管理我的場租", uri: `https://liff.line.me/${LIFF_ID}?page=record` }, contents: [{ type: "text", text: "管理我的場租", color: "#ffffff", weight: "bold", align: "center", size: "lg" }] }
                   ]
@@ -751,7 +749,7 @@
         }
     }
     state.coach = { name: state.name };
-    const greetEl = document.getElementById('greetingBar'); if(greetEl){ greetEl.innerHTML = 'Hello~ <span class="greetName"></span> 教練！'; greetEl.querySelector('.greetName').textContent = state.name; }
+    const greetEl = document.getElementById('greetingBar'); if(greetEl){ greetEl.innerHTML = '您好，<span class="greetName"></span>教練！'; greetEl.querySelector('.greetName').textContent = state.name; }
     const params = new URLSearchParams(window.location.search);
     if (params.get('page') === 'record') { loadMyRecords(); }
     else { renderStudents(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); showAgreementGate(); }
@@ -809,7 +807,7 @@
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
-        btnNext.disabled=true; btnNext.innerHTML='<span class="btn-spinner"></span>處理中...'; setStatus("正在送出租借...");
+        btnNext.disabled=true; btnNext.innerHTML='<span class="btn-spinner"></span>處理中...'; setStatus("正在送出場租預約...");
         if(state.previewMode){ await Swal.fire({ icon:'success', title:'預覽模式', html:`<div style="white-space:nowrap;">介面預覽：已模擬送出 ${state.cart.length} 個時段（未實際連線）</div>`, confirmButtonColor:'#0e6ba8' }); btnNext.disabled=false; btnNext.textContent='確認送出'; setStatus('🔧 預覽模式：資料不會送出'); return; }
         try{
            const isReschedule = state.mode === 'reschedule'; const firstSelectedSlot = state.cart[0] || {};
@@ -843,7 +841,7 @@
                            } else { state.cart = successBookings; renderCart(); renderSlotsStep2(); setStep(2); btnNext.disabled = false; btnNext.textContent = '下一步'; }
                        });
                    } else {
-                       const alertTitle = isReschedule ? '更改成功' : '租借成功', alertHtml = isReschedule ? '已成功更改場地租借時段！' : `已成功租借 ${actualSuccessCount} 個場地時段！`;
+                       const alertTitle = isReschedule ? '更改成功' : '場租預約成功', alertHtml = isReschedule ? '已成功更改場地租借時段！' : `已成功預約 ${actualSuccessCount} 個場租時段！`;
                        await Swal.fire({ icon: 'success', title: alertTitle, html: `<div style="white-space: nowrap;">${alertHtml}</div>`, confirmButtonColor: '#0e6ba8' });
                        if(liff.isInClient()) { try { const successListForFlex = successBookings.map(item => ({ date: item.date, time: item.time, weekday: weekdayZhFromDateKey(item.date) })); await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, actualRemain, successListForFlex, isReschedule, state.rescheduleSource)]); } catch (msgErr) {} }
                        liff.closeWindow();
