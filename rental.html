@@ -193,7 +193,6 @@
   </div>
   <div class="main">
     <div id="card1" class="card">
-      <div id="greetingBar" class="greeting">您好，教練！</div>
       <div class="h">Step 1｜選擇學生人數</div>
       <div class="subTitle">將依所選人數篩選出可預約的場租時段。</div>
       <div id="studentRow" class="courseGrid"></div>
@@ -321,9 +320,9 @@
     <div class="rules-sec">四、場地與器材使用規範</div>
     <ol>
       <li>場內器材採<b>共用制</b>，凡目前無人使用之器材，租借者皆可自由使用，使用後請歸回原位並保持整潔。</li>
-      <li><span style="color:#b23a2b; font-weight:950; text-decoration:underline; text-decoration-color:#b23a2b; text-decoration-thickness:2px; text-underline-offset:3px;">KEISER 氣壓式多功能訓練機並禁止於場租使用</span>，如有需求請另洽場館人員。</li>
+      <li><span style="color:#b23a2b; font-weight:950; text-decoration:underline; text-decoration-color:#b23a2b; text-decoration-thickness:2px; text-underline-offset:3px;">場租者禁止使用 KEISER 多功能訓練機</span>，如有需求請另洽場館人員。</li>
       <li>入場請更換<b>室內專用運動鞋</b>，禁止穿著室外鞋、皮鞋、釘鞋進入場地。</li>
-      <li><b>飲食規範</b>：可攜帶飲料，惟請小心避免打翻；飲料請放置於指定／安全區域，切勿置於器材或設備上。若因打翻造成場地或器材髒污、損壞，須負清潔或賠償責任。</li>
+      <li><b>飲食規範</b>：可攜帶飲料及少量補充能量之食物，惟請小心避免飲料及食物打翻。若因打翻造成場地或器材髒污、損壞，須負清潔或賠償責任。</li>
       <li>租借人數不得超過場地公告之人數上限（含教練最多 7 人）；如需額外人數請事先告知。</li>
     </ol>
     <div class="rules-sec">五、安全與責任</div>
@@ -436,12 +435,13 @@
       recordList.innerHTML = filteredCount === 0 ? '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>' : html;
   }
 
+  window.showCannotReschedule = function(e){ if(e) e.stopPropagation(); Swal.fire({ icon:'warning', title:'無法再次改期', html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">此堂課購買效期已過，且已更改過時段，不得再次改期。</div>`, confirmButtonText:'我知道了', confirmButtonColor:'#0e6ba8' }); };
   window.toggleDeleteMark = function(e, originalIndex) {
       e.stopPropagation();
       if(state.selectedRecords.has(originalIndex)) { state.selectedRecords.delete(originalIndex); renderRecordList(); updateRecordBtns();
       } else {
           const r = state.records[originalIndex]; const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
-          if (isExpired) { Swal.fire({ title: '無法返還堂數', html: `<div style="white-space: nowrap;">此堂購買效期已過，取消將不予返還堂數。</div>`, icon: 'warning', showCancelButton: false, confirmButtonText: '同意', confirmButtonColor: '#d33' }).then((res) => { if (res.isConfirmed) { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); } });
+          if (isExpired) { Swal.fire({ title: '無法返還堂數', html: `<div style="text-align:center; text-wrap:balance; line-height:1.7;">此堂購買效期已過，取消將不予返還堂數。</div>`, icon: 'warning', showCancelButton: false, confirmButtonText: '同意', confirmButtonColor: '#d33' }).then((res) => { if (res.isConfirmed) { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); } });
           } else { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); }
       }
   };
@@ -449,7 +449,7 @@
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
       const oD = String(record.date || "").replace(/\//g,'-'), [yyyy, mm, dd] = oD.split('-'), m = parseInt(mm, 10), d = parseInt(dd, 10), oWd = record.weekday || weekdayZhFromDateKey(record.date), oTime = record.time;
-      let htmlText = isExpired ? `<div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">此堂購買效期已過，僅供更改時段乙次。</div><div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的場租預約時段？</div>` : `<div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的場租預約時段？</div>`;
+      let htmlText = isExpired ? `<div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">此堂購買效期已過，僅供更改時段一次。</div><div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的場租預約時段？</div>` : `<div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的場租預約時段？</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', width: '95%', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#0e6ba8' }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule'; state.rescheduleSource = record;
@@ -474,7 +474,7 @@
       confirmInfo.innerHTML = html;
       if (state.mode !== 'reschedule') { document.getElementById('step3RemainingContainer').style.display = 'block'; document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? state.remainingCredits - state.cart.length : '--';
       } else { document.getElementById('step3RemainingContainer').style.display = 'none'; }
-      let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px;">該課堂效期已過，僅供更改時段乙次，取消亦無法退還。</div>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
+      let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px 0;">該課堂效期已過，僅供更改時段一次，取消亦無法退還。</div>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`;
       $('#step3RemindBox').innerHTML = remindHtml; setStatus(''); updateStep3Next();
   }
 
@@ -548,7 +548,7 @@
           } else { failedBookings = [...bookingsToCancel]; }
       } catch (e) { failedBookings = [...bookingsToCancel]; }
       btnCancel.textContent = origText; const totalProcessed = refundedBookings.length + expiredBookings.length;
-      if (totalProcessed > 0) { const cancelMsg = `<div style="white-space: nowrap;">已成功取消 ${totalProcessed} 堂預約。</div>`; await Swal.fire({ icon: 'success', title: '取消完成', html: cancelMsg, confirmButtonColor: '#0e6ba8' }); if(liff.isInClient()) { try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {} } liff.closeWindow(); 
+      if (totalProcessed > 0) { const cancelMsg = `<div style="text-align:center; text-wrap:balance; line-height:1.7;">已成功取消 ${totalProcessed} 堂場租預約。</div>`; await Swal.fire({ icon: 'success', title: '取消完成', html: cancelMsg, confirmButtonColor: '#0e6ba8' }); if(liff.isInClient()) { try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {} } liff.closeWindow(); 
       } else { Swal.fire({ icon: 'error', title: '取消異常', html: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); setStatus(""); btnCancel.disabled = false; }
   }
 
@@ -608,7 +608,7 @@
       const mk = (offsetDays, time, students, extra) => { const dk = ymd(addDays(startOfDay(new Date()), offsetDays)); return Object.assign({ date: dk, time: time, weekday: weekdayZhFromDateKey(dk), coach: state.name, students: students, 改期狀態: '', rowNumber: '' }, extra || {}); };
       return [
           mk(3, '10:00', 2, {}),                                        // 一般場租：可改期、可取消
-          mk(5, '14:00', 1, { isExpired: true }),                       // 一般場租效期已過：僅可改期乙次
+          mk(5, '14:00', 1, { isExpired: true }),                       // 一般場租效期已過：僅可改期一次
           mk(7, '19:00', '包班', { isExpired: true, 改期狀態: 'final' }), // 包班且已改過：只能取消（不退堂）
           mk(0, '18:00', 2, {})                                         // 今日：距開課不足一天→鎖定
       ];
@@ -692,9 +692,9 @@
           expired.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "⚠️", size: "lg", flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 } ] }); });
       }
       const canceledRec = refunded[0] || expired[0], c_coach = canceledRec ? canceledRec.coach : (state.coach ? state.coach.name : "教練"), c_students = canceledRec ? (canceledRec.students || canceledRec.people || "—") : planPeople();
-      const c_disp = (String(c_students)==='包班' || parseInt(c_students)>=3) ? '包班場租' : `${c_students} 人（一般場租）`;
+      const c_disp = (String(c_students)==='包班' || parseInt(c_students)>=3) ? '包班' : (parseInt(c_students)===2 ? '1對2' : '1對1');
       bodyContents.push(
-          { type: "text", text: String(`教練：${c_coach}`), size: "sm", color: "#333333", margin: "lg" }, { type: "text", text: String(`租借類型：${c_disp}`), size: "sm", color: "#333333", margin: "sm" }, { type: "text", text: String(`最新剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0} 堂`), size: "sm", color: "#333333", margin: "sm" },
+          { type: "text", text: String(`教練：${c_coach}`), size: "sm", color: "#333333", margin: "lg" }, { type: "text", text: String(`課程：場租${c_disp}`), size: "sm", color: "#333333", margin: "sm" }, { type: "text", text: String(`剩餘：${latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0} 堂`), size: "sm", color: "#333333", margin: "sm" },
           { type: "separator", margin: "md", color: "#eeeeee" }, { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
           { type: "text", text: "• 取消或改期，請於租借日前一天完成。", color: "#333333", size: "xs", margin: "sm", wrap: false },
           { type: "text", text: "• 如有任何疑問，請於官方Line聯繫我們。", color: "#333333", size: "xs", margin: "sm", wrap: false },
@@ -751,7 +751,6 @@
         }
     }
     state.coach = { name: state.name };
-    const greetEl = document.getElementById('greetingBar'); if(greetEl){ greetEl.innerHTML = '您好，<span class="greetName"></span>教練！'; greetEl.querySelector('.greetName').textContent = state.name; }
     const params = new URLSearchParams(window.location.search);
     if (params.get('page') === 'record') { loadMyRecords(); }
     else { renderStudents(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); showAgreementGate(); }
@@ -801,7 +800,7 @@
         const now = new Date(); const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let isTimeout = false;
         state.selectedRecords.forEach(index => { const rec = state.records[index]; const classTime = createSafeDate(rec.date, rec.time); const classDateOnly = new Date(classTime.getFullYear(), classTime.getMonth(), classTime.getDate()); if (nowDateOnly >= classDateOnly) isTimeout = true; });
         if (isTimeout) { Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 1 天的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' }); state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); return; }
-        const result = await Swal.fire({ title: '取消預約？', html: `確定要取消勾選的 ${count} 堂預約嗎？`, icon: 'warning', showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回' });
+        const result = await Swal.fire({ title: '取消預約？', html: `<div style="text-align:center; text-wrap:balance; line-height:1.7;">確定要取消勾選的 ${count} 堂場租預約嗎？</div>`, icon: 'warning', showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回' });
         if (result.isConfirmed) { executeBatchCancel(); }
     });
 
