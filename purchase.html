@@ -351,7 +351,6 @@
           '<li>僅限<b>使用期限內、尚未使用的剩餘堂數</b>可申請退費；已使用或已逾期之堂數不予退費。</li>' +
           '<li>退費金額以原方案<b>每堂購買均價</b>計算，並<b>加收 10% 手續費（即實退 90%）</b>。</li>' +
           '<li>單堂體驗方案不適用退費。</li>' +
-          '<li>退費申請以<b>原購買訂單編號</b>為依據，請務必保留您的訂單編號。</li>' +
         '</ol></div>' +
         '<h4>四、請假規定</h4>' +
         '<ol>' +
@@ -364,7 +363,7 @@
         '</ol>' +
         '<h4>五、其他</h4>' +
         '<ol><li>課程方案與價格以現場公告為準，本館保留調整之權利。</li></ol>' +
-        '<div class="ver">購買規章版本 ' + RULES_VERSION + '</div>' +
+        '<div class="ver">課程購買規章版本 ' + RULES_VERSION + '</div>' +
       '</div>';
 
     /* ====== 場租購買規章（效期依價目表、退費採已使用堂數以實際使用量級距單價重算） ====== */
@@ -396,7 +395,6 @@
           '<li>單堂方案不適用退費；已使用及已逾期之堂數不予退費。</li>' +
           '<li><b>可退費堂數 ＝ 總堂數 − 已使用 − 已逾期</b>；退費金額 ＝ <b>可退費堂數 × 對應級距單價 × 90%</b>（即另收 10% 手續費）。</li>' +
           '<li>例：購買 24 堂（單價 295 元／堂），已使用 5 堂、無逾期 → 可退 19 堂，退費 ＝ 19 × 295 × 90% ≈ 5,045 元。</li>' +
-          '<li>退費申請以原購買訂單編號為依據，請務必保留您的訂單編號。</li>' +
         '</ol></div>' +
         '<h4>四、預約與使用規範</h4>' +
         '<ol>' +
@@ -966,7 +964,7 @@
       pageTitle.textContent = '支點運動空間｜' + (solo ? '自主訓練儲值' : (venue ? '購買場租' : '購買課程'));
       navToggle.textContent = '購買紀錄 ›';
       $('greeting').textContent = greetFor('purchase');
-      const rl = $('viewRules'); if(rl) rl.textContent = solo ? '儲值規章' : (venue ? '場租購買規章' : '購買規章');
+      const rl = $('viewRules'); if(rl) rl.textContent = solo ? '儲值規章' : (venue ? '場租購買規章' : '課程購買規章');
       const tip = document.querySelector('#last5Box .last5Tip:last-child'); if(tip) tip.textContent = solo ? '訂單款項經核實後將會自動加入儲值金。' : '訂單款項經核實後將會自動加入購買堂數。';
       const mainEl = document.querySelector('.main'); if(mainEl) mainEl.scrollTop = 0;
     }
@@ -1177,7 +1175,7 @@
     function showRules(mode){
       const isVenue = mode === 'venue', isSolo = mode === 'solo';
       const rulesHtml = isSolo ? SOLO_RULES_HTML : (isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML);
-      const headTitle = isSolo ? '支點運動空間｜自主訓練儲值規章' : (isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章');
+      const headTitle = isSolo ? '支點運動空間｜自主訓練儲值規章' : (isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜課程購買規章');
       const gate = document.createElement('div');
       gate.className = 'gate';
       gate.innerHTML =
@@ -1208,7 +1206,7 @@
     function showGate(mode){
       const isVenue = mode === 'venue', isSolo = mode === 'solo';
       const rulesHtml = isSolo ? SOLO_RULES_HTML : (isVenue ? VENUE_RULES_HTML : PURCHASE_RULES_HTML);
-      const headTitle = isSolo ? '支點運動空間｜自主訓練儲值規章' : (isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜購買規章');
+      const headTitle = isSolo ? '支點運動空間｜自主訓練儲值規章' : (isVenue ? '支點運動空間｜場租購買規章' : '支點運動空間｜課程購買規章');
       const storeKey = isSolo ? 'soloAgreed' : (isVenue ? 'venueAgreed' : 'purchaseAgreed');
       const gate = document.createElement('div');
       gate.className = 'gate';
