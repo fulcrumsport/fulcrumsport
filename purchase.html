@@ -1261,7 +1261,8 @@
       $('viewRules').addEventListener('click', (e) => { e.preventDefault(); showRules(state.mode); });
 
       const params = new URLSearchParams(window.location.search);
-      if(params.get('preview') === '1'){
+      const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].indexOf(location.hostname) >= 0;
+      if(params.get('preview') === '1' || isLocalHost){
         state.previewMode = true; state.uid = 'preview'; state.name = '預覽會員';
       } else {
         try {
