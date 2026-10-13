@@ -204,7 +204,7 @@
           <div id="soloCustomBox" class="hide">
             <div id="soloCustomPreview" class="last5Tip" style="text-align:center;margin-top:10px;"></div>
           </div>
-          <div class="last5Tip" style="text-align:center;margin-top:10px;">每筆儲值效期 6 個月、無贈送；自主訓練預約時依先到期先扣。</div>
+          <div class="last5Tip" style="text-align:center;margin-top:10px;">未滿 1,000 元效期半年、1,000 元以上效期一年；預約時依先到期先扣。</div>
         </div>
       </div>
       <div class="card hide" id="mainCard">
@@ -413,7 +413,8 @@
     /* ====== 自主訓練儲值金（金額制，非堂數；每筆各自 6 個月效期、無贈送、FIFO 扣款） ====== */
     const SOLO_FIXED = [500, 1000, 2000, 3000];   // 固定面額
     const SOLO_MIN = 100, SOLO_STEP = 10;          // 自訂金額：最低 100 元、10 元為單位
-    const SOLO_MONTHS = 6;                          // 每筆儲值效期（月）
+    // 每筆儲值效期（月）：未滿 1,000 元＝6 個月；1,000 元以上＝12 個月
+    function soloMonths(a){ return Number(a) >= 1000 ? 12 : 6; }
     const SOLO_RULES_VERSION = '2026-10-13';
     const SOLO_RULES_HTML =
       '<div class="rules">' +
@@ -425,7 +426,7 @@
         '</ol>' +
         '<h4>二、儲值金效期</h4>' +
         '<ol>' +
-          '<li>每一筆儲值自<b>館方核實付款、訂單確認後起算 6 個月</b>效期，<b>不因之後再次儲值而延長</b>。</li>' +
+          '<li>每一筆儲值自<b>館方核實付款、訂單確認後起算</b>效期：<b>單筆未滿 1,000 元為 6 個月；單筆 1,000 元以上為 12 個月</b>，<b>不因之後再次儲值而延長</b>。</li>' +
           '<li>扣款依各筆儲值之到期日<b>先到期先扣（FIFO）</b>；逾期未使用之餘額即失效、不予保留。</li>' +
           '<li>儲值金<b>綁定本人帳號、不可轉讓</b>。</li>' +
         '</ol>' +
@@ -570,8 +571,8 @@
         const el = document.createElement('div');
         el.className = 'planCard' + (sel ? ' sel' : '');
         el.innerHTML =
-          '<div class="planLeft"><div class="planName">儲值 NT$ ' + money(a) + '</div>' +
-            '<div class="planAvg">效期 ' + SOLO_MONTHS + ' 個月・無贈送</div></div>' +
+          '<div class="planLeft"><div class="planName">NT$ ' + money(a) + '</div>' +
+            '<div class="planAvg">效期 ' + (soloMonths(a) === 12 ? '一年' : '半年') + '</div></div>' +
           '<div class="planPrice">NT$ ' + money(a) + '</div>';
         el.onclick = () => selectSoloPlan(a, false);
         list.appendChild(el);
@@ -617,7 +618,8 @@
       }
       const amt = soloRound(v);
       state.topupAmount = amt;
-      if(pv) pv.textContent = amt === v ? ('儲值 NT$ ' + money(amt) + '（效期 ' + SOLO_MONTHS + ' 個月）') : ('以 ' + SOLO_STEP + ' 元為單位，將儲值 NT$ ' + money(amt) + '（效期 ' + SOLO_MONTHS + ' 個月）');
+      const yrs = soloMonths(amt) === 12 ? '一年' : '半年';
+      if(pv) pv.textContent = amt === v ? ('NT$ ' + money(amt) + '（效期' + yrs + '）') : ('以 ' + SOLO_STEP + ' 元為單位，將儲值 NT$ ' + money(amt) + '（效期' + yrs + '）');
       paySec.classList.remove('hide');
       if(!state.payment) selectPayment('transfer', true);
       refresh();
@@ -632,7 +634,7 @@
           category: 'solo', categoryLabel: '自主訓練', pool: '自主訓練儲值金',
           planId: (SOLO_FIXED.indexOf(a) >= 0 ? 's' + a : 'scustom'),
           planLabel: '儲值 ' + money(a) + ' 元',
-          credits: a, price: a, unitPrice: 1, months: SOLO_MONTHS
+          credits: a, price: a, unitPrice: 1, months: soloMonths(a)
         };
       }
       if(state.mode === 'venue'){
@@ -927,7 +929,7 @@
     function greetFor(view){
       const n = state.name || '';
       if(view === 'record') return 'HI~ ' + n + '，以下是您的購買紀錄';
-      if(state.mode === 'solo') return 'HI~ ' + (n || '會員') + '，請選擇自主訓練儲值金額';
+      if(state.mode === 'solo') return 'HI~' + (n || '會員') + '，請選擇儲值金額';
       if(state.mode === 'venue') return (n ? n + ' 教練您好' : '教練您好') + '，請選擇場租方案';
       if(state.mode === 'course') return 'HI~學員，請選擇購課方案';
       return 'HI~ ' + n + '，請先選擇您的身分';
