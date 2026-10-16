@@ -184,8 +184,10 @@
     .slotGrid.soloGrid .slotT { font-size: min(14px, 3.7vw); white-space: nowrap; }
     .slotGrid.soloGrid .slotTip { grid-column: 1 / -1; }
     .expiry-tip { flex: 0 0 auto; background: #fff6dd; color: #8a5a00; border: 1px solid #f1dca6; border-radius: 10px; padding: 7px 12px; font-size: 12.5px; font-weight: 900; margin: 0 0 8px; text-align: center; }
-    .sumBar { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--selBg); color: var(--text); border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 950; white-space: nowrap; }
-    .sumBar b { color: inherit; font-size: inherit; font-weight: inherit; }
+    .sumLine { flex: 0 0 auto; text-align: right; white-space: nowrap; font-size: 14px; font-weight: 950; padding: 0 4px; }
+    .sumLine .sumTotal { color: var(--text); }
+    .sumLine .sumLeft { color: var(--primary); }
+    .sumLine .sumLeft b { font-size: 19px; font-weight: 950; }
     #card3 .remindContainer { padding-top: 8px; }
     #step3RemindBox { font-size: 12.5px; line-height: 1.5; }
     #step3RemindBox li { margin-bottom: 2px; }
@@ -268,7 +270,7 @@
       <div class="confirmWrap">
         <div class="h" id="step3Header">Step 3｜確認場地租借內容</div>
         <div class="confirmList" id="confirmInfo"></div>
-        <div id="step3Summary" class="sumBar hide"></div>
+
         <div class="remindContainer">
             <div class="remindHeader">
                 <div class="remindTitle">溫馨提醒</div>
@@ -631,16 +633,15 @@
       } else {
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span style="font-size:${isSolo() ? 'min(16px, 4.1vw)' : '16px'}; font-weight:950; color:var(--text); letter-spacing:${isSolo() ? '0' : '0.5px'}; white-space:nowrap;">${item.date} (${wd}) ${timeText(item.time)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${subLine}</span></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
       }
+      if (state.mode !== 'reschedule' && state.cart.length > 0) {
+          const nItems = state.cart.length, left = state.remainingCredits !== undefined ? money(state.remainingCredits - nItems*unitCost()) : '--';
+          html += isSolo()
+              ? `<div class="sumLine"><span class="sumTotal">合計 ${nItems} 筆 $${nItems*unitCost()}</span>｜<span class="sumLeft">餘額 <b>${left}</b></span></div>`
+              : `<div class="sumLine"><span class="sumTotal">合計 ${nItems} 堂</span>｜<span class="sumLeft">剩餘 <b>${left}</b> 堂</span></div>`;
+      }
       confirmInfo.innerHTML = html;
       document.getElementById('step3RemainingContainer').style.display = 'none';
-      const sumBar = document.getElementById('step3Summary'), nItems = state.cart.length;
-      if (state.mode !== 'reschedule') {
-          const left = state.remainingCredits !== undefined ? money(state.remainingCredits - nItems*unitCost()) : '--';
-          sumBar.innerHTML = isSolo()
-              ? `<span>共 ${nItems} 筆｜合計 $${nItems*unitCost()}</span><span>餘額 ${left}</span>`
-              : `<span>共 ${nItems} 堂</span><span>剩餘 ${left} 堂</span>`;
-          sumBar.classList.remove('hide');
-      } else { sumBar.classList.add('hide'); }
+
       let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px 0;">該課堂效期已過，僅供更改時段一次，取消亦無法退還。</div>` : (isSolo() ? `<ol style="white-space:nowrap; font-size:min(13px, 3.4vw);"><li>預約、取消或改期請於前一天 23:59 前完成。</li><li>如需延長，請於結束前至「我的預約」辦理。</li><li>超時 10 分鐘未延長，將補收下一階段差額。</li></ol>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`);
       $('#step3RemindBox').innerHTML = remindHtml; setStatus(''); updateStep3Next();
   }
