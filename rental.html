@@ -48,7 +48,7 @@
     .coachMeta { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
     .coachName { font-weight: 900; font-size: 16px; color: var(--primary); margin: 0; line-height: 1.3; letter-spacing: 0.3px; }
     .step2Head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-    .step2Head .h { font-size: min(20px, 4.3vw); flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .step2Head .h { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .coachTag { flex: 0 0 auto; font-size: 12px; font-weight: 900; color: var(--selText); background: var(--selBg); padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .tag { padding: 3px 10px; border-radius: 999px; background: var(--selBg); color: var(--selText); font-weight: 900; font-size: 12px; white-space: nowrap; }
@@ -184,8 +184,8 @@
     .slotGrid.soloGrid .slotT { font-size: min(14px, 3.7vw); white-space: nowrap; }
     .slotGrid.soloGrid .slotTip { grid-column: 1 / -1; }
     .expiry-tip { flex: 0 0 auto; background: #fff6dd; color: #8a5a00; border: 1px solid #f1dca6; border-radius: 10px; padding: 7px 12px; font-size: 12.5px; font-weight: 900; margin: 0 0 8px; text-align: center; }
-    .sumBar { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--selBg); color: var(--selText); border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 950; white-space: nowrap; }
-    .sumBar b { color: var(--primary); font-size: 17px; font-weight: 950; }
+    .sumBar { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--selBg); color: var(--text); border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 950; white-space: nowrap; }
+    .sumBar b { color: inherit; font-size: inherit; font-weight: inherit; }
     #card3 .remindContainer { padding-top: 8px; }
     #step3RemindBox { font-size: 12.5px; line-height: 1.5; }
     #step3RemindBox li { margin-bottom: 2px; }
@@ -637,8 +637,8 @@
       if (state.mode !== 'reschedule') {
           const left = state.remainingCredits !== undefined ? money(state.remainingCredits - nItems*unitCost()) : '--';
           sumBar.innerHTML = isSolo()
-              ? `<span>共 ${nItems} 筆｜合計 $${nItems*unitCost()}</span><span>扣款後餘額 <b>${left}</b></span>`
-              : `<span>共 ${nItems} 堂</span><span>扣除後剩餘 <b>${left}</b> 堂</span>`;
+              ? `<span>共 ${nItems} 筆｜合計 $${nItems*unitCost()}</span><span>餘額 ${left}</span>`
+              : `<span>共 ${nItems} 堂</span><span>剩餘 ${left} 堂</span>`;
           sumBar.classList.remove('hide');
       } else { sumBar.classList.add('hide'); }
       let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px 0;">該課堂效期已過，僅供更改時段一次，取消亦無法退還。</div>` : (isSolo() ? `<ol style="white-space:nowrap; font-size:min(13px, 3.4vw);"><li>預約、取消或改期請於前一天 23:59 前完成。</li><li>如需延長，請於結束前至「我的預約」辦理。</li><li>超時 10 分鐘未延長，將補收下一階段差額。</li></ol>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`);
@@ -733,7 +733,7 @@
   }
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   function buildAvailabilityMap(options){ const map = {}; (options||[]).forEach(o=>{ const raw = (o.value || o.label || '').toString(); const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4]; if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t); }); Object.keys(map).forEach(k=>map[k].sort()); return map; }
-  function renderCoachIntro(){ coachName2.textContent = isSolo() ? `自主訓練 ${durLabel()}` : `場租 ${planCourseLabel()}`; coachTags2.innerHTML=''; }
+  function renderCoachIntro(){ coachName2.textContent = isSolo() ? durLabel() : `場租 ${planCourseLabel()}`; coachTags2.innerHTML=''; }
   function renderSlotsStep2() { slotGrid2.innerHTML=''; slotGrid2.classList.toggle('soloGrid', isSolo()); if (state.loadingOptions) { slotGrid2.innerHTML=`<div class="slotTip"><div class="text-spinner"></div><div>擷取可預約時段中...</div></div>`; return; } if(!state.dateKey){ slotGrid2.innerHTML=`<div class="slotTip">請先選擇上方日期</div>`; return; } const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{ if(isSolo()) return true; const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18); }); const cap = isSolo() ? SOLO_CAP : VENUE_CAP; if(list.length===0){ slotGrid2.innerHTML=`<div class="slotTip">此時段無可預約時間</div>`; return; } list.forEach(t=>{ const disabled = !canBookNow(state.dateKey, t); const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t); const occ = occupancyOf(state.dateKey, t); const div=document.createElement('div'); div.className='slot'+(occ!==null?' slotCap':'')+(disabled?' disabled':'')+(isSelected?' sel':''); if(occ!==null){ const pct = occ===0 ? 8 : Math.round(Math.min(occ,cap)/cap*100); const ratio=occ/cap; const lvl=ratio<=0.3?'low':ratio<=0.6?'mid':'high'; div.innerHTML=`<div class="slotT">${timeText(t)}</div><div class="slotBar"><div class="slotBarFill lvl-${lvl}" style="width:${pct}%"></div></div>`; } else { div.textContent=timeText(t); } div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div); }); }
   // 以本週「可選擇範圍內」的日期為主，組出年份在後的月份標題（含跨月、跨年）
   function weekMonthLabel(ws){
