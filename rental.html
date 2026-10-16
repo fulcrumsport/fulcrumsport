@@ -31,7 +31,7 @@
     #card1 { overflow-y: auto; padding-top: 22px; }
     #card1 .greeting { margin: 0 0 22px; background: var(--selBg); border-radius: 14px; padding: 13px 16px; font-size: 16px; font-weight: 800; color: var(--selText); text-align: left; line-height: 1.4; }
     .greetName { font-size: 20px; font-weight: 950; }
-    #card1 .h { margin: 0 0 8px; }
+    #card1 .h { margin: 0 0 22px; }
     #card1 .subTitle { margin: 0 0 30px; color: var(--muted); font-weight: 800; font-size: 14px; line-height: 1.5; }
     #card1 #studentRow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; margin: 0; }
     #card1 .chip { max-width: none; padding: 26px 10px; font-size: 22px; border-radius: 18px; }
@@ -481,6 +481,8 @@
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
   const TRASH_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
 
+  // Make 回應容錯：空值補 ""；試算表貨幣格式（$500、$1,000）轉回純數字，避免 JSON 解析失敗
+  function cleanJson(t){ return String(t).trim().replace(/:\s*\$\s*([\d,]+(?:\.\d+)?)/g, (m, v) => ': ' + v.replace(/,/g, '')).replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); }
   function createSafeDate(d,t){if(!d||!t)return new Date(0);const c=String(d).replace(/[\/\.]/g,'-'),[y,m,x]=c.split('-').map(Number),[h,min]=String(t).split(':').map(Number);return new Date(y,m-1,x,h,min);}
   function pad2(n){return String(n).padStart(2,'0');}
   function ymd(d){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
@@ -488,6 +490,7 @@
   function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
   function weekStartMonday(d){const x=startOfDay(d),day=x.getDay();return addDays(x,day===0?-6:1-day);}
   function dowLabel(idx){return ['一','二','三','四','五','六','日'][idx]||'';}
+  function stripStart(){return addDays(startOfDay(new Date()),1);}  // 日期列起點：明天（Make 回傳的時段也是明天起 7 天）
   function weekdayZhFromDateKey(k){return k?['日','一','二','三','四','五','六'][new Date(String(k).replace(/-/g,'/')).getDay()]||'':'';}
   function getLimitDate(){const d=new Date();d.setDate(d.getDate()+7);d.setHours(23,59,59,999);return d;}  // 場租只開放未來 7 天
   // 自主訓練：預約於前一天 23:59 截止（不接受當日預約）；場租維持開始前 1 小時
@@ -554,7 +557,7 @@
               if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
               actionContent += `<div style="cursor:pointer; display:flex; align-items:center;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
           }
-          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${recTimeText(r)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${soloRec ? `<span class="kindBadge solo">自主訓練</span>${durLabel(recDur)}` : `<span class="kindBadge">場租</span>教練：${r.coach} / 學生：${studentDisplay}`}</span></div><div class="step3Del">${actionContent}</div></div>`;
+          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday})${soloRec ? '<br>' : ' '}${recTimeText(r)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${soloRec ? `<span class="kindBadge solo">自主訓練</span>${durLabel(recDur)}` : `<span class="kindBadge">場租</span>教練：${r.coach} / 學生：${studentDisplay}`}</span></div><div class="step3Del">${actionContent}</div></div>`;
       });
       $('#myRecordCount').textContent = `共 ${filteredCount} 筆`;
       recordList.innerHTML = filteredCount === 0 ? '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>' : html;
@@ -573,7 +576,7 @@
       setStatus('正在辦理延長...');
       try{
           const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'rentExtend', service: SERVICE, kind:'solo', userId: state.uid, displayName: state.name, rowNumber: r.rowNumber || r.rowIndex || '', date: r.date, time: r.time, duration: cur, newDuration: newDur, newEndTime: addMin(r.time,newDur), addPrice: add }) });
-          const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const result = JSON.parse(safeText);
+          const rawText = await res.text(); const safeText = cleanJson(rawText); const result = JSON.parse(safeText);
           const st = result.Status || result.status;
           if(st === 'extended' || st === 'success' || st === 'completed'){ r.duration = newDur; const remain = result["Remaining credits"] ?? result.remainingCredits; if(remain !== undefined) state.recordRemaining = remain; renderRecordList(); setStatus(''); await okMsg(); }
           else { setStatus(''); Swal.fire({ icon:'warning', title:'無法延長', html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">${result.Message || result.message || '下一時段已額滿，或已達今日開放時段結束時間，請準時離場。'}</div>`, confirmButtonColor:'#0e6ba8' }); }
@@ -619,12 +622,12 @@
           const oldDateFmt = String(state.rescheduleSource.date).replace(/\//g, '-'), oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date), oldTime = timeText(state.rescheduleSource.time);
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const newDateFmt = String(item.date).replace(/\//g, '-'), newWd = weekdayZhFromDateKey(item.date), newTime = timeText(item.time); html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; justify-content: space-between; width: 100%; align-items: center;"><div style="display:flex; flex-direction: column; gap: 6px; flex: 1;"><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#dcecf7; padding:2px 6px; border-radius:4px; margin-right:8px;">新</span><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div style="font-size:13px; font-weight:900; color:var(--muted); margin-top:2px; margin-left:36px;">${subLine}</div></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`; });
       } else {
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd}) ${timeText(item.time)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${subLine}</span></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${item.date} (${wd})${isSolo() ? '<br>' : ' '}${timeText(item.time)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${subLine}</span></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
       }
       confirmInfo.innerHTML = html;
       if (state.mode !== 'reschedule') { document.getElementById('step3RemainingContainer').style.display = 'block'; document.getElementById('step3RemainingVal').textContent = state.remainingCredits !== undefined ? money(state.remainingCredits - state.cart.length*unitCost()) : '--';
       } else { document.getElementById('step3RemainingContainer').style.display = 'none'; }
-      let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px 0;">該課堂效期已過，僅供更改時段一次，取消亦無法退還。</div>` : (isSolo() ? `<ol><li>預約、取消或改期，請於訓練日前一天 23:59 前完成。</li><li>如需延長，請於結束前至「我的預約」按「延長」。</li><li>超過結束時間 10 分鐘未延長，以下一階段時長補收差額。</li></ol>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`);
+      let remindHtml = (state.mode === 'reschedule' && state.rescheduleSource && state.rescheduleSource.isExpiredStatus) ? `<div style="color:var(--primary); font-weight:bold; padding: 4px 0;">該課堂效期已過，僅供更改時段一次，取消亦無法退還。</div>` : (isSolo() ? `<ol style="white-space:nowrap; font-size:min(13px, 3.4vw);"><li>預約、取消或改期請於前一天 23:59 前完成。</li><li>如需延長，請於結束前至「我的預約」辦理。</li><li>超時 10 分鐘未延長，將補收下一階段差額。</li></ol>` : `<ol><li>取消或改期，請於場租日前一天完成。</li><li>若某時段已被預約，將發出提醒並取消該時段預約。</li></ol>`);
       $('#step3RemindBox').innerHTML = remindHtml; setStatus(''); updateStep3Next();
   }
 
@@ -688,7 +691,7 @@
           const cancelKind = isSoloRec(bookingsToCancel[0]) ? 'solo' : 'rent';
           const payload = { action: "rentCancel", service: SERVICE, kind: cancelKind, userId: state.uid, bookings: bookingsToCancel.map(b => ({ date: b.date, time: b.time, weekday: b.weekday, coach: b.coach, students: b.students, people: b.people, kind: cancelKind, duration: b.duration, rowNumber: b.rowNumber || b.rowIndex || "" })) };
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-          const rawResponseText = await res.text(); const safeText = rawResponseText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); let result = JSON.parse(safeText);
+          const rawResponseText = await res.text(); const safeText = cleanJson(rawResponseText); let result = JSON.parse(safeText);
           const currentStatus = result.Status || result.status; const msg = result.Message || result.message || ""; const remain = result["Remaining credits"] ?? result.remainingCredits; if (remain !== undefined && remain !== null) latestRemaining = remain;
           if (currentStatus === 'success' || currentStatus === 'completed' || currentStatus === 'cancelled') {
               let parsedList = []; let rawResults = result.Results || result.results || result.records || result; if (!Array.isArray(rawResults)) rawResults = [rawResults];
@@ -729,7 +732,7 @@
       if(y1===y2) return `${m1}月-${m2}月 ${y1}`;          // 跨月同年：6月-7月 2026
       return `${m1}月 ${y1} - ${m2}月 ${y2}`;              // 跨年：12月 2026 - 1月 2027
   }
-  function renderWeekStrip(){ const ws = state.weekStart; const mLabel = weekMonthLabel(ws); monthTitle.textContent = mLabel; monthTitle.style.fontSize = mLabel.length > 12 ? '13px' : ''; weekStrip.innerHTML=''; prevWeek.classList.toggle('disabled', ws <= weekStartMonday(new Date())); nextWeek.classList.toggle('disabled', addDays(ws,7) > getLimitDate()); for(let i=0;i<7;i++){ const d = addDays(ws, i); const key = ymd(d); const cell=document.createElement('div'); cell.className='dayCell'; if((startOfDay(d) < startOfDay(new Date())) || !state.availabilityMap[key] || d > getLimitDate() || state.loadingOptions) cell.classList.add('disabled'); if(state.dateKey===key) cell.classList.add('sel'); const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=dowLabel(i); const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate(); cell.append(dow, dot); cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } }; weekStrip.appendChild(cell); } }
+  function renderWeekStrip(){ const ws = state.weekStart; const mLabel = weekMonthLabel(ws); monthTitle.textContent = mLabel; monthTitle.style.fontSize = mLabel.length > 12 ? '13px' : ''; weekStrip.innerHTML=''; prevWeek.style.visibility = 'hidden'; nextWeek.style.visibility = 'hidden'; for(let i=0;i<7;i++){ const d = addDays(ws, i); const key = ymd(d); const cell=document.createElement('div'); cell.className='dayCell'; if((startOfDay(d) < startOfDay(new Date())) || !state.availabilityMap[key] || d > getLimitDate() || state.loadingOptions) cell.classList.add('disabled'); if(state.dateKey===key) cell.classList.add('sel'); const dow=document.createElement('div'); dow.className='dowTxt'; dow.textContent=weekdayZhFromDateKey(key); const dot=document.createElement('div'); dot.className='dateDot'; dot.textContent=d.getDate(); cell.append(dow, dot); cell.onclick=()=>{ if(!cell.classList.contains('disabled')) { state.dateKey=key; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); } }; weekStrip.appendChild(cell); } }
   
   function isGroupPlan(){ return state.students === 'group'; }
   function planPeople(){ return isGroupPlan() ? '包班' : state.students; }        // 傳給 Make 的人數/類型
@@ -809,9 +812,9 @@
       $('#tabsBox').style.visibility = isSolo() ? 'hidden' : ''; $('#confirmRulesName').textContent = isSolo() ? '自主訓練' : '場地租借';
   }
   async function loadOptionsForCoach(){
-      state.weekStart = weekStartMonday(new Date()); state.optionsRaw=[]; state.availabilityMap={}; state.occupancyMap={}; state.soloBooked=[]; state.dateKey=null; state.cart=[]; applyKindLabels(); setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2();
+      state.weekStart = stripStart(); state.optionsRaw=[]; state.availabilityMap={}; state.occupancyMap={}; state.soloBooked=[]; state.dateKey=null; state.cart=[]; applyKindLabels(); setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2();
       const applySlots = (slotMap, occMap) => {
-          if (isSolo()) { state.availabilityMap = buildSoloAvailability(slotMap, occMap); state.occupancyMap = buildSoloOccupancy(state.availabilityMap, occMap); const keys = Object.keys(state.availabilityMap).sort(); if (keys.length) state.weekStart = weekStartMonday(new Date(keys[0].replace(/-/g,'/'))); }
+          if (isSolo()) { state.availabilityMap = buildSoloAvailability(slotMap, occMap); state.occupancyMap = buildSoloOccupancy(state.availabilityMap, occMap); }
           else { state.availabilityMap = slotMap; state.occupancyMap = occMap; }
       };
       state.expiring = null; renderExpiryTip();
@@ -824,7 +827,7 @@
       try{
           const people = isSolo() ? 1 : planPeople();
           const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action:"rentOptions", service: SERVICE, kind: state.kind, duration: isSolo() ? state.duration : undefined, coachName:state.coach.name, students: people, people: people, rentType: isSolo() ? '自主訓練' : rentTypeName(), userId:state.uid, mode: state.mode }) });
-          const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const data = JSON.parse(safeText);
+          const rawText = await res.text(); const safeText = cleanJson(rawText); const data = JSON.parse(safeText);
           state.optionsRaw = Array.isArray(data.options)?data.options:[];
           state.soloBooked = isSolo() ? parseSoloBooked(data.booked) : [];
           applySlots(buildAvailabilityMap(state.optionsRaw), buildOccupancyMap(state.optionsRaw));
@@ -873,7 +876,7 @@
 
       try {
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "rentRecords", service: SERVICE, userId: state.uid }) });
-          const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); let data = JSON.parse(safeText);
+          const rawText = await res.text(); const safeText = cleanJson(rawText); let data = JSON.parse(safeText);
           let arr = data.records || data.options || data.results || data.Records || [];
           if (typeof arr === 'string') { try { arr = JSON.parse(arr); } catch(e){} }
           state.records = arr.filter(r => r && r.date && String(r.date).trim() !== '');
@@ -1004,7 +1007,7 @@
     state.coach = { name: state.name };
     const params = new URLSearchParams(window.location.search);
     if (params.get('page') === 'record') { loadMyRecords(); }
-    else { renderStudents(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); }
+    else { renderStudents(); state.weekStart = stripStart(); renderWeekStrip(); setStep(1); }
     if (state.previewMode) { setStatus('🔧 預覽模式：未連線 LINE，僅供介面預覽，資料不會送出'); }
     const navToggle = document.getElementById('navToggle');
     if (navToggle) navToggle.onclick = () => { if (state.mode === 'record') btnHome.click(); else loadMyRecords(); };
@@ -1044,7 +1047,7 @@
     updateNavPill();
 
     btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
-    btnHome.onclick = () => { window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; state.rescheduleSource = null; state.cart = []; state.kind = null; state.duration = null; state.students = null; renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderStudents(); renderStep1Tip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); updateNavPill(); };
+    btnHome.onclick = () => { window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; state.rescheduleSource = null; state.cart = []; state.kind = null; state.duration = null; state.students = null; renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderStudents(); renderStep1Tip(); state.weekStart = stripStart(); renderWeekStrip(); setStep(1); updateNavPill(); };
     
     document.getElementById('btnCancelBatch').addEventListener('click', async () => {
         const count = state.selectedRecords.size; if(count === 0) return;
@@ -1068,7 +1071,7 @@
            if (isReschedule && state.rescheduleSource) { payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || ""; payload.oldDate = state.rescheduleSource.date; payload.oldTime = state.rescheduleSource.time; }
            
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-           const rawText = await res.text(); const safeResText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); let result = JSON.parse(safeResText);
+           const rawText = await res.text(); const safeResText = cleanJson(rawText); let result = JSON.parse(safeResText);
            const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
 
            if (isSuccess) {
