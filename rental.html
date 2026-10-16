@@ -503,6 +503,7 @@
   function slotRange(t,min){return `${t}–${addMin(t,parseInt(min||state.duration,10))}`;}
   function timeText(t){return isSolo()?slotRange(t):t;}
   function recTimeText(r){return isSoloRec(r)?slotRange(r.time,r.duration||60):r.time;}
+  function soloOverlap(d1,t1,d2,t2){if(d1!==d2)return false;const m=t=>{const [h,mi]=String(t).split(':').map(Number);return h*60+mi;};const a=m(t1),b=m(t2),len=parseInt(state.duration,10);return a<b+len&&b<a+len;}  // 同一天兩筆（同時長）是否重疊
   function isTruthy(v){if(v===true||v===1)return true;if(!v)return false;const s=String(v).trim().toLowerCase();return s.includes('true')||s.includes('yes')||s.includes('過期')||s.includes('到期');}
   function setStatus(m,e=false){status.classList.toggle('statusError',!!e);status.innerHTML=m||'';}
   function updateStatusInStep2(){if(state.loadingOptions)return;if(!state.dateKey){setStatus('請先選擇上方日期');return;}if(state.cart.length>0){setStatus(isSolo()?`已選擇 ${state.cart.length} 個時段，共 $${state.cart.length*unitCost()}`:`已選擇 ${state.cart.length} 堂時段`);return;}setStatus(`已選日期：${state.dateKey}`);}
@@ -666,7 +667,7 @@
   }
   function toggleCartItem(date, time) {
       const idx = state.cart.findIndex(i => i.date === date && i.time === time);
-      if (idx >= 0) { state.cart.splice(idx, 1); } else { if (state.mode === 'reschedule' && state.cart.length >= 1) { Swal.fire({ icon: 'warning', title: '只能挑選一堂', html: '更改日期一次僅限調整一堂', confirmButtonColor: '#0e6ba8' }); return; } const base = isSolo() ? state.cart.filter(i => i.date !== date) : state.cart; /* 自主訓練同一天只留一筆，避免時段重疊 */ if (state.mode !== 'reschedule' && (base.length + 1) * unitCost() > state.remainingCredits) { showInsufficientCredits(base.length + 1); return; } state.cart = base; const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
+      if (idx >= 0) { state.cart.splice(idx, 1); } else { if (state.mode === 'reschedule' && state.cart.length >= 1) { Swal.fire({ icon: 'warning', title: '只能挑選一堂', html: '更改日期一次僅限調整一堂', confirmButtonColor: '#0e6ba8' }); return; } /* 自主訓練：同一天可訂多筆，但時間不能重疊 */ const clash = isSolo() ? state.cart.find(i => soloOverlap(i.date, i.time, date, time)) : null; if (clash) { Swal.fire({ icon: 'warning', title: '時段重疊', html: `<div style="text-align:center; text-wrap:balance; line-height:1.7;">與已選擇的 ${timeText(clash.time)} 重疊，請選擇其他時段。</div>`, confirmButtonColor: '#0e6ba8' }); return; } if (state.mode !== 'reschedule' && (state.cart.length + 1) * unitCost() > state.remainingCredits) { showInsufficientCredits(state.cart.length + 1); return; } const d = createSafeDate(date, time); state.cart.push({ date: date, time: time, ts: d.getTime() }); }
       renderCart(); renderSlotsStep2(); btnNext.disabled = state.cart.length === 0; updateStatusInStep2();
   }
 
@@ -779,11 +780,20 @@
       Object.keys(slotMap).forEach(dk=>{
           if (dk <= today) return;                                           // 不接受當日預約
           const set = slotMap[dk];
-          const ok = set.filter(t=>{ for(let i=0;i<need;i++){ const x=addMin(t,i*SOLO_SLOT_MIN); if(!set.includes(x)) return false; if((occMap[`${dk} ${x}`]||0) >= SOLO_CAP) return false; } return true; });
+          const ok = set.filter(t=>{ for(let i=0;i<need;i++){ const x=addMin(t,i*SOLO_SLOT_MIN); if(!set.includes(x)) return false; if((occMap[`${dk} ${x}`]||0) >= SOLO_CAP) return false; } return !soloBookedClash(dk, t); });
           if (ok.length) out[dk] = ok;
       });
       return out;
   }
+  // 會員自己已有的自主訓練（Make 回 booked:[{date,start,end}]），與之重疊的開始時間不顯示，比照場租隱藏已預約時段
+  function toMin(t){ const [h,m]=String(t).split(':').map(Number); return h*60+(m||0); }
+  function normDk(d){ const p=String(d||'').trim().split(/\s+/)[0].split(/[\/\-.]/); return p.length===3 ? `${p[0]}-${pad2(p[1])}-${pad2(p[2])}` : ''; }
+  function parseSoloBooked(list){
+      const src = state.mode === 'reschedule' && state.rescheduleSource ? `${normDk(state.rescheduleSource.date)} ${state.rescheduleSource.time}` : '';
+      return (Array.isArray(list) ? list : []).map(b => ({ dk: normDk(b.date), s: toMin(b.start), e: toMin(b.end), key: `${normDk(b.date)} ${String(b.start).trim()}` }))
+          .filter(b => b.dk && b.e > b.s && b.key !== src);
+  }
+  function soloBookedClash(dk, t){ const a = toMin(t), z = a + parseInt(state.duration,10); return (state.soloBooked||[]).some(b => b.dk === dk && a < b.e && b.s < z); }
   // 一筆預約跨多格，容量條取其中最滿的一格
   function buildSoloOccupancy(avail, occMap){ const need = state.duration / SOLO_SLOT_MIN, occ = {}; Object.keys(avail).forEach(dk=>{ avail[dk].forEach(t=>{ let mx=0; for(let i=0;i<need;i++){ mx=Math.max(mx, occMap[`${dk} ${addMin(t,i*SOLO_SLOT_MIN)}`]||0); } occ[`${dk} ${t}`]=mx; }); }); return occ; }
   function buildPreviewSolo(){ const slots={}, occ={}; const base=startOfDay(new Date()); for(let i=1;i<=7;i++){ const day=addDays(base,i); if(![5,6,0].includes(day.getDay())) continue; const dk=ymd(day); slots[dk]=['18:00','18:30','19:00','19:30']; slots[dk].forEach((t,k)=>{ occ[`${dk} ${t}`]=(day.getDate()+k)%4; }); } return { slots, occ }; }
@@ -799,7 +809,7 @@
       $('#tabsBox').style.visibility = isSolo() ? 'hidden' : ''; $('#confirmRulesName').textContent = isSolo() ? '自主訓練' : '場地租借';
   }
   async function loadOptionsForCoach(){
-      state.weekStart = weekStartMonday(new Date()); state.optionsRaw=[]; state.availabilityMap={}; state.occupancyMap={}; state.dateKey=null; state.cart=[]; applyKindLabels(); setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2();
+      state.weekStart = weekStartMonday(new Date()); state.optionsRaw=[]; state.availabilityMap={}; state.occupancyMap={}; state.soloBooked=[]; state.dateKey=null; state.cart=[]; applyKindLabels(); setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2();
       const applySlots = (slotMap, occMap) => {
           if (isSolo()) { state.availabilityMap = buildSoloAvailability(slotMap, occMap); state.occupancyMap = buildSoloOccupancy(state.availabilityMap, occMap); const keys = Object.keys(state.availabilityMap).sort(); if (keys.length) state.weekStart = weekStartMonday(new Date(keys[0].replace(/-/g,'/'))); }
           else { state.availabilityMap = slotMap; state.occupancyMap = occMap; }
@@ -807,7 +817,7 @@
       state.expiring = null; renderExpiryTip();
       const done = () => { state.loadingOptions=false; renderExpiryTip(); renderCart(); renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); };
       if(state.previewMode){
-          if (isSolo()) { const p = buildPreviewSolo(); applySlots(p.slots, p.occ); state.remainingCredits = 500; state.expiring = { amount: 130, date: ymd(addDays(new Date(), 10)) }; }
+          if (isSolo()) { const p = buildPreviewSolo(); const fk = Object.keys(p.slots).sort()[0]; state.soloBooked = parseSoloBooked(fk ? [{ date: fk, start: '18:30', end: '19:30' }] : []); applySlots(p.slots, p.occ); state.remainingCredits = 500; state.expiring = { amount: 130, date: ymd(addDays(new Date(), 10)) }; }
           else { const m = buildPreviewAvailability(); applySlots(m, buildPreviewOccupancy(m)); state.remainingCredits = 10; }
           done(); return;
       }
@@ -816,6 +826,7 @@
           const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action:"rentOptions", service: SERVICE, kind: state.kind, duration: isSolo() ? state.duration : undefined, coachName:state.coach.name, students: people, people: people, rentType: isSolo() ? '自主訓練' : rentTypeName(), userId:state.uid, mode: state.mode }) });
           const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const data = JSON.parse(safeText);
           state.optionsRaw = Array.isArray(data.options)?data.options:[];
+          state.soloBooked = isSolo() ? parseSoloBooked(data.booked) : [];
           applySlots(buildAvailabilityMap(state.optionsRaw), buildOccupancyMap(state.optionsRaw));
           const remain = data["Remaining credits"] ?? data.remainingCredits;
           if (remain !== undefined) state.remainingCredits = parseInt(remain, 10);
