@@ -179,9 +179,9 @@
     .kindBadge.solo { background: #fdf0dc; color: #9a5b00; }
     #card1 .durGrid .chip { position: relative; }
     .durBest { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-size: 10.5px; font-weight: 950; color: #fff; background: var(--danger); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
-    .slotGrid.soloGrid { grid-template-columns: repeat(3, 1fr); }
-    .slotGrid.soloGrid .slot.slotCap { padding: 5px 4px 6px; }
-    .slotGrid.soloGrid .slotT { font-size: min(14px, 3.7vw); white-space: nowrap; }
+    .slotGrid.soloGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); overflow-x: hidden; gap: 6px; padding-right: 0; }
+    .slotGrid.soloGrid .slot.slotCap { padding: 5px 2px 6px; min-width: 0; }
+    .slotGrid.soloGrid .slotT { font-size: min(14px, 3.5vw); letter-spacing: -0.2px; white-space: nowrap; }
     .slotGrid.soloGrid .slotTip { grid-column: 1 / -1; }
     .expiry-tip { flex: 0 0 auto; background: #fff6dd; color: #8a5a00; border: 1px solid #f1dca6; border-radius: 10px; padding: 7px 12px; font-size: 12.5px; font-weight: 900; margin: 0 0 8px; text-align: center; }
     .sumLine { flex: 0 0 auto; text-align: right; white-space: nowrap; font-size: 14px; font-weight: 950; padding: 0 4px; }
@@ -912,12 +912,12 @@
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-'), oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: "lg", weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${oD} (${oWd})`), size: "lg", weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: "lg", weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
-              { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: "lg", weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${list[0].date} (${list[0].weekday})`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 } ] }
+              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${oD} (${oWd})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
+              { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${list[0].date} (${list[0].weekday})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] }
           );
       } else {
           list.forEach((it) => {
-              dateBoxes.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "•", size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.date} (${it.weekday})`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.time}`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 } ] });
+              dateBoxes.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "•", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.date} (${it.weekday})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.time}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] });
           });
       }
       const fallbackRemain = state.recordRemaining !== undefined ? state.recordRemaining : (state.remainingCredits !== undefined ? state.remainingCredits : "--");
@@ -944,12 +944,12 @@
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
       let bodyContents = []; const soloCancel = isSoloRec(refunded[0] || expired[0]);
       if (refunded.length > 0) {
-          refunded.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "•", size: "lg", weight: "bold", color: "#999999", flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: "lg", weight: "bold", color: "#999999", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${recTimeText(it)||""}`), size: "lg", weight: "bold", color: "#999999", decoration: "line-through", flex: 0 } ] }); });
+          refunded.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "•", size: (soloCancel ? "md" : "lg"), weight: "bold", color: "#999999", flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: (soloCancel ? "md" : "lg"), weight: "bold", color: "#999999", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${recTimeText(it)||""}`), size: (soloCancel ? "md" : "lg"), weight: "bold", color: "#999999", decoration: "line-through", flex: 0 } ] }); });
       }
       if (expired.length > 0) {
           if (refunded.length > 0) bodyContents.push({ type: "separator", margin: "md", color: "#eeeeee" });
           bodyContents.push({ type: "text", text: "過期不予退還：", size: "sm", color: "#b23a2b", weight: "bold", margin: "md" });
-          expired.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "⚠️", size: "lg", flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: "lg", weight: "bold", color: "#999999", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${recTimeText(it)||""}`), size: "lg", weight: "bold", color: "#999999", decoration: "line-through", flex: 0 } ] }); });
+          expired.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "⚠️", size: (soloCancel ? "md" : "lg"), flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: (soloCancel ? "md" : "lg"), weight: "bold", color: "#999999", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${recTimeText(it)||""}`), size: (soloCancel ? "md" : "lg"), weight: "bold", color: "#999999", decoration: "line-through", flex: 0 } ] }); });
       }
       const canceledRec = refunded[0] || expired[0], c_coach = canceledRec ? canceledRec.coach : (state.coach ? state.coach.name : "教練"), c_students = canceledRec ? (canceledRec.students || canceledRec.people || "—") : planPeople();
       const c_disp = (String(c_students)==='包班' || parseInt(c_students)>=3) ? '包班' : (parseInt(c_students)===2 ? '1對2' : '1對1');
@@ -1087,7 +1087,7 @@
            
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            const rawText = await res.text(); const safeResText = cleanJson(rawText); let result = JSON.parse(safeResText);
-           const resList = result.Results || result.results; const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted' || (isSolo() && Array.isArray(resList) && resList.some(x => x && x.date));  // 自主訓練：Status 異常時以 Results 是否有成立時段判斷，避免已扣款卻顯示失敗
+           const resList = result.Results || result.results; const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted' || (isSolo() && ((Array.isArray(resList) && resList.some(x => x && x.date)) || (typeof resList === 'string' && /\d{1,2}:\d{2}/.test(resList))));  // 自主訓練：Status 異常時以 Results 是否有成立時段判斷，避免已扣款卻顯示失敗
 
            if (isSuccess) {
                let parsedList = []; let rawResults = result.Results || result.results || result.records || result; if (!Array.isArray(rawResults)) rawResults = [rawResults];
@@ -1096,7 +1096,8 @@
                
                const rawString = JSON.stringify(result).replace(/\\"/g, '"').replace(/\\/g, '');
                let successBookings = state.cart.filter(item => { const dateDash = String(item.date).replace(/\//g, '-'), dateSlash = String(item.date).replace(/-/g, '/'), time = item.time; const regexDash = new RegExp(`${dateDash}.{0,50}?${time}|${time}.{0,50}?${dateDash}`), regexSlash = new RegExp(`${dateSlash}.{0,50}?${time}|${time}.{0,50}?${dateSlash}`); return regexDash.test(rawString) || regexSlash.test(rawString); });
-               if (successBookings.length === 0 && (!result.results || result.results.length === 0 || JSON.stringify(result.results).length < 10)) { successBookings = [...state.cart]; }
+               if (isSolo() && typeof resList === 'string') { const nz = s => String(s).replace(/\s/g, '').replace(/[‐-―−－~～-]/g, '-'); const rs = nz(resList); successBookings = state.cart.filter(item => rs.includes(nz(`${item.date}(${weekdayZhFromDateKey(item.date)})${item.time}-`))); }  // 忽略空白、各種破折號統一，避免格式小差異誤判
+               else if (successBookings.length === 0 && (!result.results || result.results.length === 0 || JSON.stringify(result.results).length < 10)) { successBookings = [...state.cart]; }
                
                let failedBookings = state.cart.filter(item => !successBookings.includes(item));
                const actualSuccessCount = successBookings.length; const actualRemain = result["Remaining credits"] ?? result.remainingCredits ?? "--"; state.remainingCredits = actualRemain !== "--" ? parseInt(actualRemain, 10) : state.remainingCredits;
@@ -1112,7 +1113,7 @@
                            } else { state.cart = successBookings; renderCart(); renderSlotsStep2(); setStep(2); btnNext.disabled = false; btnNext.textContent = '下一步'; }
                        });
                    } else {
-                       const alertTitle = isReschedule ? '更改成功' : `${kindName()}預約成功`, alertHtml = isReschedule ? `已成功更改${kindName()}時段！` : `已成功預約 ${actualSuccessCount} 個${kindName()}時段！`;
+                       const alertTitle = isReschedule ? '更改成功' : `${kindName()}預約成功`, alertHtml = isReschedule ? `已成功更改${kindName()}時段！` : `已成功預約 ${actualSuccessCount} 筆${kindName()}時段！`;
                        await Swal.fire({ icon: 'success', title: alertTitle, html: `<div style="white-space: nowrap;">${alertHtml}</div>`, confirmButtonColor: '#0e6ba8' });
                        if(liff.isInClient()) { try { const successListForFlex = successBookings.map(item => ({ date: item.date, time: timeText(item.time), weekday: weekdayZhFromDateKey(item.date) })); await liff.sendMessages([createSuccessFlexMessage(actualSuccessCount, actualRemain, successListForFlex, isReschedule, state.rescheduleSource)]); } catch (msgErr) {} }
                        liff.closeWindow();
