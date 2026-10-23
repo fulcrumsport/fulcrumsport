@@ -1087,7 +1087,7 @@
            
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
            const rawText = await res.text(); const safeResText = cleanJson(rawText); let result = JSON.parse(safeResText);
-           const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted';
+           const resList = result.Results || result.results; const isSuccess = result.Status === 'completed' || result.status === 'success' || result.Status === 'rescheduled' || result === 'Accepted' || (isSolo() && Array.isArray(resList) && resList.some(x => x && x.date));  // 自主訓練：Status 異常時以 Results 是否有成立時段判斷，避免已扣款卻顯示失敗
 
            if (isSuccess) {
                let parsedList = []; let rawResults = result.Results || result.results || result.records || result; if (!Array.isArray(rawResults)) rawResults = [rawResults];
@@ -1118,7 +1118,7 @@
                        liff.closeWindow();
                    }
                } else { Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '<div style="white-space: nowrap;">所選時段皆已被預約，請選擇其他時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
-           } else { Swal.fire({ icon:'error', title: '糟糕！失敗', html: '<div style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
+           } else { const failMsg = result.message || result.Message; Swal.fire({ icon:'error', title: '糟糕！失敗', html: failMsg ? `<div style="text-align:center; text-wrap:balance; line-height:1.7;">${failMsg}</div>` : '<div style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
         }catch(e){ Swal.fire({ icon:'error', title: '系統異常', html: '<div style="white-space: nowrap;">請稍後再試。</div>', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
