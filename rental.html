@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>支點運動空間｜場租&amp;自主預約</title>
+  <title>支點運動空間｜場租&amp;自主</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
@@ -566,7 +566,7 @@
               if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
               actionContent += `<div style="cursor:pointer; display:flex; align-items:center;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
           }
-          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:${soloRec ? 'min(16px, 4.1vw)' : '16px'}; font-weight:950; color:var(--text); letter-spacing:${soloRec ? '0' : '0.5px'}; white-space:nowrap;">${displayDate} (${r.weekday}) ${recTimeText(r)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${soloRec ? `<span class="kindBadge solo">自主訓練</span>${durLabel(recDur)}` : `<span class="kindBadge">場租</span>教練：${r.coach} / 學生：${studentDisplay}`}</span></div><div class="step3Del">${actionContent}</div></div>`;
+          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:${soloRec ? 'min(15px, 3.6vw)' : '16px'}; font-weight:950; color:var(--text); letter-spacing:${soloRec ? '-0.2px' : '0.5px'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayDate} (${r.weekday}) ${recTimeText(r)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${soloRec ? `<span class="kindBadge solo">自主訓練</span>${durLabel(recDur)}` : `<span class="kindBadge">場租</span>教練：${r.coach} / 學生：${studentDisplay}`}</span></div><div class="step3Del">${actionContent}</div></div>`;
       });
       $('#myRecordCount').textContent = `共 ${filteredCount} 筆`;
       recordList.innerHTML = filteredCount === 0 ? '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>' : html;
