@@ -890,11 +890,22 @@
       }
 
       try {
-          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "rentRecords", service: SERVICE, userId: state.uid }) });
-          const rawText = await res.text(); const safeText = cleanJson(rawText); let data = JSON.parse(safeText);
-          let arr = data.records || data.options || data.results || data.Records || [];
-          if (typeof arr === 'string') { try { arr = JSON.parse(arr); } catch(e){} }
-          state.records = arr.filter(r => r && r.date && String(r.date).trim() !== '');
+          const fetchRecords = async (kind) => {
+              try {
+                  const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "rentRecords", service: SERVICE, kind: kind, userId: state.uid }) });
+                  const d = JSON.parse(cleanJson(await res.text()));
+                  let a = d.records || d.options || d.results || d.Records || [];
+                  if (typeof a === 'string') { try { a = JSON.parse(a); } catch(e){ a = []; } }
+                  if (!Array.isArray(a)) a = [];
+                  return { data: d, arr: a };
+              } catch(e) { console.error(e); return { data: {}, arr: [] }; }
+          };
+          const [rentRes, soloRes] = await Promise.all([fetchRecords('rent'), fetchRecords('solo')]);
+          const data = rentRes.data;
+          const soloArr = soloRes.arr.map(r => Object.assign({}, r, { kind: 'solo' }));
+          const soloRemain = soloRes.data["Remaining credits"] ?? soloRes.data.remainingCredits;
+          if (soloRemain !== undefined && soloRemain !== '') state.soloRecordRemaining = soloRemain;
+          state.records = rentRes.arr.concat(soloArr).filter(r => r && r.date && String(r.date).trim() !== '');
           state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           const remain = data["Remaining credits"] ?? data.remainingCredits;
           if(remain !== undefined) state.recordRemaining = remain;
