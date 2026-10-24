@@ -118,6 +118,7 @@
     .btnGhost { background: #fff; color: var(--text); border: 1px solid rgba(0,0,0,.10); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
     .btnDanger { background: var(--danger); color: #fff; }
     .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn.btnBusy:disabled { opacity: 1; }
     .btn-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; }
     .text-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(14,107,168,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -699,7 +700,7 @@
 
   async function executeBatchCancel() {
       if (state.previewMode) { const n = state.selectedRecords.size; await Swal.fire({ icon:'success', title:'預覽模式', html:`<div style="white-space:nowrap;">已模擬取消 ${n} 筆（未實際連線）</div>`, confirmButtonColor:'#0e6ba8' }); state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); setStatus('🔧 預覽模式：資料不會送出'); return; }
-      const btnCancel = document.getElementById('btnCancelBatch'); const origText = btnCancel.textContent; btnCancel.innerHTML = '<span class="btn-spinner"></span>處理中...'; btnCancel.disabled = true; setStatus("正在取消預約..."); 
+      const btnCancel = document.getElementById('btnCancelBatch'); const origText = btnCancel.textContent; btnCancel.innerHTML = '<span class="btn-spinner"></span>處理中...'; btnCancel.disabled = true; btnCancel.classList.add('btnBusy'); setStatus("正在取消預約..."); Swal.fire({ title: '取消中…', html: '<div style="text-align:center;">正在處理您的取消，請稍候</div>', allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false, didOpen: () => Swal.showLoading() }); 
       const bookingsToCancel = []; state.selectedRecords.forEach(index => { bookingsToCancel.push(state.records[index]); });
       let refundedBookings = []; let expiredBookings = []; let failedBookings = []; let latestRemaining = "--";
       try {
@@ -727,7 +728,7 @@
               });
           } else { failedBookings = [...bookingsToCancel]; }
       } catch (e) { failedBookings = [...bookingsToCancel]; }
-      btnCancel.textContent = origText; const totalProcessed = refundedBookings.length + expiredBookings.length;
+      btnCancel.textContent = origText; btnCancel.classList.remove('btnBusy'); const totalProcessed = refundedBookings.length + expiredBookings.length;
       if (totalProcessed > 0) { const cancelMsg = `<div style="text-align:center; text-wrap:balance; line-height:1.7;">已成功取消 ${totalProcessed} 筆預約。</div>`; await Swal.fire({ icon: 'success', title: '取消完成', html: cancelMsg, confirmButtonColor: '#0e6ba8' }); if(liff.isInClient()) { try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {} } liff.closeWindow(); 
       } else { Swal.fire({ icon: 'error', title: '取消異常', html: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); setStatus(""); btnCancel.disabled = false; }
   }
