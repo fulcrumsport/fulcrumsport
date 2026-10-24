@@ -712,7 +712,14 @@
               let parsedList = []; let rawResults = result.Results || result.results || result.records || result; if (!Array.isArray(rawResults)) rawResults = [rawResults];
               function parseItem(item) { if (Array.isArray(item)) item.forEach(parseItem); else if (typeof item === 'object' && item !== null) { if(Object.keys(item).length > 0) parsedList.push(item); } else if (typeof item === 'string' && item.trim() !== "") { try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} } }
               parseItem(rawResults);
+              const resText = (cancelKind === 'solo' && typeof (result.Results ?? result.results) === 'string') ? String(result.Results ?? result.results) : null;
+              const nzc = s => String(s).replace(/\s/g, '').replace(/[\/.]/g, '-');
               bookingsToCancel.forEach(booking => {
+                  if (resText !== null) {
+                      const key = nzc(`${booking.date}${booking.time}`), seg = resText.split('、').find(s => nzc(s).includes(key));
+                      if (seg) { (seg.includes('過期') ? expiredBookings : refundedBookings).push(booking); } else { failedBookings.push(booking); }
+                      return;
+                  }
                   const dateDash = String(booking.date).replace(/\//g, '-'), dateSlash = String(booking.date).replace(/-/g, '/');
                   const match = parsedList.find(res => { const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-'), rTime = String(res.time || res.Time || '').trim(); return (rDate === dateDash || rDate === dateSlash) && (rTime === booking.time); });
                   if (match) { const mStatus = match.Status || match.status || currentStatus; const mMsg = match.Message || match.message || msg; if (mStatus === 'expired' || mMsg.includes('不予退還') || mMsg.includes('過期') || booking.改期狀態 === 'final') { expiredBookings.push(booking); } else { refundedBookings.push(booking); }
