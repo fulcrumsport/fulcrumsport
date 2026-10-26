@@ -515,6 +515,7 @@
   function slotRange(t,min){return `${t}–${addMin(t,parseInt(min||state.duration,10))}`;}
   function timeText(t){return isSolo()?slotRange(t):t;}
   function recTimeText(r){return isSoloRec(r)?slotRange(r.time,r.duration||60):r.time;}
+  function mdDate(d){ const p=String(d||'').trim().split(/[\/\-.]/); return p.length===3 ? `${parseInt(p[1],10)}/${parseInt(p[2],10)}` : String(d||''); }  // 2026-10-30 → 10/30
   function soloOverlap(d1,t1,d2,t2){if(d1!==d2)return false;const m=t=>{const [h,mi]=String(t).split(':').map(Number);return h*60+mi;};const a=m(t1),b=m(t2),len=parseInt(state.duration,10);return a<b+len&&b<a+len;}  // 同一天兩筆（同時長）是否重疊
   function isTruthy(v){if(v===true||v===1)return true;if(!v)return false;const s=String(v).trim().toLowerCase();return s.includes('true')||s.includes('yes')||s.includes('過期')||s.includes('到期');}
   function setStatus(m,e=false){status.classList.toggle('statusError',!!e);status.innerHTML=m||'';}
@@ -609,14 +610,15 @@
   window.startReschedule = function(e, originalIndex, isExpired) {
       e.stopPropagation(); const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
       const oD = String(record.date || "").replace(/\//g,'-'), [yyyy, mm, dd] = oD.split('-'), m = parseInt(mm, 10), d = parseInt(dd, 10), oWd = record.weekday || weekdayZhFromDateKey(record.date), oTime = record.time, kName = isSoloRec(record) ? '自主訓練' : '場租';
-      let htmlText = isExpired ? `<div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">此筆購買效期已過，僅供更改時段一次。</div><div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的${kName}預約時段？</div>` : `<div style="white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的${kName}預約時段？</div>`;
+      const oSlot = isSoloRec(record) ? recTimeText(record) : oTime;
+      let htmlText = isExpired ? `<div style="text-align:center; white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">此筆購買效期已過，僅供更改時段一次。</div><div style="text-align:center; white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oSlot} 的${kName}預約時段？</div>` : `<div style="text-align:center; white-space: nowrap; font-size:min(13px, 3.5vw); line-height:1.7;">更改 ${m}月${d}日 (${oWd}) ${oSlot} 的${kName}預約時段？</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', width: '95%', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#0e6ba8' }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule'; state.rescheduleSource = record;
               state.kind = isSoloRec(record) ? 'solo' : 'rent';
               state.duration = isSolo() ? (parseInt(record.duration,10) || 60) : null;   // 改期時長不變
               state.students = isSolo() ? 1 : normalizePlan(record.students || record.people || 1);
-              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 ${oTime}(${oWd}) ${kName}時段作業中...`;
+              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 (${oWd}) ${oSlot} ${kName}時段`;
               loadOptionsForCoach();
           }
       });
@@ -630,7 +632,7 @@
       const subLine = isSolo() ? (state.mode === 'reschedule' ? `自主訓練 ${durLabel()}` : `自主訓練 ${durLabel()}｜$${unitCost()}`) : `教練：${state.coach.name} / ${studentDisplay}`;
       if (state.mode === 'reschedule' && state.rescheduleSource) {
           const oldDateFmt = String(state.rescheduleSource.date).replace(/\//g, '-'), oldWd = state.rescheduleSource.weekday || weekdayZhFromDateKey(state.rescheduleSource.date), oldTime = timeText(state.rescheduleSource.time);
-          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const newDateFmt = String(item.date).replace(/\//g, '-'), newWd = weekdayZhFromDateKey(item.date), newTime = timeText(item.time); html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; justify-content: space-between; width: 100%; align-items: center;"><div style="display:flex; flex-direction: column; gap: 6px; flex: 1;"><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:15px; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#dcecf7; padding:2px 6px; border-radius:4px; margin-right:8px;">新</span><span style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${newDateFmt} (${newWd}) ${newTime}</span></div><div style="font-size:13px; font-weight:900; color:var(--muted); margin-top:2px; margin-left:36px;">${subLine}</div></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`; });
+          state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const newDateFmt = String(item.date).replace(/\//g, '-'), newWd = weekdayZhFromDateKey(item.date), newTime = timeText(item.time); html += `<div class="confirmItem" style="flex-direction: column; align-items: flex-start; gap: 10px;"><div style="display:flex; justify-content: space-between; width: 100%; align-items: center;"><div style="display:flex; flex-direction: column; gap: 6px; flex: 1;"><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--danger); background:#fff5f5; padding:2px 6px; border-radius:4px; margin-right:8px;">舊</span><span style="font-size:${isSolo() ? 'min(15px, 3.8vw)' : '15px'}; white-space:nowrap; font-weight:900; color:var(--muted); text-decoration:line-through;">${oldDateFmt} (${oldWd}) ${oldTime}</span></div><div style="display:flex; align-items:center;"><span style="font-size:12px; font-weight:900; color:var(--primary); background:#dcecf7; padding:2px 6px; border-radius:4px; margin-right:8px;">新</span><span style="font-size:${isSolo() ? 'min(16px, 4vw)' : '16px'}; font-weight:950; color:var(--text); letter-spacing:${isSolo() ? '0' : '0.5px'}; white-space:nowrap;">${newDateFmt} (${newWd}) ${newTime}</span></div><div style="font-size:13px; font-weight:900; color:var(--muted); margin-top:2px; margin-left:36px;">${subLine}</div></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div></div>`; });
       } else {
           state.cart.sort((a,b)=>a.ts - b.ts).forEach(item => { const wd = weekdayZhFromDateKey(item.date); html += `<div class="confirmItem"><div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span style="font-size:${isSolo() ? 'min(16px, 4.1vw)' : '16px'}; font-weight:950; color:var(--text); letter-spacing:${isSolo() ? '0' : '0.5px'}; white-space:nowrap;">${item.date} (${wd}) ${timeText(item.time)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${subLine}</span></div><div class="step3Del" style="cursor:pointer;" onclick="deleteFromStep3('${item.date}', '${item.time}')">${TRASH_SVG}</div></div>`; });
       }
@@ -803,10 +805,11 @@
   // ── 自主訓練時段：Make 回傳「每 30 分鐘一格」的開放格與已預約人數，前端依所選時長算出可開始的時間 ──
   function buildSoloAvailability(slotMap, occMap){
       const need = state.duration / SOLO_SLOT_MIN, out = {}, today = ymd(new Date());
+      const srcKey = state.mode === 'reschedule' && state.rescheduleSource ? `${normDk(state.rescheduleSource.date)} ${state.rescheduleSource.time}` : '';
       Object.keys(slotMap).forEach(dk=>{
           if (dk <= today) return;                                           // 不接受當日預約
           const set = slotMap[dk];
-          const ok = set.filter(t=>{ for(let i=0;i<need;i++){ const x=addMin(t,i*SOLO_SLOT_MIN); if(!set.includes(x)) return false; if((occMap[`${dk} ${x}`]||0) >= SOLO_CAP) return false; } return !soloBookedClash(dk, t); });
+          const ok = set.filter(t=>{ for(let i=0;i<need;i++){ const x=addMin(t,i*SOLO_SLOT_MIN); if(!set.includes(x)) return false; if((occMap[`${dk} ${x}`]||0) >= SOLO_CAP) return false; } return !soloBookedClash(dk, t) && `${dk} ${t}` !== srcKey; });
           if (ok.length) out[dk] = ok;
       });
       return out;
@@ -931,8 +934,8 @@
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-'), oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${oD} (${oWd})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
-              { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${list[0].date} (${list[0].weekday})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] }
+              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${isSolo() ? mdDate(oD) : oD} (${oWd})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
+              { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${isSolo() ? mdDate(list[0].date) : list[0].date} (${list[0].weekday})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] }
           );
       } else {
           list.forEach((it) => {
@@ -1080,7 +1083,7 @@
     }
     updateNavPill();
 
-    btnBack.onclick=()=>{ if(state.step===2) setStep(1); else setStep(2); };
+    btnBack.onclick=()=>{ if(state.step===2 && state.mode==='reschedule'){ state.rescheduleSource = null; state.cart = []; loadMyRecords(); return; } if(state.step===2) setStep(1); else setStep(2); };
     btnHome.onclick = () => { window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; state.rescheduleSource = null; state.cart = []; state.kind = null; state.duration = null; state.students = null; renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderStudents(); renderStep1Tip(); state.weekStart = stripStart(); renderWeekStrip(); setStep(1); updateNavPill(); };
     
     document.getElementById('btnCancelBatch').addEventListener('click', async () => {
