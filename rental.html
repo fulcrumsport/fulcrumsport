@@ -420,7 +420,7 @@
       <li>預約、取消與改期，皆須於<b>訓練日的前一天 23:59 前</b>完成。<b>恕不接受當日預約、取消或改期</b>。</li>
       <li>於期限內取消者，儲值金全額退回原儲值紀錄，效期不變；該筆儲值金若已逾期則不予退還。</li>
       <li>儲值金未逾期者，<b>改期次數不限</b>。改期僅能變更日期與時段，如需變更時長，請取消後重新預約。</li>
-      <li>預約時儲值金尚未到期，但訓練日已超過該筆儲值金效期者，仍可照常使用，並<b>得改期 1 次</b>；惟取消時不予退還。</li>
+      <li>儲值金到期後，以該筆儲值金預約之訓練仍可照常使用，並<b>得改期 1 次</b>；惟取消時不予退還。儲值金到期前，改期與取消依一般規定辦理。</li>
       <li>無故未到（No-show）者，<b>已扣除之儲值金不予退還</b>。</li>
       <li>遇天災、停電、設備故障或本場館因故無法開放時，將全額退回儲值金且不收手續費；退回之儲值金如因此逾期，效期予以順延。</li>
     </ol>
@@ -505,6 +505,8 @@
   // 自主訓練：預約於前一天 23:59 截止（不接受當日預約）；場租維持開始前 1 小時
   function canBookNow(d,t){if(!d||!t)return false;if(isSolo())return startOfDay(createSafeDate(d,t))>startOfDay(new Date());return createSafeDate(d,t)>=new Date(Date.now()+3600000);}
   function isSolo(){return state.kind==='solo';}
+  function soloExpiredNow(v){ const s = String(v ?? '').trim(); if (!s) return false; const m = s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/); if (!m) return isTruthy(s); const d = new Date(+m[1], +m[2]-1, +m[3], m[4] ? +m[4] : 23, m[5] ? +m[5] : 59); return new Date() > d; }
+  function recExpired(r){ if (!r) return false; if (isSoloRec(r)) return soloExpiredNow(r.isExpired); return isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]); }
   function isSoloRec(r){return !!r&&(r.kind==='solo'||r.course==='自主訓練'||r.rentType==='自主訓練');}
   function soloPlan(min){return SOLO_PLANS.find(p=>p.key===parseInt(min||state.duration,10))||SOLO_PLANS[0];}
   function durLabel(min){return soloPlan(min).label;}
@@ -552,7 +554,7 @@
           const canCancel = nowDateOnly < classDateOnly;
           const soloRec = isSoloRec(r), recDur = parseInt(r.duration,10) || 60;
           const inSession = soloRec && now >= classTime && now < new Date(classTime.getTime() + recDur*60000);
-          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
+          const isExpired = recExpired(r);
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
           const canReschedule = (!isExpired) || (isExpired && !isFinal);
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
@@ -598,7 +600,7 @@
       e.stopPropagation();
       if(state.selectedRecords.has(originalIndex)) { state.selectedRecords.delete(originalIndex); renderRecordList(); updateRecordBtns();
       } else {
-          const r = state.records[originalIndex]; const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
+          const r = state.records[originalIndex]; const isExpired = recExpired(r);
           // 場租（扣堂）與自主訓練（扣儲值金）退回的池不同，一次只能取消同一種
           const mixed = [...state.selectedRecords].some(i => isSoloRec(state.records[i]) !== isSoloRec(r));
           if (mixed) { Swal.fire({ icon: 'info', title: '請分開取消', html: `<div style="text-align:center; text-wrap:balance; line-height:1.7;">場租與自主訓練請分別取消。</div>`, confirmButtonColor: '#0e6ba8' }); return; }
@@ -611,9 +613,10 @@
       e.stopPropagation(); const record = state.records[originalIndex]; record.isExpiredStatus = isExpired; 
       const oD = String(record.date || "").replace(/\//g,'-'), [yyyy, mm, dd] = oD.split('-'), m = parseInt(mm, 10), d = parseInt(dd, 10), oWd = record.weekday || weekdayZhFromDateKey(record.date), oTime = record.time, kName = isSoloRec(record) ? '自主訓練' : '場租';
       const oSlot = isSoloRec(record) ? recTimeText(record) : oTime;
-      const pStyle = 'text-align:center; text-wrap:balance; font-size:14px; line-height:1.7; margin:0 auto;';
-      const expMsg = isSoloRec(record) ? '此筆預約使用的儲值金於訓練日前到期，僅供更改時段一次。' : '此筆購買效期已過，僅供更改時段一次。';
-      let htmlText = (isExpired ? `<div style="${pStyle} color:#b23a2b; font-weight:800;">${expMsg}</div>` : '') + `<div style="${pStyle}">更改 ${m}月${d}日 (${oWd})<br>${oSlot} 的${kName}預約時段？</div>`;
+      // 改期確認視窗：警示框（效期）＋ 說明 ＋ 時段，三段各自置中
+      const expLines = isSoloRec(record) ? ['儲值金於訓練日前到期', '僅可更改時段一次'] : ['此堂購買效期已過', '僅可更改時段一次'];
+      const warnBox = isExpired ? `<div style="background:#fdecea; color:#b23a2b; border-radius:10px; padding:8px 12px; margin:0 auto 12px; font-size:13.5px; font-weight:800; line-height:1.6; text-align:center;">${expLines[0]}<br>${expLines[1]}</div>` : '';
+      let htmlText = `${warnBox}<div style="text-align:center; font-size:14px; color:#555; line-height:1.6;">更改以下${kName}預約時段：</div><div style="text-align:center; font-size:17px; font-weight:950; color:#1a2321; margin-top:6px; white-space:nowrap;">${m}月${d}日 (${oWd}) ${oSlot}</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', width: '95%', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#0e6ba8' }).then((res) => {
           if (res.isConfirmed) {
               state.mode = 'reschedule'; state.rescheduleSource = record;
@@ -728,7 +731,7 @@
                   const dateDash = String(booking.date).replace(/\//g, '-'), dateSlash = String(booking.date).replace(/-/g, '/');
                   const match = parsedList.find(res => { const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-'), rTime = String(res.time || res.Time || '').trim(); return (rDate === dateDash || rDate === dateSlash) && (rTime === booking.time); });
                   if (match) { const mStatus = match.Status || match.status || currentStatus; const mMsg = match.Message || match.message || msg; if (mStatus === 'expired' || mMsg.includes('不予退還') || mMsg.includes('過期') || booking.改期狀態 === 'final') { expiredBookings.push(booking); } else { refundedBookings.push(booking); }
-                  } else { const isExpired = isTruthy(booking.isExpired) || isTruthy(booking.isCardExpired) || isTruthy(booking["扣堂來源是否到期"]) || isTruthy(booking["扣堂來源是否到期 (L)"]); if (isExpired || booking.改期狀態 === 'final') { expiredBookings.push(booking); } else { refundedBookings.push(booking); } }
+                  } else { const isExpired = recExpired(booking); if (isExpired || booking.改期狀態 === 'final') { expiredBookings.push(booking); } else { refundedBookings.push(booking); } }
               });
           } else { failedBookings = [...bookingsToCancel]; }
       } catch (e) { failedBookings = [...bookingsToCancel]; }
