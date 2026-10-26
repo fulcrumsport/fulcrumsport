@@ -621,8 +621,8 @@
       const oD = String(record.date || "").replace(/\//g,'-'), [yyyy, mm, dd] = oD.split('-'), m = parseInt(mm, 10), d = parseInt(dd, 10), oWd = record.weekday || weekdayZhFromDateKey(record.date), oTime = record.time, kName = isSoloRec(record) ? '自主訓練' : '場租';
       const oSlot = isSoloRec(record) ? recTimeText(record) : oTime;
       // 改期確認視窗：警示框（效期）＋ 說明 ＋ 時段，三段各自置中
-      const expLines = isSoloRec(record) ? ['儲值金於訓練日前到期', '僅可更改時段一次'] : ['此堂購買效期已過', '僅可更改時段一次'];
-      const warnBox = isExpired ? `<div style="background:#fdecea; color:#b23a2b; border-radius:10px; padding:8px 12px; margin:0 auto 12px; font-size:13.5px; font-weight:800; line-height:1.6; text-align:center;">${expLines[0]}<br>${expLines[1]}</div>` : '';
+      const expLine = isSoloRec(record) ? '儲值金於訓練日前到期，僅可更改時段一次' : '此堂購買效期已過，僅可更改時段一次';
+      const warnBox = isExpired ? `<div style="color:#b23a2b; font-size:min(13.5px, 3.5vw); font-weight:800; line-height:1.6; text-align:center; white-space:nowrap; margin:0 auto 10px;">${expLine}</div>` : '';
       let htmlText = `${warnBox}<div style="text-align:center; font-size:14px; color:#555; line-height:1.6;">更改以下${kName}預約時段：</div><div style="text-align:center; font-size:17px; font-weight:950; color:#1a2321; margin-top:6px; white-space:nowrap;">${m}月${d}日 (${oWd}) ${oSlot}</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', width: '95%', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#0e6ba8' }).then((res) => {
           if (res.isConfirmed) {
@@ -947,8 +947,8 @@
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-'), oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${isSolo() ? mdDate(oD) : oD} (${oWd})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
-              { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${isSolo() ? mdDate(list[0].date) : list[0].date} (${list[0].weekday})`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: (isSolo() ? "md" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] }
+              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${oD} (${oWd})`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
+              { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${list[0].date} (${list[0].weekday})`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] }
           );
       } else {
           list.forEach((it) => {
