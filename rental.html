@@ -506,7 +506,14 @@
   function canBookNow(d,t){if(!d||!t)return false;if(isSolo())return startOfDay(createSafeDate(d,t))>startOfDay(new Date());return createSafeDate(d,t)>=new Date(Date.now()+3600000);}
   function isSolo(){return state.kind==='solo';}
   function soloExpiredNow(v){ const s = String(v ?? '').trim(); if (!s) return false; const m = s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/); if (!m) return isTruthy(s); const d = new Date(+m[1], +m[2]-1, +m[3], m[4] ? +m[4] : 23, m[5] ? +m[5] : 59); return new Date() > d; }
-  function recExpired(r){ if (!r) return false; if (isSoloRec(r)) return soloExpiredNow(r.isExpired); return isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]); }
+  function parseYmdHm(s){ const m = String(s || '').trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/); return m ? new Date(+m[1], +m[2]-1, +m[3], m[4] ? +m[4] : 23, m[5] ? +m[5] : 59) : null; }
+  function soloRecExpired(r){
+      const src = String(r.source || '').trim(), batches = state.soloBatches || {};
+      if (!src || !Object.keys(batches).length) return soloExpiredNow(r.isExpired);   // 沒有儲值資料時沿用 M 欄
+      const t = parseYmdHm(r.date); if (!t) return false; const trainDay = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+      return src.split('|').some(part => { const exp = parseYmdHm(batches[part.split(':')[0].trim()]); return exp && exp < trainDay && new Date() > exp; });
+  }
+  function recExpired(r){ if (!r) return false; if (isSoloRec(r)) return soloRecExpired(r); return isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]); }
   function isSoloRec(r){return !!r&&(r.kind==='solo'||r.course==='自主訓練'||r.rentType==='自主訓練');}
   function soloPlan(min){return SOLO_PLANS.find(p=>p.key===parseInt(min||state.duration,10))||SOLO_PLANS[0];}
   function durLabel(min){return soloPlan(min).label;}
@@ -921,6 +928,7 @@
           const soloArr = soloRes.arr.map(r => Object.assign({}, r, { kind: 'solo' }));
           const soloRemain = soloRes.data["Remaining credits"] ?? soloRes.data.remainingCredits;
           if (soloRemain !== undefined && soloRemain !== '') state.soloRecordRemaining = soloRemain;
+          state.soloBatches = {}; (Array.isArray(soloRes.data.batches) ? soloRes.data.batches : []).forEach(b => { if (b && b.id) state.soloBatches[String(b.id).trim()] = String(b.exp || '').trim(); });
           state.records = rentRes.arr.concat(soloArr).filter(r => r && r.date && String(r.date).trim() !== '');
           state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           const remain = data["Remaining credits"] ?? data.remainingCredits;
@@ -1110,6 +1118,7 @@
            const isReschedule = state.mode === 'reschedule'; const firstSelectedSlot = state.cart[0] || {};
            const people = isSolo() ? 1 : planPeople();
            const payload = { action: isReschedule ? "rentReschedule" : "rent", service: SERVICE, kind: state.kind, duration: isSolo() ? state.duration : undefined, price: isSolo() ? unitCost() : undefined, rulesVersion: rulesVersion(), agreedRules: true, userId: state.uid, displayName: state.name, coachName: state.coach.name, students: people, people: people, rentType: isSolo() ? '自主訓練' : rentTypeName(), newDate: isReschedule ? firstSelectedSlot.date : undefined, newTime: isReschedule ? firstSelectedSlot.time : undefined, newWeekday: isReschedule ? weekdayZhFromDateKey(firstSelectedSlot.date) : undefined, bookings: state.cart.map(item => ({ date: item.date, time: item.time, endTime: isSolo() ? addMin(item.time, state.duration) : undefined, weekday: weekdayZhFromDateKey(item.date) })) };
+           if (isReschedule && state.rescheduleSource && isSolo()) { payload.expiredNow = recExpired(state.rescheduleSource); }
            if (isReschedule && state.rescheduleSource) { payload.oldRowNumber = state.rescheduleSource.rowIndex || state.rescheduleSource.rowNumber || ""; payload.oldDate = state.rescheduleSource.date; payload.oldTime = state.rescheduleSource.time; }
            
            const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
