@@ -535,7 +535,7 @@
   function noSlotsHtml(){
       const resch = state.mode === 'reschedule';
       let h = `<div class="slotTip noSlots"><div class="nsTitle">${resch ? '目前沒有可更改的時段' : '目前沒有可預約的時段'}</div><div class="nsSub">可能是時段已額滿，或與您其他預約時間重疊。</div>`;
-      if (resch && isSolo()) h += `<div class="nsHint">您原本預約的時長為 ${durLabel()}，改期只能選擇相同時長。<br>如需改為其他時長，請先<b>取消此預約</b>，再重新預約。</div>`;
+
       return h + `</div>`;
   }
   function soloOverlap(d1,t1,d2,t2){if(d1!==d2)return false;const m=t=>{const [h,mi]=String(t).split(':').map(Number);return h*60+mi;};const a=m(t1),b=m(t2),len=parseInt(state.duration,10);return a<b+len&&b<a+len;}  // 同一天兩筆（同時長）是否重疊
@@ -745,7 +745,7 @@
               bookingsToCancel.forEach(booking => {
                   if (resText !== null) {
                       const key = nzc(`${booking.date}${booking.time}`), seg = resText.split('、').find(s => nzc(s).includes(key));
-                      if (seg) { const m = seg.match(/\$\s*([\d,]+)/); booking.refundAmt = m ? parseInt(m[1].replace(/,/g, ''), 10) : undefined; (seg.includes('過期') ? expiredBookings : refundedBookings).push(booking); } else { failedBookings.push(booking); }
+                      if (seg) { const num = re => { const x = seg.match(re); return x ? parseInt(x[1].replace(/,/g, ''), 10) : undefined; }; const ra = num(/已退款\s*\$\s*([\d,]+)/), ka = num(/不退\s*\$\s*([\d,]+)/); booking.refundAmt = ra !== undefined ? ra : num(/\$\s*([\d,]+)/); booking.keptAmt = ka; const isExp = ra !== undefined ? ra <= 0 : seg.includes('過期'); (isExp ? expiredBookings : refundedBookings).push(booking); } else { failedBookings.push(booking); }
                       return;
                   }
                   const dateDash = String(booking.date).replace(/\//g, '-'), dateSlash = String(booking.date).replace(/-/g, '/');
