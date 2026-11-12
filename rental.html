@@ -142,7 +142,7 @@
     .swal2-styled.swal2-confirm, .swal2-styled.swal2-cancel { border-radius: 12px !important; font-weight: 950 !important; padding: 10px 24px !important; font-size: 15px !important; box-shadow: none !important; flex: 0 0 auto !important; width: auto !important; min-width: 100px !important; margin: 0 !important; }
     .swal2-styled.swal2-confirm { background-color: var(--primary) !important; color: #fff !important; }
     .swal2-styled.swal2-cancel { color: #111 !important; background: #eef2f1 !important; }
-    .reschedule-tip { font-size: 14px; font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; flex: 0 0 auto; }
+    .reschedule-tip { font-size: min(14px, 3.5vw); font-weight: 900; color: var(--danger); text-align: center; margin-bottom: 10px; background: #fff5f5; padding: 8px; border-radius: 8px; width: 100%; flex: 0 0 auto; }
     /* 問候語 */
     .greeting { font-size: 20px; font-weight: 950; color: var(--primary); margin: 0 0 4px; flex: 0 0 auto; }
     /* 規章同意閘門 */
@@ -192,6 +192,12 @@
     #card3 .remindContainer { padding-top: 8px; }
     #step3RemindBox { font-size: 12.5px; line-height: 1.5; }
     #step3RemindBox li { margin-bottom: 2px; }
+    .slotTip.noSlots { gap: 6px; padding: 14px 8px; text-align: center; }
+    .noSlots .nsTitle { font-size: 15px; font-weight: 950; color: var(--text); }
+    .noSlots .nsSub { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .noSlots .nsHint { margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--selText); background: var(--selBg); border-radius: 10px; padding: 8px 12px; line-height: 1.6; }
+    .noSlots .nsHint b { color: var(--danger); }
+    .reschedule-tip .rtSub { font-size: min(12px, 3.2vw); font-weight: 800; color: var(--muted); margin-top: 3px; white-space: nowrap; }
     /* 確認頁精簡同意列 */
     .confirm-agree { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; color: var(--text); padding: 8px 2px 0; }
     .confirm-agree input { width: 20px; height: 20px; accent-color: var(--primary); flex: 0 0 auto; cursor: pointer; }
@@ -525,10 +531,17 @@
   function timeText(t){return isSolo()?slotRange(t):t;}
   function recTimeText(r){return isSoloRec(r)?slotRange(r.time,r.duration||60):r.time;}
   function mdDate(d){ const p=String(d||'').trim().split(/[\/\-.]/); return p.length===3 ? `${pad2(p[1])}-${pad2(p[2])}` : String(d||''); }  // 2026/10/30 → 10-30（LINE 改期卡片用）
+  // 無可選時段的說明；自主訓練改期時另外說明「改期時長固定，要改時長請取消後重新預約」
+  function noSlotsHtml(){
+      const resch = state.mode === 'reschedule';
+      let h = `<div class="slotTip noSlots"><div class="nsTitle">${resch ? '目前沒有可更改的時段' : '目前沒有可預約的時段'}</div><div class="nsSub">可能是時段已額滿，或與您其他預約時間重疊。</div>`;
+      if (resch && isSolo()) h += `<div class="nsHint">您原本預約的時長為 ${durLabel()}，改期只能選擇相同時長。<br>如需改為其他時長，請先<b>取消此預約</b>，再重新預約。</div>`;
+      return h + `</div>`;
+  }
   function soloOverlap(d1,t1,d2,t2){if(d1!==d2)return false;const m=t=>{const [h,mi]=String(t).split(':').map(Number);return h*60+mi;};const a=m(t1),b=m(t2),len=parseInt(state.duration,10);return a<b+len&&b<a+len;}  // 同一天兩筆（同時長）是否重疊
   function isTruthy(v){if(v===true||v===1)return true;if(!v)return false;const s=String(v).trim().toLowerCase();return s.includes('true')||s.includes('yes')||s.includes('過期')||s.includes('到期');}
   function setStatus(m,e=false){status.classList.toggle('statusError',!!e);status.innerHTML=m||'';}
-  function updateStatusInStep2(){if(state.loadingOptions)return;if(!state.dateKey){setStatus('請先選擇上方日期');return;}if(state.cart.length>0){setStatus(isSolo()?`已選擇 ${state.cart.length} 個時段，共 $${state.cart.length*unitCost()}`:`已選擇 ${state.cart.length} 堂時段`);return;}setStatus(`已選日期：${state.dateKey}`);}
+  function updateStatusInStep2(){if(state.loadingOptions)return;if(!Object.keys(state.availabilityMap||{}).length){setStatus(state.mode==='reschedule'?'目前沒有可更改的時段':'目前沒有可預約的時段');return;}if(!state.dateKey){setStatus('請先選擇上方日期');return;}if(state.cart.length>0){setStatus(isSolo()?`已選擇 ${state.cart.length} 個時段，共 $${state.cart.length*unitCost()}`:`已選擇 ${state.cart.length} 堂時段`);return;}setStatus(`已選日期：${state.dateKey}`);}
   function getAvailableRecurringWeeks(sk,ts){let c=0,cur=new Date(String(sk).replace(/-/g,'/'));for(let i=1;i<=12;i++){cur=addDays(cur,7);if(cur>getLimitDate())break;const dk=ymd(cur),s=state.availabilityMap[dk];if(s&&s.includes(ts)&&canBookNow(dk,ts))c++;}return c;}
 
   function setStep(n){
@@ -630,7 +643,7 @@
               state.kind = isSoloRec(record) ? 'solo' : 'rent';
               state.duration = isSolo() ? (parseInt(record.duration,10) || 60) : null;   // 改期時長不變
               state.students = isSolo() ? 1 : normalizePlan(record.students || record.people || 1);
-              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 (${oWd}) ${oSlot} ${kName}時段`;
+              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 (${oWd}) ${oSlot} ${kName}時段` + (isSoloRec(record) ? `<div class="rtSub">此預約為 ${durLabel(record.duration || 60)}，改期僅能選擇相同時長<br>如需更改時長，請取消後重新預約</div>` : '');
               loadOptionsForCoach();
           }
       });
@@ -757,7 +770,7 @@
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   function buildAvailabilityMap(options){ const map = {}; (options||[]).forEach(o=>{ const raw = (o.value || o.label || '').toString(); const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4]; if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t); }); Object.keys(map).forEach(k=>map[k].sort()); return map; }
   function renderCoachIntro(){ coachName2.textContent = isSolo() ? durLabel() : `場租 ${planCourseLabel()}`; coachTags2.innerHTML=''; }
-  function renderSlotsStep2() { slotGrid2.innerHTML=''; slotGrid2.classList.toggle('soloGrid', isSolo()); if (state.loadingOptions) { slotGrid2.innerHTML=`<div class="slotTip"><div class="text-spinner"></div><div>擷取可預約時段中...</div></div>`; return; } if(!state.dateKey){ slotGrid2.innerHTML=`<div class="slotTip">請先選擇上方日期</div>`; return; } const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{ if(isSolo()) return true; const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18); }); const cap = isSolo() ? SOLO_CAP : VENUE_CAP; if(list.length===0){ slotGrid2.innerHTML=`<div class="slotTip">此時段無可預約時間</div>`; return; } list.forEach(t=>{ const disabled = !canBookNow(state.dateKey, t); const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t); const occ = occupancyOf(state.dateKey, t); const div=document.createElement('div'); div.className='slot'+(occ!==null?' slotCap':'')+(disabled?' disabled':'')+(isSelected?' sel':''); if(occ!==null){ const pct = occ===0 ? 8 : Math.round(Math.min(occ,cap)/cap*100); const ratio=occ/cap; const lvl=ratio<=0.3?'low':ratio<=0.6?'mid':'high'; div.innerHTML=`<div class="slotT">${timeText(t)}</div><div class="slotBar"><div class="slotBarFill lvl-${lvl}" style="width:${pct}%"></div></div>`; } else { div.textContent=timeText(t); } div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div); }); }
+  function renderSlotsStep2() { slotGrid2.innerHTML=''; slotGrid2.classList.toggle('soloGrid', isSolo()); if (state.loadingOptions) { slotGrid2.innerHTML=`<div class="slotTip"><div class="text-spinner"></div><div>擷取可預約時段中...</div></div>`; return; } if(!Object.keys(state.availabilityMap||{}).length){ slotGrid2.innerHTML=noSlotsHtml(); return; } if(!state.dateKey){ slotGrid2.innerHTML=`<div class="slotTip">請先選擇上方日期</div>`; return; } const list = (state.availabilityMap[state.dateKey]||[]).filter(t=>{ if(isSolo()) return true; const h=parseInt(t); return state.tab==='am'?(h<12):state.tab==='pm'?(h>=12&&h<18):(h>=18); }); const cap = isSolo() ? SOLO_CAP : VENUE_CAP; if(list.length===0){ slotGrid2.innerHTML=`<div class="slotTip">此時段無可預約時間</div>`; return; } list.forEach(t=>{ const disabled = !canBookNow(state.dateKey, t); const isSelected = state.cart.some(item => item.date === state.dateKey && item.time === t); const occ = occupancyOf(state.dateKey, t); const div=document.createElement('div'); div.className='slot'+(occ!==null?' slotCap':'')+(disabled?' disabled':'')+(isSelected?' sel':''); if(occ!==null){ const pct = occ===0 ? 8 : Math.round(Math.min(occ,cap)/cap*100); const ratio=occ/cap; const lvl=ratio<=0.3?'low':ratio<=0.6?'mid':'high'; div.innerHTML=`<div class="slotT">${timeText(t)}</div><div class="slotBar"><div class="slotBarFill lvl-${lvl}" style="width:${pct}%"></div></div>`; } else { div.textContent=timeText(t); } div.onclick=()=>{ if(!disabled) toggleCartItem(state.dateKey, t); }; slotGrid2.appendChild(div); }); }
   // 以本週「可選擇範圍內」的日期為主，組出年份在後的月份標題（含跨月、跨年）
   function weekMonthLabel(ws){
       const today = startOfDay(new Date()), limit = getLimitDate();
