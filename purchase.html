@@ -944,7 +944,7 @@
     function showIdentity(){
       state.mode = null; state.view = 'identity';
       $('idCard').classList.remove('hide');
-      mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); recordCard.classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
+      mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); $('soloCard').classList.add('hide'); recordCard.classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
       $('switchRole').classList.add('hide');
       pageTitle.textContent = '支點運動空間｜購買課程';
       navToggle.textContent = '購買紀錄 ›';
@@ -977,7 +977,7 @@
     function switchView(view){
       if(view === 'record'){
         state.view = 'record';
-        $('idCard').classList.add('hide'); mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
+        $('idCard').classList.add('hide'); mainCard.classList.add('hide'); $('venueCard').classList.add('hide'); $('soloCard').classList.add('hide'); footer.classList.add('hide'); paySec.classList.add('hide');
         recordCard.classList.remove('hide');
         $('switchRole').classList.add('hide');
         pageTitle.textContent = '支點運動空間｜購買紀錄';
