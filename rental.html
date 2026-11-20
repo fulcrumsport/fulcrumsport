@@ -212,7 +212,7 @@
     .extOpt { gap: 8px; padding: 10px; }
     .extNote { font-size: 12.5px; font-weight: 800; color: var(--muted); margin-top: 10px; }
     .recFilter .record-tab { font-size: 15px; padding: 8px 0; }
-    .kindBadge.pt { background: #e3f0f9; color: #0a4d78; }
+    .kindBadge.pt { background: #efe7f8; color: #5b3a8c; }
     .kindBadge.rentB { background: #e2f3e6; color: #1f6b3a; }
     /* 確認頁精簡同意列 */
     .confirm-agree { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; color: var(--text); padding: 8px 2px 0; }
@@ -1256,7 +1256,7 @@
                        liff.closeWindow();
                    }
                } else { Swal.fire({ icon:'error', title: '糟糕！預約失敗', html: '<div style="white-space: nowrap;">所選時段皆已被預約，請選擇其他時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
-           } else { const failMsg = result.message || result.Message; Swal.fire({ icon:'error', title: state.mode === 'reschedule' ? '無法改期' : '糟糕！失敗', html: failMsg ? `<div style="text-align:center; text-wrap:balance; line-height:1.7;">${failMsg}</div>` : '<div style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
+           } else { const failMsg = result.message || result.Message; Swal.fire({ icon:'error', title: state.mode === 'reschedule' ? '無法改期' : '糟糕！失敗', html: failMsg ? `<div style="text-align:center; white-space:nowrap; font-size:min(14px, 3.3vw); margin:0 -10px; line-height:1.7;">${failMsg}</div>` : '<div style="white-space: nowrap;">時段可能已被佔走，請重新選擇時段。</div>', confirmButtonColor: '#b23a2b' }); setStep(2); btnNext.disabled = false; btnNext.textContent = "確認送出"; }
         }catch(e){ Swal.fire({ icon:'error', title: '系統異常', html: '<div style="white-space: nowrap;">請稍後再試。</div>', confirmButtonColor: '#b23a2b' }); btnNext.disabled=false; btnNext.textContent="確認送出"; }
       }
     };
