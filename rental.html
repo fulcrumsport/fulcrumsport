@@ -350,7 +350,7 @@
   const RENT_PLANS = [ {key:1, label:'1 人'}, {key:2, label:'2 人'} ];
   const RULES_VERSION = '2026-07-09'; // 規章版本（更新條款時改這裡，會隨同意一併送出存檔）
   // Step1 預約項目：場租（教練）／自主訓練（會員）。同一個 LIFF 內分支，payload 以 kind 區分
-  const KINDS = [ {key:'rent', label:'場地租借', sub:'教練帶學生上課'}, {key:'solo', label:'自主訓練', sub:'會員自行訓練'} ];
+  const KINDS = [ {key:'rent', label:'場地租借', sub:'教練帶學生上課'}, {key:'solo', label:'自主訓練', sub:'學員自行訓練'} ];
   // 自主訓練：每次限 1 人、儲值金制（元）；獨立時段表 30 分鐘一格、每格上限 5 人
   const SOLO_PLANS = [ {key:60, label:'1 小時', price:100, save:''}, {key:90, label:'1.5 小時', price:130, save:'省 20 元'}, {key:120, label:'2 小時', price:170, save:'省 30 元', best:true} ];
   const SOLO_CAP = 5, SOLO_SLOT_MIN = 30;
