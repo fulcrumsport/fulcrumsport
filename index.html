@@ -110,9 +110,23 @@
     .record-tab.active { color: var(--primary); background: #ffffff; box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15); }
     .recFilter .record-tab { font-size: 15px; padding: 8px 0; }
     .kindBadge { font-size: 11px; font-weight: 950; padding: 2px 7px; border-radius: 6px; margin-right: 6px; background: var(--selBg); color: var(--selText); }
-    .kindBadge.pt { background: #fdf0dc; color: #9a5b00; }
+    .kindBadge.pt { background: var(--selBg); color: var(--selText); }   /* 私課：私課 LIFF 主題綠 */
     .kindBadge.solo { background: #efe7f8; color: #5b3a8c; }
     .kindBadge.rentB { background: #e2f3e6; color: #1f6b3a; }
+    .extendBtn { font-size: 12px; font-weight: 950; color: #fff; background: var(--primary); border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+    .extOpt.extOff { opacity: .5; cursor: not-allowed; background: #f4f4f4; border-color: #ddd; }
+    .extOff .extPrice { color: var(--muted); font-size: 13px; }
+    .extNow { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+    .extNow b { font-weight: 950; }
+    .extList { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+    .extOpt { display: flex; align-items: center; gap: 10px; border: 2px solid rgba(18,122,105,.25); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
+    .extOpt:has(input:checked) { border-color: var(--primary); background: var(--selBg); }
+    .extOpt input { width: 18px; height: 18px; accent-color: var(--primary); margin: 0; flex: 0 0 auto; }
+    .extMain { flex: 1 1 0; min-width: 0; font-size: 15px; font-weight: 950; color: var(--text); display: flex; flex-direction: column; gap: 2px; }
+    .extMain small { font-size: min(12px, 3.1vw); font-weight: 800; color: var(--muted); white-space: nowrap; }
+    .extPrice { flex: 0 0 auto; font-size: min(15px, 4vw); font-weight: 950; color: var(--primary); white-space: nowrap; }
+    .extOpt { gap: 8px; padding: 10px; }
+    .extNote { font-size: 12.5px; font-weight: 800; color: var(--muted); margin-top: 10px; }
     
     /* ✨ 修正 1：名片 CSS 優化 - 填滿照片並放大字體 */
     #trainerCardWrap { margin-top: 16px; margin-left: -8px; margin-right: -8px; width: calc(100% + 16px); flex: 0 0 auto; }
@@ -278,7 +292,7 @@
 
   // ===== 我的預約：合併私課／自主訓練／場租（比照 rental.html） =====
   const RENT_LIFF_URL = 'https://liff.line.me/2010910856-GYphdTc7?page=record';   // 場租 LIFF（自主訓練、場租改期在場租頁辦理）
-  const SOLO_PLANS = [ {key:60, label:'1 小時'}, {key:90, label:'1.5 小時'}, {key:120, label:'2 小時'} ];
+  const SOLO_PLANS = [ {key:60, label:'1 小時', price:100}, {key:90, label:'1.5 小時', price:130}, {key:120, label:'2 小時', price:170} ];   // 價格需與 rental.html 一致
   function cleanJson(t){ return String(t).trim().replace(/:\s*"""/g, ':""').replace(/:\s*\$\s*([\d,]+(?:\.\d+)?)/g, (m, v) => ': ' + v.replace(/,/g, '')).replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); }
   function durLabel(min){ const p = SOLO_PLANS.find(x => x.key === parseInt(min,10)); return p ? p.label : `${parseInt(min,10) || 60} 分鐘`; }
   function addMin(t,m){const [h,mi]=String(t).split(':').map(Number);const x=h*60+mi+m;return `${pad2(Math.floor(x/60))}:${pad2(x%60)}`;}
@@ -286,7 +300,7 @@
   function isPtRec(r){return !!r&&r.kind==='pt';}
   function recKind(r){return isPtRec(r)?'pt':(isSoloRec(r)?'solo':'rent');}
   function ptLabel(r){ return getCourseName(r.course, r.people); }
-  function recTimeText(r){ if(!isSoloRec(r)) return r.time; const e = String(r.endTime||'').trim(); return `${r.time}–${/^\d{1,2}:\d{2}$/.test(e) ? e : addMin(r.time, parseInt(r.duration,10) || 60)}`; }
+  function recTimeText(r){ if(!isSoloRec(r)) return r.time; const e = String(r.endTime||'').trim(); return `${r.time}–${(parseInt(r.duration,10) || !/^\d{1,2}:\d{2}$/.test(e)) ? addMin(r.time, parseInt(r.duration,10) || 60) : e}`; }   // 以時長為準（延長後會更新）
   function parseYmdHm(s){ const m = String(s || '').trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/); return m ? new Date(+m[1], +m[2]-1, +m[3], m[4] ? +m[4] : 23, m[5] ? +m[5] : 59) : null; }
   function soloExpiredNow(v){ const s = String(v ?? '').trim(); if (!s) return false; const d = parseYmdHm(s); if (!d) return isTruthy(s); return new Date() > d; }
   function soloRecExpired(r){
@@ -300,11 +314,72 @@
   const RECORD_REMINDS = {
       all:  ['取消或改期，請於預約日前一天完成。', '自主訓練、場租改期請按 📅 前往場租預約頁辦理。', '如有任何疑問，請於官方 LINE 聯繫我們。'],
       pt:   ['取消或改期，請於上課日前一天完成。', '如有任何疑問，請聯繫教練協助處理。'],
-      solo: ['取消或改期，請於訓練日前一天 23:59 前完成。', '改期、延長請按 📅 前往場租預約頁辦理。', '儲值金到期後，僅可改期一次，取消不予退還。', 'KEISER訓練機未開放於自主訓練使用。'],
+      solo: ['取消或改期，請於訓練日前一天 23:59 前完成。', '改期請按 📅 前往場租預約頁辦理。', '延長請於訓練當日、結束前 10 分鐘辦理。', '儲值金到期後，僅可改期一次，取消不予退還。', 'KEISER訓練機未開放於自主訓練使用。'],
       rent: ['取消或改期，請於場租日前一天完成。', '改期請按 📅 前往場租預約頁辦理。', 'KEISER訓練機未開放於場租使用。']
   };
   function renderRecordRemind(){ const box = document.getElementById('recordRemindBox'); if (!box) return; const list = RECORD_REMINDS[state.recordTab] || RECORD_REMINDS.all; box.innerHTML = `<ol>${list.map(t => `<li>${t}</li>`).join('')}</ol>`; }
   window.openRentManage = function(e, solo){ if(e) e.stopPropagation(); const n = solo ? '自主訓練' : '場租'; Swal.fire({ icon:'info', title:`${n}改期`, html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">${n}改期請至場租預約頁辦理。</div>`, showCancelButton:true, confirmButtonText:'前往場租預約', cancelButtonText:'返回', confirmButtonColor:'#127a69' }).then(res => { if(!res.isConfirmed) return; if(state.previewMode) return; try { if(window.liff && liff.openWindow) liff.openWindow({ url: RENT_LIFF_URL, external: false }); else location.href = RENT_LIFF_URL; } catch(err) { location.href = RENT_LIFF_URL; } }); };
+  // ===== 自主訓練「延長」（比照 rental.html） =====
+  const SOLO_CAP = 5, SOLO_SLOT_MIN = 30, EXTEND_CUTOFF_MIN = 10;
+  function soloPlan(min){return SOLO_PLANS.find(p=>p.key===parseInt(min||state.duration,10))||SOLO_PLANS[0];}
+  function slotRange(t,min){return `${t}–${addMin(t,parseInt(min||state.duration,10))}`;}
+  function buildOccupancyMap(options){ const occ={}; (options||[]).forEach(o=>{ const raw=(o.value||o.label||'').toString(); const m=raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const val=(o.occupied ?? o.used ?? o.people ?? o['已預約人數']); if(val===undefined||val===null||val==='') return; occ[`${m[1]}-${m[2]}-${m[3]} ${m[4]}`]=parseInt(val,10)||0; }); return occ; }
+  async function fetchSoloSlotsForExtend(){
+      try {
+          if (state.previewMode) { const today = ymd(new Date()), slots = {}, occ = {}; slots[today] = []; for (let h = 6; h < 22; h++) { [`${pad2(h)}:00`, `${pad2(h)}:30`].forEach(t => { slots[today].push(t); }); } occ[`${today} 21:30`] = SOLO_CAP; return { slots, occ, booked: [] }; }
+          const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "rentOptions", service: "rent", kind: "solo", duration: 60, userId: state.uid, mode: "extend" }) });
+          const d = JSON.parse(cleanJson(await res.text())); const opts = Array.isArray(d.options) ? d.options : [];
+          return { slots: buildAvailabilityMap(opts), occ: buildOccupancyMap(opts), booked: Array.isArray(d.booked) ? d.booked : [] };
+      } catch (e) { console.error(e); return null; }
+  }
+  function toMin(t){ const [h,m]=String(t).split(':').map(Number); return h*60+(m||0); }
+  function normDk(d){ const p=String(d||'').trim().split(/\s+/)[0].split(/[\/\-.]/); return p.length===3 ? `${p[0]}-${pad2(p[1])}-${pad2(p[2])}` : ''; }
+  window.startExtend = async function(e, originalIndex){
+      if(e) e.stopPropagation();
+      const r = state.records[originalIndex], cur = parseInt(r.duration,10) || 60, curPlan = soloPlan(cur);
+      const endAt = new Date(createSafeDate(r.date, r.time).getTime() + cur*60000);
+      if (new Date() >= new Date(endAt.getTime() - EXTEND_CUTOFF_MIN*60000)) { Swal.fire({ icon:'warning', title:'無法延長', html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">距離結束時間不足 ${EXTEND_CUTOFF_MIN} 分鐘，恕不受理延長。</div>`, confirmButtonColor:'#127a69' }); renderRecordList(); return; }
+      const plans = SOLO_PLANS.filter(p => p.key > cur);
+      // 先查今天的開放時段與名額，只讓真的能延長的選項可選（送出後 Make 仍會再檢查一次）
+      Swal.fire({ title: '查詢可延長時段…', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+      const info = await fetchSoloSlotsForExtend();
+      Swal.close();
+      const dk = normDk(r.date), oldEnd = addMin(r.time, cur), selfKey = `${dk} ${r.time}`;
+      const others = info ? info.booked.map(b => ({ dk: normDk(b.date), s: toMin(b.start), e: toMin(b.end), key: `${normDk(b.date)} ${String(b.start).trim()}` })).filter(b => b.dk && b.e > b.s && b.key !== selfKey) : [];
+      // 每個選項的確切不可延長原因（空字串＝可延長）
+      const bal = parseInt(String(state.soloRecordRemaining ?? '').replace(/[^\d]/g, ''), 10);
+      const planReason = p => {
+          const endMin = toMin(r.time) + p.key;
+          if (info) {
+              const set = info.slots[dk] || [];
+              for (let t = oldEnd; toMin(t) < endMin; t = addMin(t, SOLO_SLOT_MIN)) {
+                  if (!set.includes(t)) return '超過今日開放時間';
+                  if ((info.occ[`${dk} ${t}`] || 0) >= SOLO_CAP) return `${t} 已額滿`;
+              }
+              const clash = others.find(b => b.dk === dk && toMin(oldEnd) < b.e && b.s < endMin);
+              if (clash) return `與您 ${pad2(Math.floor(clash.s / 60))}:${pad2(clash.s % 60)} 的預約重疊`;
+          }
+          if (!isNaN(bal) && p.price - curPlan.price > bal) return `儲值金不足（餘額 $${bal}）`;
+          return '';
+      };
+      const avail = plans.filter(p => !planReason(p));
+      if (!avail.length) { Swal.fire({ icon: 'info', title: '目前無法延長', html: `<div style="text-align:center; line-height:1.8;">${plans.map(p => `延長 ${p.key - cur >= 60 ? (p.key - cur) / 60 + ' 小時' : (p.key - cur) + ' 分鐘'}：${planReason(p)}`).join('<br>')}</div>`, confirmButtonText: '我知道了', confirmButtonColor: '#127a69' }); return; }
+      const firstOk = avail[0].key;
+      const optHtml = plans.map(p => { const why = planReason(p), ok = !why; return `<label class="extOpt${ok ? '' : ' extOff'}"><input type="radio" name="extPick" value="${p.key}" ${p.key === firstOk ? 'checked' : ''} ${ok ? '' : 'disabled'}><span class="extMain">延長 ${p.key - cur >= 60 ? (p.key - cur) / 60 + ' 小時' : (p.key - cur) + ' 分鐘'}<small>${ok ? `${r.time}–${addMin(r.time, p.key)}（共 ${p.label}）` : why}</small></span><span class="extPrice">${ok ? `補 $${p.price - curPlan.price}` : '無法延長'}</span></label>`; }).join('');
+      const pick = await Swal.fire({ title: '自主－延長時段', width: 'min(94vw, 460px)', padding: '1.2em 0.8em', html: `<div class="extNow">目前預約：<b>${slotRange(r.time, cur)}</b>（${curPlan.label}）</div><div class="extList">${optHtml}</div>`, showCancelButton: true, confirmButtonText: '確定延長', cancelButtonText: '返回', confirmButtonColor: '#127a69', preConfirm: () => { const c = document.querySelector('input[name="extPick"]:checked'); return c ? c.value : ''; } });
+      if(!pick.isConfirmed || !pick.value) return;
+      const newDur = parseInt(pick.value,10), add = soloPlan(newDur).price - curPlan.price;
+      const okMsg = () => Swal.fire({ icon:'success', title:'延長成功', html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">已延長至 ${addMin(r.time,newDur)}，補繳儲值金 -$${add}。</div>`, confirmButtonColor:'#127a69' });
+      if(state.previewMode){ r.duration = newDur; renderRecordList(); await okMsg(); return; }
+      setStatus('正在辦理延長...'); Swal.fire({ title: '延長處理中…', html: '<div style="text-align:center;">請稍候，請勿重複送出</div>', allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+      try{
+          const res = await fetch(MAKE_BOOKING_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'rentExtend', service: "rent", kind:'solo', userId: state.uid, displayName: state.name, rowNumber: r.rowNumber || r.rowIndex || '', date: r.date, time: r.time, duration: cur, newDuration: newDur, newEndTime: addMin(r.time,newDur), addPrice: add }) });
+          const rawText = await res.text(); const safeText = cleanJson(rawText); const result = JSON.parse(safeText);
+          const st = result.Status || result.status;
+          if(st === 'extended' || st === 'success' || st === 'completed'){ r.duration = newDur; const remain = result["Remaining credits"] ?? result.remainingCredits; if(remain !== undefined) state.soloRecordRemaining = remain; renderRecordList(); setStatus(''); await okMsg(); }
+          else { setStatus(''); Swal.fire({ icon:'warning', title:'無法延長', html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">${({ 1: '儲值金不足，無法支付延長差額。', 2: '延長的時段與您其他預約重疊。', 3: '延長的時段剛被預約額滿，請重新選擇。' })[parseInt(result.reason, 10)] || result.Message || result.message || '延長的時段剛被預約額滿，請重新選擇。'}</div>`, confirmButtonColor:'#127a69' }); }
+      }catch(err){ setStatus(''); Swal.fire({ icon:'error', title:'系統異常', html:'請洽現場教練協助。', confirmButtonColor:'#b23a2b' }); }
+  };
   function buildPreviewRecords(){
       const mk = (offsetDays, time, extra) => { const dk = ymd(addDays(startOfDay(new Date()), offsetDays)).replace(/-/g,'/'); return Object.assign({ date: dk, time: time, weekday: weekdayZhFromDateKey(dk), coach: '偉銘', 改期狀態: '', rowNumber: '' }, extra || {}); };
       return [
@@ -314,7 +389,8 @@
           mk(2, '18:30', { kind: 'solo', duration: 90, coach: '' }),
           mk(5, '09:00', { kind: 'solo', duration: 60, coach: '', isExpired: 'TRUE' }),
           mk(3, '10:00', { kind: 'rent', students: 2 }),
-          mk(0, '20:00', { kind: 'rent', students: '包班' })
+          mk(0, '22:00', { kind: 'rent', students: '包班' }),
+          (() => { const n = new Date(); return mk(0, `${pad2(n.getHours())}:${n.getMinutes() < 30 ? '00' : '30'}`, { kind: 'solo', duration: 60, coach: '' }); })()   // 自主訓練進行中 → 顯示「延長」
       ];
   }
 
@@ -386,12 +462,14 @@
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
           const displayDate = (() => { const p = String(r.date || '').trim().split(/[\/\-.]/); return p.length === 3 ? `${p[0]}-${pad2(p[1])}-${pad2(p[2])}` : String(r.date || ''); })();
           const recDur = parseInt(r.duration,10) || 60, recEnd = new Date(classTime.getTime() + recDur*60000), inSession = soloRec && now >= classTime && now < recEnd;
+          const canExtend = soloRec && recDur < 120 && !canCancel && now < new Date(recEnd.getTime() - EXTEND_CUTOFF_MIN*60000);  // 訓練當天、結束前 10 分鐘以前可延長
           const innerSVGPath = isExpired ? `<path d="M12 13v4"></path><path d="M12 20h.01"></path>` : `<path d="M7 15l2 2 4-4"></path>`;
           const rescheduleIconSVG = `<div class="icon-reschedule" onclick="startReschedule(event, ${originalIndex}, ${isExpired})" style="color: ${iconColor};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>${innerSVGPath}</svg></div>`;
           const finalIconSVG = `<div class="icon-reschedule" onclick="showCannotReschedule(event)" style="color: var(--danger);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div>`;
           const undoIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`;
           let actionContent = '';
-          if (!canCancel) { actionContent = `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">${inSession ? '訓練中' : '晚點見！'}</span>`;
+          if (canExtend) { actionContent = `<button class="extendBtn" onclick="startExtend(event, ${originalIndex})">延長</button>`;
+          } else if (!canCancel) { actionContent =`<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">${inSession ? '訓練中' : '晚點見！'}</span>`;
           } else {
               if (!ptRec && !isMarked) { actionContent += `<div class="icon-reschedule" onclick="openRentManage(event, ${soloRec})" style="color: ${iconColor};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>${innerSVGPath}</svg></div>`; }   // 自主／場租改期 → 場租 LIFF
               else if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
@@ -570,7 +648,7 @@
       renderRecordList(); // 立即渲染「讀取中...」
 
       if (state.previewMode) {
-          state.records = buildPreviewRecords();
+          state.records = buildPreviewRecords(); state.soloRecordRemaining = 500;
           state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           state.isLoadingRecords = false; renderRecordList(); updateRecordBtns(); setStatus('🔧 預覽模式：範例資料，改期／取消不會實際送出');
           return;
@@ -597,6 +675,8 @@
           };
           const [ptRes, rentRes, soloRes] = await Promise.all([fetchPt().catch(e => { console.error(e); return { data: {}, arr: [] }; }), fetchRent('rent'), fetchRent('solo')]);
           const data = ptRes.data;
+          const soloRemain = soloRes.data["Remaining credits"] ?? soloRes.data.remainingCredits;
+          if (soloRemain !== undefined && soloRemain !== '') state.soloRecordRemaining = soloRemain;   // 延長時判斷儲值金是否足夠
           state.soloBatches = {}; (Array.isArray(soloRes.data.batches) ? soloRes.data.batches : []).forEach(b => { if (b && b.id) state.soloBatches[String(b.id).trim()] = String(b.exp || '').trim(); });
           const rentRows = new Set(rentRes.arr.map(r => String(r.rowNumber || '')).filter(Boolean));
           const ptRecs = ptRes.arr.filter(r => r && !['場租','自主訓練'].includes(String(r.course || '').trim()) && !rentRows.has(String(r.rowNumber || ''))).map(r => Object.assign({}, r, { kind: 'pt' }));
