@@ -108,6 +108,11 @@
     .record-tabs-container { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; background: var(--selBg); padding: 5px; border-radius: 999px; width: 100%; flex: 0 0 auto; }
     .record-tab { flex: 1; text-align: center; font-weight: 950; font-size: 17px; color: var(--muted); cursor: pointer; padding: 10px 0; border-radius: 999px; transition: all 0.2s ease; user-select: none; }
     .record-tab.active { color: var(--primary); background: #ffffff; box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15); }
+    .recFilter .record-tab { font-size: 15px; padding: 8px 0; }
+    .kindBadge { font-size: 11px; font-weight: 950; padding: 2px 7px; border-radius: 6px; margin-right: 6px; background: var(--selBg); color: var(--selText); }
+    .kindBadge.pt { background: #fdf0dc; color: #9a5b00; }
+    .kindBadge.solo { background: #efe7f8; color: #5b3a8c; }
+    .kindBadge.rentB { background: #e2f3e6; color: #1f6b3a; }
     
     /* ✨ 修正 1：名片 CSS 優化 - 填滿照片並放大字體 */
     #trainerCardWrap { margin-top: 16px; margin-left: -8px; margin-right: -8px; width: calc(100% + 16px); flex: 0 0 auto; }
@@ -212,22 +217,18 @@
             <div class="h" id="recordListTitle">預約清單</div>
             <div id="myRecordCount" class="recordCount">共 0 堂</div>
         </div>
-        <div class="record-tabs-container">
-            <div class="record-tab active" data-tab="1對1">1對1</div>
-            <div class="record-tab" data-tab="1對2">1對2</div>
-            <div class="record-tab" data-tab="包班">包班</div>
+        <div class="record-tabs-container recFilter">
+            <div class="record-tab active" data-tab="all">全部</div>
+            <div class="record-tab" data-tab="pt">私課</div>
+            <div class="record-tab" data-tab="solo">自主</div>
+            <div class="record-tab" data-tab="rent">場租</div>
         </div>
         <div id="recordList" class="confirmList"></div>
         <div class="remindContainer">
             <div class="remindHeader">
                 <div class="remindTitle">溫馨提醒</div>
             </div>
-            <div class="remindBox">
-                <ol>
-                  <li>取消或改期，請於上課前一天完成。</li>
-                  <li>如有任何疑問，請聯繫教練協助處理。</li>
-                </ol>
-            </div>
+            <div class="remindBox" id="recordRemindBox"></div>
         </div>
     </div>
   </div>
@@ -256,7 +257,7 @@
   ];
 
   const state = {
-    step: 1, uid: '', name: '', coach: null, course: null, weekStart: null, dateKey: null, tab: 'am', recordTab: '1對1',
+    step: 1, uid: '', name: '', coach: null, course: null, weekStart: null, dateKey: null, tab: 'am', recordTab: 'all', previewMode: false, soloBatches: {},
     cart: [], optionsRaw: [], availabilityMap: {}, loadingOptions: false, mode: 'book', rescheduleSource: null, records: [], selectedRecords: new Set(),
     remainingCredits: 0, recordRemaining: undefined, credits_1on1: undefined, credits_1on2: undefined, credits_group: undefined,
     isLoadingRecords: false // ✨ NEW Requirement 2
@@ -274,6 +275,48 @@
   const weekStrip=$('#weekStrip'), slotGrid2=$('#slotGrid2'), confirmInfo=$('#confirmInfo');
   const cartList=$('#cartList'), recordList=$('#recordList'), stepBar=$('#stepBar'); 
   const TRASH_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-trash" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+
+  // ===== 我的預約：合併私課／自主訓練／場租（比照 rental.html） =====
+  const RENT_LIFF_URL = 'https://liff.line.me/2010910856-GYphdTc7?page=record';   // 場租 LIFF（自主訓練、場租改期在場租頁辦理）
+  const SOLO_PLANS = [ {key:60, label:'1 小時'}, {key:90, label:'1.5 小時'}, {key:120, label:'2 小時'} ];
+  function cleanJson(t){ return String(t).trim().replace(/:\s*"""/g, ':""').replace(/:\s*\$\s*([\d,]+(?:\.\d+)?)/g, (m, v) => ': ' + v.replace(/,/g, '')).replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); }
+  function durLabel(min){ const p = SOLO_PLANS.find(x => x.key === parseInt(min,10)); return p ? p.label : `${parseInt(min,10) || 60} 分鐘`; }
+  function addMin(t,m){const [h,mi]=String(t).split(':').map(Number);const x=h*60+mi+m;return `${pad2(Math.floor(x/60))}:${pad2(x%60)}`;}
+  function isSoloRec(r){return !!r&&(r.kind==='solo'||r.course==='自主訓練'||r.rentType==='自主訓練');}
+  function isPtRec(r){return !!r&&r.kind==='pt';}
+  function recKind(r){return isPtRec(r)?'pt':(isSoloRec(r)?'solo':'rent');}
+  function ptLabel(r){ return getCourseName(r.course, r.people); }
+  function recTimeText(r){ if(!isSoloRec(r)) return r.time; const e = String(r.endTime||'').trim(); return `${r.time}–${/^\d{1,2}:\d{2}$/.test(e) ? e : addMin(r.time, parseInt(r.duration,10) || 60)}`; }
+  function parseYmdHm(s){ const m = String(s || '').trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/); return m ? new Date(+m[1], +m[2]-1, +m[3], m[4] ? +m[4] : 23, m[5] ? +m[5] : 59) : null; }
+  function soloExpiredNow(v){ const s = String(v ?? '').trim(); if (!s) return false; const d = parseYmdHm(s); if (!d) return isTruthy(s); return new Date() > d; }
+  function soloRecExpired(r){
+      const src = String(r.source || '').trim(), batches = state.soloBatches || {};
+      if (!src || !Object.keys(batches).length) return soloExpiredNow(r.isExpired);   // 沒有儲值資料時沿用 M 欄
+      const t = parseYmdHm(r.date); if (!t) return false; const trainDay = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+      return src.split('|').some(part => { const exp = parseYmdHm(batches[part.split(':')[0].trim()]); return exp && exp < trainDay && new Date() > exp; });
+  }
+  function recExpired(r){ if (!r) return false; if (isSoloRec(r)) return soloRecExpired(r); return isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]); }
+  // 溫馨提醒依篩選鈕切換
+  const RECORD_REMINDS = {
+      all:  ['取消或改期，請於預約日前一天完成。', '自主訓練、場租改期請按 📅 前往場租預約頁辦理。', '如有任何疑問，請於官方 LINE 聯繫我們。'],
+      pt:   ['取消或改期，請於上課日前一天完成。', '如有任何疑問，請聯繫教練協助處理。'],
+      solo: ['取消或改期，請於訓練日前一天 23:59 前完成。', '改期、延長請按 📅 前往場租預約頁辦理。', '儲值金到期後，僅可改期一次，取消不予退還。', 'KEISER訓練機未開放於自主訓練使用。'],
+      rent: ['取消或改期，請於場租日前一天完成。', '改期請按 📅 前往場租預約頁辦理。', 'KEISER訓練機未開放於場租使用。']
+  };
+  function renderRecordRemind(){ const box = document.getElementById('recordRemindBox'); if (!box) return; const list = RECORD_REMINDS[state.recordTab] || RECORD_REMINDS.all; box.innerHTML = `<ol>${list.map(t => `<li>${t}</li>`).join('')}</ol>`; }
+  window.openRentManage = function(e, solo){ if(e) e.stopPropagation(); const n = solo ? '自主訓練' : '場租'; Swal.fire({ icon:'info', title:`${n}改期`, html:`<div style="text-align:center; text-wrap:balance; line-height:1.7;">${n}改期請至場租預約頁辦理。</div>`, showCancelButton:true, confirmButtonText:'前往場租預約', cancelButtonText:'返回', confirmButtonColor:'#127a69' }).then(res => { if(!res.isConfirmed) return; if(state.previewMode) return; try { if(window.liff && liff.openWindow) liff.openWindow({ url: RENT_LIFF_URL, external: false }); else location.href = RENT_LIFF_URL; } catch(err) { location.href = RENT_LIFF_URL; } }); };
+  function buildPreviewRecords(){
+      const mk = (offsetDays, time, extra) => { const dk = ymd(addDays(startOfDay(new Date()), offsetDays)).replace(/-/g,'/'); return Object.assign({ date: dk, time: time, weekday: weekdayZhFromDateKey(dk), coach: '偉銘', 改期狀態: '', rowNumber: '' }, extra || {}); };
+      return [
+          mk(1, '10:00', { kind: 'pt', course: '1對1', people: 1 }),
+          mk(4, '15:00', { kind: 'pt', course: '1對2', people: 2, isExpired: true }),
+          mk(6, '19:00', { kind: 'pt', course: '包班', people: 6, isExpired: true, 改期狀態: 'final' }),
+          mk(2, '18:30', { kind: 'solo', duration: 90, coach: '' }),
+          mk(5, '09:00', { kind: 'solo', duration: 60, coach: '', isExpired: 'TRUE' }),
+          mk(3, '10:00', { kind: 'rent', students: 2 }),
+          mk(0, '20:00', { kind: 'rent', students: '包班' })
+      ];
+  }
 
   function createSafeDate(d,t){if(!d||!t)return new Date(0);const c=String(d).replace(/[\/\.]/g,'-'),[y,m,x]=c.split('-').map(Number),[h,min]=String(t).split(':').map(Number);return new Date(y,m-1,x,h,min);}
   function pad2(n){return String(n).padStart(2,'0');}
@@ -324,34 +367,40 @@
         $('#myRecordCount').textContent = '讀取中...';
         return;
       }
+      renderRecordRemind();
       const records = state.records; let filteredCount = 0; let html = '';
       records.forEach((r, originalIndex) => {
-          const courseDisplay = getCourseName(r.course, r.people); 
-          if (courseDisplay !== state.recordTab) return; 
+          const ptRec = isPtRec(r), soloRec = isSoloRec(r);
+          const courseDisplay = ptRec ? ptLabel(r) : '';
+          if (state.recordTab !== 'all' && recKind(r) !== state.recordTab) return;
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
+          const sVal = r.students || r.people; const studentDisplay = (String(sVal)==='包班' || parseInt(sVal)>=3) ? '包班' : (sVal ? `${sVal} 人` : '—');
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
           const classDateOnly = new Date(classTime.getFullYear(), classTime.getMonth(), classTime.getDate());
           const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const canCancel = nowDateOnly < classDateOnly;
-          const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
+          const isExpired = recExpired(r);
           const isFinal = isExpired && (r.改期狀態 === 'final' || r.改期狀態 === 'yes');
           const canReschedule = (!isExpired) || (isExpired && !isFinal);
           const iconColor = isExpired ? 'var(--danger)' : 'var(--primary)';
-          const displayDate = String(r.date || '').replace(/\//g, '-');
+          const displayDate = (() => { const p = String(r.date || '').trim().split(/[\/\-.]/); return p.length === 3 ? `${p[0]}-${pad2(p[1])}-${pad2(p[2])}` : String(r.date || ''); })();
+          const recDur = parseInt(r.duration,10) || 60, recEnd = new Date(classTime.getTime() + recDur*60000), inSession = soloRec && now >= classTime && now < recEnd;
           const innerSVGPath = isExpired ? `<path d="M12 13v4"></path><path d="M12 20h.01"></path>` : `<path d="M7 15l2 2 4-4"></path>`;
           const rescheduleIconSVG = `<div class="icon-reschedule" onclick="startReschedule(event, ${originalIndex}, ${isExpired})" style="color: ${iconColor};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>${innerSVGPath}</svg></div>`;
           const finalIconSVG = `<div class="icon-reschedule" onclick="showCannotReschedule(event)" style="color: var(--danger);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div>`;
           const undoIconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon-undo" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`;
           let actionContent = '';
-          if (!canCancel) { actionContent = `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">晚點見！</span>`;
+          if (!canCancel) { actionContent = `<span style="font-size:12px; color:var(--muted); font-weight:900; background:#f0f0f0; padding:4px 8px; border-radius:6px;">${inSession ? '訓練中' : '晚點見！'}</span>`;
           } else {
-              if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
+              if (!ptRec && !isMarked) { actionContent += `<div class="icon-reschedule" onclick="openRentManage(event, ${soloRec})" style="color: ${iconColor};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>${innerSVGPath}</svg></div>`; }   // 自主／場租改期 → 場租 LIFF
+              else if (canReschedule && !isMarked) { actionContent += rescheduleIconSVG; } else if (isFinal && !isMarked) { actionContent += finalIconSVG; }
               actionContent += `<div style="cursor:pointer; display:flex; align-items:center;" onclick="toggleDeleteMark(event, ${originalIndex})">` + (isMarked ? undoIconSVG : TRASH_SVG) + `</div>`;
           }
-          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:16px; font-weight:950; color:var(--text); letter-spacing:0.5px;">${displayDate} (${r.weekday}) ${r.time}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">教練：${r.coach} &nbsp; 課程：${courseDisplay}</span></div><div class="step3Del">${actionContent}</div></div>`;
+          const subLine = soloRec ? `<span class="kindBadge solo">自主訓練</span>${durLabel(recDur)}` : (ptRec ? `<span class="kindBadge pt">私課 ${courseDisplay}</span>教練：${r.coach}` : `<span class="kindBadge rentB">場租</span>教練：${r.coach} / 學生：${studentDisplay}`);
+          html += `<div class="confirmItem ${isMarked ? 'marked-delete' : ''}"><div class="record-text" style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;"><span class="record-date" style="font-size:min(16px, 3.6vw); font-weight:950; color:var(--text); letter-spacing:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${displayDate} (${r.weekday}) ${recTimeText(r)}</span><span style="font-size:13px; font-weight:900; color:var(--muted);">${subLine}</span></div><div class="step3Del">${actionContent}</div></div>`;
       });
-      $('#myRecordCount').textContent = `共 ${filteredCount} 堂`;
+      $('#myRecordCount').textContent = `共 ${filteredCount} 筆`;
       recordList.innerHTML = filteredCount === 0 ? '<div style="text-align:center; padding:40px; color:#111; font-weight:900;">此分類無預約紀錄</div>' : html;
   }
 
@@ -359,8 +408,11 @@
       e.stopPropagation();
       if(state.selectedRecords.has(originalIndex)) { state.selectedRecords.delete(originalIndex); renderRecordList(); updateRecordBtns();
       } else {
-          const r = state.records[originalIndex]; const isExpired = isTruthy(r.isExpired) || isTruthy(r.isCardExpired) || isTruthy(r["扣堂來源是否到期"]) || isTruthy(r["扣堂來源是否到期 (L)"]);
-          if (isExpired) { Swal.fire({ title: '無法返還堂數', html: `<div style="white-space: nowrap;">此堂購買效期已過，取消將不予返還堂數。</div>`, icon: 'warning', showCancelButton: false, confirmButtonText: '同意', confirmButtonColor: '#d33' }).then((res) => { if (res.isConfirmed) { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); } });
+          const r = state.records[originalIndex]; const isExpired = recExpired(r);
+          // 私課（各課程堂數）、自主訓練（儲值金）、場租（場租堂數）退回的池不同，一次只能取消同一種
+          const mixed = [...state.selectedRecords].some(i => { const o = state.records[i]; return recKind(o) !== recKind(r) || (isPtRec(r) && ptLabel(o) !== ptLabel(r)); });
+          if (mixed) { Swal.fire({ icon: 'info', title: '請分開取消', html: `<div style="text-align:center; text-wrap:balance; line-height:1.7;">私課、自主訓練、場租（以及不同的私課課程）請分別取消。</div>`, confirmButtonColor: '#127a69' }); return; }
+          if (isExpired) { Swal.fire({ title: isSoloRec(r) ? '無法退回儲值金' : '無法返還堂數', html: isSoloRec(r) ? `<div style="text-align:center; text-wrap:balance; line-height:1.7;">此筆預約使用的儲值金於訓練日前到期，取消時到期的部分不予退回。</div>` : `<div style="white-space: nowrap;">此堂購買效期已過，取消將不予返還堂數。</div>`, icon: 'warning', showCancelButton: false, confirmButtonText: '同意', confirmButtonColor: '#d33' }).then((res) => { if (res.isConfirmed) { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); } });
           } else { state.selectedRecords.add(originalIndex); renderRecordList(); updateRecordBtns(); }
       }
   };
@@ -440,31 +492,43 @@
       return addedCount;
   }
 
-  function updateRecordBtns() { const count = state.selectedRecords.size; if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} 堂)`; btnCancelBatch.disabled = false; } else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; } }
+  function recUnit(){ const i = [...state.selectedRecords][0]; return (i === undefined || isPtRec(state.records[i])) ? "堂" : "筆"; }
+  function updateRecordBtns() { const count = state.selectedRecords.size; if(count > 0) { btnCancelBatch.textContent = `取消預約 (${count} ${recUnit()})`; btnCancelBatch.disabled = false; } else { btnCancelBatch.textContent = `取消預約`; btnCancelBatch.disabled = true; } }
 
   async function executeBatchCancel() {
+      if (state.previewMode) { const n = state.selectedRecords.size; await Swal.fire({ icon:'success', title:'預覽模式', html:`<div style="white-space:nowrap;">已模擬取消 ${n} 筆（未實際連線）</div>`, confirmButtonColor:'#127a69' }); state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); setStatus('🔧 預覽模式：資料不會送出'); return; }
       const btnCancel = document.getElementById('btnCancelBatch'); const origText = btnCancel.textContent; btnCancel.innerHTML = '<span class="btn-spinner"></span>處理中...'; btnCancel.disabled = true; setStatus("正在取消預約..."); 
       const bookingsToCancel = []; state.selectedRecords.forEach(index => { bookingsToCancel.push(state.records[index]); });
       let refundedBookings = []; let expiredBookings = []; let failedBookings = []; let latestRemaining = "--";
       try {
-          const payload = { action: "doCancel", userId: state.uid, course: state.recordTab, bookings: bookingsToCancel.map(b => ({ date: b.date, time: b.time, weekday: b.weekday, coach: b.coach, course: b.course, people: b.people, rowNumber: b.rowNumber || b.rowIndex || "" })) };
+          const ptCancel = isPtRec(bookingsToCancel[0]), cancelKind = isSoloRec(bookingsToCancel[0]) ? 'solo' : 'rent';
+          const payload = ptCancel
+              ? { action: "doCancel", userId: state.uid, course: ptLabel(bookingsToCancel[0]), bookings: bookingsToCancel.map(b => ({ date: b.date, time: b.time, weekday: b.weekday, coach: b.coach, course: b.course, people: b.people, rowNumber: b.rowNumber || b.rowIndex || "" })) }
+              : { action: "rentCancel", service: "rent", kind: cancelKind, userId: state.uid, bookings: bookingsToCancel.map(b => ({ date: b.date, time: b.time, weekday: b.weekday, coach: b.coach, students: b.students, people: b.people, kind: cancelKind, duration: b.duration, rowNumber: b.rowNumber || b.rowIndex || "" })) };   // 自主／場租：比照場租 LIFF 的 rentCancel
           const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-          const rawResponseText = await res.text(); const safeText = rawResponseText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); let result = JSON.parse(safeText);
+          const rawResponseText = await res.text(); const safeText = ptCancel ? rawResponseText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}') : cleanJson(rawResponseText); let result = JSON.parse(safeText);
           const currentStatus = result.Status || result.status; const msg = result.Message || result.message || ""; const remain = result["Remaining credits"] ?? result.remainingCredits; if (remain !== undefined && remain !== null) latestRemaining = remain;
           if (currentStatus === 'success' || currentStatus === 'completed' || currentStatus === 'cancelled') {
               let parsedList = []; let rawResults = result.Results || result.results || result.records || result; if (!Array.isArray(rawResults)) rawResults = [rawResults];
               function parseItem(item) { if (Array.isArray(item)) item.forEach(parseItem); else if (typeof item === 'object' && item !== null) { if(Object.keys(item).length > 0) parsedList.push(item); } else if (typeof item === 'string' && item.trim() !== "") { try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} } }
               parseItem(rawResults);
+              const resText = (!ptCancel && cancelKind === 'solo' && typeof (result.Results ?? result.results) === 'string') ? String(result.Results ?? result.results) : null;
+              const nzc = s => String(s).replace(/\([^)]*\)/g, '').replace(/\s/g, '').replace(/[\/.]/g, '-');  // 去掉「(六)」星期再比對
               bookingsToCancel.forEach(booking => {
+                  if (resText !== null) {
+                      const key = nzc(`${booking.date}${booking.time}`), seg = resText.split('、').find(s => nzc(s).includes(key));
+                      if (seg) { const num = re => { const x = seg.match(re); return x ? parseInt(x[1].replace(/,/g, ''), 10) : undefined; }; const ra = num(/已退款\s*\$\s*([\d,]+)/), ka = num(/不退\s*\$\s*([\d,]+)/); booking.refundAmt = ra !== undefined ? ra : num(/\$\s*([\d,]+)/); booking.keptAmt = ka; const isExp = ra !== undefined ? ra <= 0 : seg.includes('過期'); (isExp ? expiredBookings : refundedBookings).push(booking); } else { failedBookings.push(booking); }
+                      return;
+                  }
                   const dateDash = String(booking.date).replace(/\//g, '-'), dateSlash = String(booking.date).replace(/-/g, '/');
                   const match = parsedList.find(res => { const rDate = String(res.date || res.Date || '').trim().replace(/\//g, '-'), rTime = String(res.time || res.Time || '').trim(); return (rDate === dateDash || rDate === dateSlash) && (rTime === booking.time); });
                  if (match) { const mStatus = match.Status || match.status || currentStatus; const mMsg = match.Message || match.message || msg; if (mStatus === 'expired' || mMsg.includes('不予退還') || mMsg.includes('過期')) { expiredBookings.push(booking); } else { refundedBookings.push(booking); }
-        } else { const isExpired = isTruthy(booking.isExpired) || isTruthy(booking.isCardExpired) || isTruthy(booking["扣堂來源是否到期"]) || isTruthy(booking["扣堂來源是否到期 (L)"]); if (isExpired) { expiredBookings.push(booking); } else { refundedBookings.push(booking); } }
+        } else { const isExpired = recExpired(booking); if (isExpired) { expiredBookings.push(booking); } else { refundedBookings.push(booking); } }
               });
           } else { failedBookings = [...bookingsToCancel]; }
       } catch (e) { failedBookings = [...bookingsToCancel]; }
       btnCancel.textContent = origText; const totalProcessed = refundedBookings.length + expiredBookings.length;
-      if (totalProcessed > 0) { const cancelMsg = `<div style="white-space: nowrap;">已成功取消 ${totalProcessed} 堂預約。</div>`; await Swal.fire({ icon: 'success', title: '取消完成', html: cancelMsg, confirmButtonColor: '#127a69' }); if(liff.isInClient()) { try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {} } liff.closeWindow(); 
+      if (totalProcessed > 0) { const cancelMsg = `<div style="white-space: nowrap;">已成功取消 ${totalProcessed} ${isPtRec(bookingsToCancel[0]) ? '堂' : '筆'}預約。</div>`; await Swal.fire({ icon: 'success', title: '取消完成', html: cancelMsg, confirmButtonColor: '#127a69' }); if(liff.isInClient()) { try { await liff.sendMessages([createCancellationFlexMessage(refundedBookings, expiredBookings, latestRemaining)]); } catch (msgErr) {} } liff.closeWindow(); 
       } else { Swal.fire({ icon: 'error', title: '取消異常', html: '請聯繫教練協助處理。', confirmButtonColor: '#b23a2b' }); setStatus(""); btnCancel.disabled = false; }
   }
 
@@ -505,12 +569,39 @@
       
       renderRecordList(); // 立即渲染「讀取中...」
 
+      if (state.previewMode) {
+          state.records = buildPreviewRecords();
+          state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
+          state.isLoadingRecords = false; renderRecordList(); updateRecordBtns(); setStatus('🔧 預覽模式：範例資料，改期／取消不會實際送出');
+          return;
+      }
+
       try {
-          const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "getRecords", userId: state.uid }) });
-          const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); let data = JSON.parse(safeText);
-          let arr = data.records || data.options || data.results || data.Records || [];
-          if (typeof arr === 'string') { try { arr = JSON.parse(arr); } catch(e){} }
-          state.records = arr.filter(r => r && r.date && String(r.date).trim() !== '');
+          // 同一個 webhook 分三次查：私課 getRecords、場租 rentRecords(kind:rent)、自主 rentRecords(kind:solo)，再合併
+          const fetchRent = async (kind) => {
+              try {
+                  const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "rentRecords", service: "rent", kind: kind, userId: state.uid }) });
+                  const d = JSON.parse(cleanJson(await res.text()));
+                  let a = d.records || d.options || d.results || d.Records || [];
+                  if (typeof a === 'string') { try { a = JSON.parse(a); } catch(e){ a = []; } }
+                  if (!Array.isArray(a)) a = [];
+                  return { data: d, arr: a };
+              } catch(e) { console.error(e); return { data: {}, arr: [] }; }
+          };
+          const fetchPt = async () => {
+              const res = await fetch(MAKE_QUERY_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action: "getRecords", userId: state.uid }) });
+              const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const d = JSON.parse(safeText);
+              let a = d.records || d.options || d.results || d.Records || [];
+              if (typeof a === 'string') { try { a = JSON.parse(a); } catch(e){ a = []; } }
+              return { data: d, arr: Array.isArray(a) ? a : [] };
+          };
+          const [ptRes, rentRes, soloRes] = await Promise.all([fetchPt().catch(e => { console.error(e); return { data: {}, arr: [] }; }), fetchRent('rent'), fetchRent('solo')]);
+          const data = ptRes.data;
+          state.soloBatches = {}; (Array.isArray(soloRes.data.batches) ? soloRes.data.batches : []).forEach(b => { if (b && b.id) state.soloBatches[String(b.id).trim()] = String(b.exp || '').trim(); });
+          const rentRows = new Set(rentRes.arr.map(r => String(r.rowNumber || '')).filter(Boolean));
+          const ptRecs = ptRes.arr.filter(r => r && !['場租','自主訓練'].includes(String(r.course || '').trim()) && !rentRows.has(String(r.rowNumber || ''))).map(r => Object.assign({}, r, { kind: 'pt' }));
+          const soloRecs = soloRes.arr.map(r => Object.assign({}, r, { kind: 'solo' }));
+          state.records = ptRecs.concat(rentRes.arr, soloRecs).filter(r => r && r.date && String(r.date).trim() !== '');
           state.records.sort((a, b) => createSafeDate(a.date, a.time).getTime() - createSafeDate(b.date, b.time).getTime());
           const remain = data["Remaining credits"] ?? data.remainingCredits;
           if(remain !== undefined) state.recordRemaining = remain;
@@ -556,7 +647,31 @@
       };
   }
 
+  // 自主訓練／場租取消的 LINE 卡片（比照場租 LIFF）
+  function createRentCancellationFlexMessage(refunded, expired, latestRemain) {
+      let bodyContents = []; const soloCancel = isSoloRec(refunded[0] || expired[0]), sz = soloCancel ? "md" : "lg";
+      const row = (it, mark) => ({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ mark === '•' ? { type: "text", text: "•", size: sz, weight: "bold", color: "#999999", flex: 0 } : { type: "text", text: mark, size: sz, flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: sz, weight: "bold", color: "#999999", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${recTimeText(it)||""}`), size: sz, weight: "bold", color: "#999999", decoration: "line-through", flex: 0 } ] });
+      refunded.forEach(it => bodyContents.push(row(it, '•')));
+      if (expired.length > 0) {
+          if (refunded.length > 0) bodyContents.push({ type: "separator", margin: "md", color: "#eeeeee" });
+          bodyContents.push({ type: "text", text: "過期不予退還：", size: "sm", color: "#b23a2b", weight: "bold", margin: "md" });
+          expired.forEach(it => bodyContents.push(row(it, '⚠️')));
+      }
+      const canceledRec = refunded[0] || expired[0], c_coach = canceledRec ? canceledRec.coach : "教練", c_students = canceledRec ? (canceledRec.students || canceledRec.people || "—") : 1;
+      const c_disp = (String(c_students)==='包班' || parseInt(c_students)>=3) ? '包班' : (parseInt(c_students)===2 ? '1對2' : '1對1');
+      const remainTxt = latestRemain !== undefined && latestRemain !== "--" ? latestRemain : 0;
+      bodyContents.push(
+          ...(soloCancel ? [ { type: "text", text: String(`項目：自主訓練 ${durLabel(canceledRec.duration || 60)}`), size: "sm", color: "#333333", margin: "lg" }, ...(refunded.some(it => it.refundAmt > 0) ? [{ type: "text", text: String(`退款：$${refunded.reduce((s, it) => s + (it.refundAmt || 0), 0)}`), size: "sm", color: "#333333", margin: "sm" }] : []), { type: "text", text: String(`餘額：$${remainTxt}`), size: "sm", color: "#333333", margin: "sm" } ] : [ { type: "text", text: String(`教練：${c_coach}`), size: "sm", color: "#333333", margin: "lg" }, { type: "text", text: String(`課程：場租${c_disp}`), size: "sm", color: "#333333", margin: "sm" }, { type: "text", text: String(`剩餘：${remainTxt} 堂`), size: "sm", color: "#333333", margin: "sm" } ]),
+          { type: "separator", margin: "md", color: "#eeeeee" }, { type: "text", text: "溫馨提醒", color: "#b23a2b", weight: "bold", size: "sm", margin: "md" },
+          { type: "text", text: soloCancel ? "• 取消或改期，請於訓練日前一天完成。" : "• 取消或改期，請於租借日前一天完成。", color: "#333333", size: "xs", margin: "sm", wrap: false },
+          { type: "text", text: "• 如有任何疑問，請於官方Line聯繫我們。", color: "#333333", size: "xs", margin: "sm", wrap: false },
+          { type: "box", layout: "vertical", backgroundColor: "#b23a2b", cornerRadius: "8px", paddingAll: "12px", margin: "xl", action: { type: "uri", label: "管理我的預約", uri: `https://liff.line.me/${LIFF_ID}?page=record` }, contents: [{ type: "text", text: "管理我的預約", color: "#ffffff", weight: "bold", align: "center", size: "lg" }] }
+      );
+      const cancelTitle = soloCancel ? "自主訓練取消成功" : "場地租借取消成功";
+      return { type: "flex", altText: cancelTitle, contents: { type: "bubble", size: "mega", header: { type: "box", layout: "vertical", backgroundColor: "#b23a2b", paddingAll: "20px", contents: [ { type: "text", text: cancelTitle, color: "#ffffff", weight: "bold", size: "xl" }, { type: "text", text: "支點運動空間", color: "#f8e8e8", size: "sm", margin: "sm" } ] }, body: { type: "box", layout: "vertical", spacing: "none", paddingAll: "20px", contents: bodyContents } } };
+  }
   function createCancellationFlexMessage(refunded, expired, latestRemain) {
+      if (!isPtRec(refunded[0] || expired[0])) return createRentCancellationFlexMessage(refunded, expired, latestRemain);
       let bodyContents = [];
       refunded.forEach(it => { bodyContents.push({ type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "•", size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${(it.date||"").replace(/\//g,'-')} (${it.weekday})`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${it.time||""}`), size: "lg", weight: "bold", color: "#1a2321", flex: 0 } ] }); });
       if (expired.length > 0) {
@@ -577,8 +692,15 @@
 
   async function init(){
     bindTabListeners();
-    try { 
-        await liff.init({ liffId: LIFF_ID }); 
+    const preParams = new URLSearchParams(window.location.search);
+    const isLocalHost = ['localhost','127.0.0.1','::1','[::1]',''].includes(location.hostname);
+    if (preParams.get('preview') === '1' || isLocalHost) {
+        // 預覽模式：?preview=1 或在本機 localhost 開啟時，跳過 LIFF，以假身分渲染 UI；我的預約用範例資料、取消/預約不送出
+        state.previewMode = true; state.uid = 'preview'; state.name = '預覽學員';
+        if (preParams.get('page') === 'record') loadMyRecords();
+        else { renderCoaches(); renderCourse(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); setStatus('🔧 預覽模式：未連線 LINE，資料不會送出'); }
+    } else try {
+        await liff.init({ liffId: LIFF_ID });
         if(!liff.isLoggedIn()) { liff.login(); return; }
         const p = await liff.getProfile(); state.uid = p.userId; state.name = p.displayName; 
         const params = new URLSearchParams(window.location.search);
@@ -594,7 +716,7 @@
         const now = new Date(); const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let isTimeout = false;
         state.selectedRecords.forEach(index => { const rec = state.records[index]; const classTime = createSafeDate(rec.date, rec.time); const classDateOnly = new Date(classTime.getFullYear(), classTime.getMonth(), classTime.getDate()); if (nowDateOnly >= classDateOnly) isTimeout = true; });
         if (isTimeout) { Swal.fire({ icon: 'error', title: '操作逾時', html: '您勾選的清單中，有距離開課已不足 1 天的時段，系統已自動鎖定。', confirmButtonColor: '#b23a2b' }); state.selectedRecords.clear(); renderRecordList(); updateRecordBtns(); return; }
-        const result = await Swal.fire({ title: '取消預約？', html: `確定要取消勾選的 ${count} 堂預約嗎？`, icon: 'warning', showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回' });
+        const result = await Swal.fire({ title: '取消預約？', html: `確定要取消勾選的 ${count} ${recUnit()}預約嗎？`, icon: 'warning', showCancelButton: true, confirmButtonText: '確定取消', confirmButtonColor: '#d33', cancelButtonText: '返回' });
         if (result.isConfirmed) { executeBatchCancel(); }
     });
 
@@ -602,6 +724,7 @@
       if(state.step===1){ await loadOptionsForCoach(); return; }
       if(state.step===2){ setStep(3); return; }
       if(state.step===3){
+        if (state.previewMode) { Swal.fire({ icon:'info', title:'預覽模式', html:'<div style="white-space:nowrap;">預覽模式不會送出預約</div>', confirmButtonColor:'#127a69' }); return; }
         btnNext.disabled=true; btnNext.innerHTML='<span class="btn-spinner"></span>處理中...'; setStatus("正在送出預約...");
         try{
            const isReschedule = state.mode === 'reschedule'; const firstSelectedSlot = state.cart[0] || {};
