@@ -110,9 +110,10 @@
     .record-tab.active { color: var(--primary); background: #ffffff; box-shadow: 0 2px 8px rgba(18, 122, 105, 0.15); }
     .recFilter .record-tab { font-size: 15px; padding: 8px 0; }
     .kindBadge { font-size: 11px; font-weight: 950; padding: 2px 7px; border-radius: 6px; margin-right: 6px; background: var(--selBg); color: var(--selText); }
-    .kindBadge.pt { background: var(--selBg); color: var(--selText); }   /* 私課：私課 LIFF 主題綠 */
+    .kindBadge.pt { background: #e3eefb; color: #1f5a99; }   /* 私課：藍 */
     .kindBadge.solo { background: #efe7f8; color: #5b3a8c; }
     .kindBadge.rentB { background: #fdf0dc; color: #9a5b00; }   /* 場租：橘 */
+    .expiry-tip { flex: 0 0 auto; background: #fff6dd; color: #8a5a00; border: 1px solid #f1dca6; border-radius: 10px; padding: 7px 12px; font-size: 12.5px; font-weight: 900; margin: 0 0 8px; text-align: center; }
     .extendBtn { font-size: 12px; font-weight: 950; color: #fff; background: var(--primary); border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
     .extOpt.extOff { opacity: .5; cursor: not-allowed; background: #f4f4f4; border-color: #ddd; }
     .extOff .extPrice { color: var(--muted); font-size: 13px; }
@@ -179,6 +180,7 @@
       <div class="step2Box">
         <div class="h">Step 2｜選擇日期及時段</div>
         <div id="rescheduleTipBox" class="reschedule-tip hide">更改時段中作業中...</div>
+        <div id="expiryTip" class="expiry-tip hide"></div>
         <div class="coachIntro">
           <div class="avatar"><img id="coachAvatar2" alt="" /></div>
           <div class="coachMeta">
@@ -628,7 +630,28 @@
   
   function renderCourse(){ courseRow.innerHTML=''; ['1對1','1對2','包班'].forEach(n=>{ const div=document.createElement('div'); div.className = 'chip' + (state.course===n ? ' sel' : ''); div.textContent = n; if(state.mode === 'reschedule') div.classList.add('disabled'); div.onclick=()=>{ if(state.mode === 'reschedule') return; state.course=n; renderCourse(); btnNext.disabled=!(state.coach && state.course); renderCourseTip(); }; courseRow.appendChild(div); }); }
 
-  async function loadOptionsForCoach(){ state.weekStart = weekStartMonday(new Date()); state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2(); try{ const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:getPeopleCount(state.course), userId:state.uid, mode: state.mode }) }); const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const data = JSON.parse(safeText); state.optionsRaw = Array.isArray(data.options)?data.options:[]; state.availabilityMap = buildAvailabilityMap(state.optionsRaw); const remain = data["Remaining credits"] ?? data.remainingCredits; if (remain !== undefined) state.remainingCredits = parseInt(remain, 10); renderCart(); }catch(e){} state.loadingOptions=false; renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); }
+  // 到期前兩週橫幅（比照 rental.html）：getOptions 回 "expiring":[{"c1v1":I,"c1v2":J,"cGroup":K,"date":N},…]（購買紀錄每列一筆），
+  // 前端依目前課程取對應欄位加總、取最早到期日；也相容 {"amount","date"} 格式
+  const EXPIRING_KEY = { '1對1': 'c1v1', '1對2': 'c1v2', '包班': 'cGroup' };
+  function parseExpiring(list, course){
+      let amount = 0, first = null; const key = EXPIRING_KEY[course];
+      list.forEach(b=>{
+          if (!b || typeof b !== 'object') return;
+          const raw = (key && b[key] !== undefined) ? b[key] : b.amount;
+          const a = parseInt(String(raw ?? '').replace(/[^\d.-]/g,''), 10);
+          const d = createSafeDate(String(b.date || '').trim().split(/\s+/)[0], '00:00');
+          if (!(a > 0) || isNaN(d.getTime()) || d.getTime() <= 0) return;
+          amount += a; if (!first || d < first) first = d;
+      });
+      return amount > 0 && first ? { amount, date: ymd(first) } : null;
+  }
+  function renderExpiryTip(){
+      const el = $('#expiryTip'), x = state.expiring; if (!el) return;
+      const show = state.mode !== 'reschedule' && x && parseInt(x.amount,10) > 0 && x.date;
+      el.classList.toggle('hide', !show);
+      if (show) { const d = createSafeDate(String(x.date).trim().split(/\s+/)[0], '00:00'); el.textContent = `提醒：您有 ${parseInt(x.amount,10)} 堂私課 ${state.course} 將於 ${d.getMonth()+1}/${d.getDate()} 到期`; }
+  }
+  async function loadOptionsForCoach(){ state.weekStart = weekStartMonday(new Date()); state.optionsRaw=[]; state.availabilityMap={}; state.dateKey=null; state.cart=[]; setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2(); state.expiring = null; renderExpiryTip(); try{ const res = await fetch(MAKE_OPTIONS_WEBHOOK_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ action:"getOptions", coachName:state.coach.name, course:state.course, people:getPeopleCount(state.course), userId:state.uid, mode: state.mode }) }); const rawText = await res.text(); const safeText = rawText.trim().replace(/:\s*,/g, ': "",').replace(/:\s*}/g, ': ""}'); const data = JSON.parse(safeText); state.optionsRaw = Array.isArray(data.options)?data.options:[]; state.availabilityMap = buildAvailabilityMap(state.optionsRaw); const remain = data["Remaining credits"] ?? data.remainingCredits; if (remain !== undefined) state.remainingCredits = parseInt(remain, 10); if (Array.isArray(data.expiring)) state.expiring = parseExpiring(data.expiring, state.course); renderCart(); }catch(e){} if (state.previewMode) state.expiring = { amount: 2, date: ymd(addDays(new Date(), 10)) }; state.loadingOptions=false; renderExpiryTip(); renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); }
 
   function bindTabListeners() {
       document.querySelectorAll('.tab').forEach(el => { el.onclick = () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); state.tab = el.dataset.tab; renderSlotsStep2(); }; });
