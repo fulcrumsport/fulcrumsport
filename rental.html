@@ -922,11 +922,23 @@
   function buildSoloOccupancy(avail, occMap){ const need = state.duration / SOLO_SLOT_MIN, occ = {}; Object.keys(avail).forEach(dk=>{ avail[dk].forEach(t=>{ let mx=0; for(let i=0;i<need;i++){ mx=Math.max(mx, occMap[`${dk} ${addMin(t,i*SOLO_SLOT_MIN)}`]||0); } occ[`${dk} ${t}`]=mx; }); }); return occ; }
   function buildPreviewSolo(){ const slots={}, occ={}; const base=startOfDay(new Date()); for(let i=1;i<=7;i++){ const day=addDays(base,i); if(![5,6,0].includes(day.getDay())) continue; const dk=ymd(day); slots[dk]=['18:00','18:30','19:00','19:30']; slots[dk].forEach((t,k)=>{ occ[`${dk} ${t}`]=(day.getDate()+k)%4; }); } return { slots, occ }; }
   // 儲值金到期前兩週：Make 於 rentOptions 回 expiringAmount / expiringDate，Step2 上方顯示提醒
+  // Make 回 expiring:[{amount,date},…]（14 天內到期的各批）→ 加總金額、取最早日期
+  function parseExpiring(list){
+      let amount = 0, first = null;
+      list.forEach(b=>{
+          const a = parseInt(String(b && b.amount || '').replace(/[^\d.-]/g,''), 10);
+          const d = createSafeDate(String(b && b.date || '').trim().split(/\s+/)[0], '00:00');
+          if (!(a > 0) || isNaN(d.getTime()) || d.getTime() <= 0) return;
+          amount += a; if (!first || d < first) first = d;
+      });
+      return amount > 0 && first ? { amount, date: ymd(first) } : null;
+  }
   function renderExpiryTip(){
       const el = $('#expiryTip'), x = state.expiring;
-      const show = isSolo() && state.mode !== 'reschedule' && x && parseInt(x.amount,10) > 0 && x.date;
+      const show = state.mode !== 'reschedule' && x && parseInt(x.amount,10) > 0 && x.date;
       el.classList.toggle('hide', !show);
-      if (show) { const d = createSafeDate(String(x.date).trim().split(/\s+/)[0], '00:00'); el.textContent = `提醒：您有 $${parseInt(x.amount,10)} 儲值金將於 ${d.getMonth()+1}/${d.getDate()} 到期`; }
+      if (show) { const d = createSafeDate(String(x.date).trim().split(/\s+/)[0], '00:00'), n = parseInt(x.amount,10), md = `${d.getMonth()+1}/${d.getDate()}`;
+          el.textContent = isSolo() ? `提醒：您有 $${n} 儲值金將於 ${md} 到期` : `提醒：您有 ${n} 堂場租將於 ${md} 到期`; }
   }
   function applyKindLabels(){
       $('#creditsPre').textContent = isSolo() ? '餘額' : '可用'; $('#creditsUnit').textContent = isSolo() ? '' : '堂'; $('#step3RemainingUnit').textContent = isSolo() ? '' : '堂';
@@ -942,7 +954,7 @@
       const done = () => { state.loadingOptions=false; renderExpiryTip(); renderCart(); renderWeekStrip(); renderSlotsStep2(); updateStatusInStep2(); };
       if(state.previewMode){
           if (isSolo()) { const p = buildPreviewSolo(); const fk = Object.keys(p.slots).sort()[0]; state.soloBooked = parseSoloBooked(fk ? [{ date: fk, start: '18:30', end: '19:30' }] : []); applySlots(p.slots, p.occ); state.remainingCredits = 500; state.expiring = { amount: 130, date: ymd(addDays(new Date(), 10)) }; }
-          else { const m = buildPreviewAvailability(); applySlots(m, buildPreviewOccupancy(m)); state.remainingCredits = 10; }
+          else { const m = buildPreviewAvailability(); applySlots(m, buildPreviewOccupancy(m)); state.remainingCredits = 10; state.expiring = { amount: 2, date: ymd(addDays(new Date(), 12)) }; }
           done(); return;
       }
       try{
@@ -954,7 +966,8 @@
           applySlots(buildAvailabilityMap(state.optionsRaw), buildOccupancyMap(state.optionsRaw));
           const remain = data["Remaining credits"] ?? data.remainingCredits;
           if (remain !== undefined) state.remainingCredits = parseInt(remain, 10);
-          if (data.expiringAmount !== undefined && data.expiringDate) state.expiring = { amount: data.expiringAmount, date: data.expiringDate };
+          if (Array.isArray(data.expiring)) state.expiring = parseExpiring(data.expiring);
+          else if (data.expiringAmount !== undefined && data.expiringDate) state.expiring = { amount: data.expiringAmount, date: data.expiringDate };
       }catch(e){}
       done();
   }
