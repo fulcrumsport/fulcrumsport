@@ -688,7 +688,8 @@
   function renderCourseTip() { if (state.step !== 1) return; setStatus('請選擇教練與課程'); }
   function hasAnySlots(){ return state.optionsRaw && state.optionsRaw.length > 0; }
   function buildAvailabilityMap(options){ const map = {}; (options||[]).forEach(o=>{ const raw = (o.value || o.label || '').toString(); const m = raw.match(/^(\d{4})[\/-](\d{2})[\/-](\d{2})\s+(\d{2}:\d{2})$/); if(!m) return; const k=`${m[1]}-${m[2]}-${m[3]}`, t=m[4]; if(!map[k]) map[k]=[]; if(!map[k].includes(t)) map[k].push(t); }); Object.keys(map).forEach(k=>map[k].sort()); return map; }
-  function renderCoachIntro(){ if(!state.coach) return;
+  function renderCoachIntro(){ const ci = document.querySelector(".coachIntro"); if (ci) ci.style.display = state.mode === "reschedule" ? "none" : "";   // 改期時不顯示教練／項目那一列（舊預約資訊已在上方紅色提示）
+      if(!state.coach) return;
       const av = coachAvatar2.parentElement; if (av) av.style.display = state.rk ? 'none' : '';
       const tb = document.getElementById('tabsBox'), cb = document.getElementById('creditsBox'); if (tb) tb.style.visibility = isRkSolo() ? 'hidden' : ''; if (cb) cb.style.visibility = state.rk ? 'hidden' : '';
       slotGrid2.classList.toggle('soloGrid', isRkSolo());
