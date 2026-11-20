@@ -584,7 +584,7 @@
               if (matchCoach) state.coach = matchCoach; state.course = getCourseName(record.course, record.people);
               const cardWrap = document.getElementById('trainerCardWrap');
               if(cardWrap && matchCoach) { cardWrap.classList.remove('hide'); document.getElementById('tcAvatar').src = matchCoach.avatar; document.getElementById('tcName').textContent = matchCoach.name; document.getElementById('tcJobTitle').textContent = matchCoach.jobTitle || '資深教練'; const tcTags = document.getElementById('tcTags'); tcTags.innerHTML = ''; matchCoach.tags.forEach(t => { const el = document.createElement('div'); el.className = 'tag'; el.textContent = t; tcTags.appendChild(el); }); }
-              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 ${oTime}(${oWd})時段作業中...`;
+              document.getElementById('rescheduleTipBox').innerHTML = `更改 ${m}月${d}日 (${oWd}) ${oTime} 私課時段`;
               loadOptionsForCoach(); 
           }
       });
@@ -691,7 +691,7 @@
   function renderCoachIntro(){ const ci = document.querySelector(".coachIntro"); if (ci) ci.style.display = state.mode === "reschedule" ? "none" : "";   // 改期時不顯示教練／項目那一列（舊預約資訊已在上方紅色提示）
       if(!state.coach) return;
       const av = coachAvatar2.parentElement; if (av) av.style.display = state.rk ? 'none' : '';
-      const tb = document.getElementById('tabsBox'), cb = document.getElementById('creditsBox'); if (tb) tb.style.visibility = isRkSolo() ? 'hidden' : ''; if (cb) cb.style.visibility = state.rk ? 'hidden' : '';
+      const tb = document.getElementById('tabsBox'), cb = document.getElementById('creditsBox'); if (tb) tb.style.visibility = isRkSolo() ? 'hidden' : ''; if (cb) cb.style.visibility = (state.rk || state.mode === 'reschedule') ? 'hidden' : '';   // 改期不扣堂，不顯示可用堂數
       slotGrid2.classList.toggle('soloGrid', isRkSolo());
       if (state.rk) { coachName2.textContent = isRkSolo() ? `自主訓練 ${durLabel(state.duration)}` : `場租 ${rkPlanLabel()}｜${state.coach.name}`; coachTags2.innerHTML=''; return; }
       coachAvatar2.src = state.coach.avatar; coachName2.textContent = state.coach.name; coachTags2.innerHTML=''; state.coach.tags.forEach(t=>{ const el=document.createElement('div'); el.className='tag'; el.textContent=t; coachTags2.appendChild(el); }); }

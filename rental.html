@@ -279,7 +279,7 @@
               <div class="tab" data-tab="pm">下午</div>
               <div class="tab" data-tab="night">晚上</div>
             </div>
-            <div style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;"><span id="creditsPre">可用</span> <span id="displayCredits" style="color: var(--primary); font-size: 21px; margin: 0 2px;">--</span> <span id="creditsUnit">堂</span></div>
+            <div id="creditsBox" style="font-size: 13px; font-weight: 900; color: var(--muted); padding-bottom: 8px;"><span id="creditsPre">可用</span> <span id="displayCredits" style="color: var(--primary); font-size: 21px; margin: 0 2px;">--</span> <span id="creditsUnit">堂</span></div>
           </div>
           <div id="slotGrid2" class="slotGrid"></div>
         </div>
@@ -947,7 +947,7 @@
   }
   function applyKindLabels(){
       $('#creditsPre').textContent = isSolo() ? '餘額' : '可用'; $('#creditsUnit').textContent = isSolo() ? '' : '堂'; $('#step3RemainingUnit').textContent = isSolo() ? '' : '堂';
-      $('#tabsBox').style.visibility = isSolo() ? 'hidden' : ''; $('#confirmRulesName').textContent = isSolo() ? '自主訓練' : '場地租借';
+      $('#tabsBox').style.visibility = isSolo() ? 'hidden' : ''; $('#confirmRulesName').textContent = isSolo() ? '自主訓練' : '場地租借'; $('#creditsBox').style.visibility = state.mode === 'reschedule' ? 'hidden' : '';   // 改期不扣堂數/儲值金，不顯示可用量
   }
   async function loadOptionsForCoach(){
       state.weekStart = isPtKind() ? weekStartMonday(new Date()) : stripStart(); state.optionsRaw=[]; state.availabilityMap={}; state.occupancyMap={}; state.soloBooked=[]; state.dateKey=null; state.cart=[]; applyKindLabels(); setStep(2); state.loadingOptions=true; renderCoachIntro(); renderWeekStrip(); renderSlotsStep2(); renderCart(); updateStatusInStep2();
