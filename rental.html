@@ -213,7 +213,7 @@
     .extNote { font-size: 12.5px; font-weight: 800; color: var(--muted); margin-top: 10px; }
     .recFilter .record-tab { font-size: 15px; padding: 8px 0; }
     .kindBadge.pt { background: #e3f0f9; color: #0a4d78; }
-    .kindBadge.rentB { background: #eceeee; color: #4a5250; }
+    .kindBadge.rentB { background: #e2f3e6; color: #1f6b3a; }
     /* 確認頁精簡同意列 */
     .confirm-agree { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; color: var(--text); padding: 8px 2px 0; }
     .confirm-agree input { width: 20px; height: 20px; accent-color: var(--primary); flex: 0 0 auto; cursor: pointer; }
@@ -1048,7 +1048,7 @@
       if (isReschedule && reschSource) {
           const oD = String(reschSource.date || "").replace(/\//g,'-'), oWd = reschSource.weekday || weekdayZhFromDateKey(reschSource.date);
           dateBoxes.push(
-              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${oD} (${oWd})`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", decoration: "line-through", flex: 0 } ] },
+              { type: "box", layout: "horizontal", margin: "sm", spacing: "sm", contents: [ { type: "text", text: "舊：", size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#b23a2b", flex: 0 }, { type: "text", text: String(`${oD} (${oWd})`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#999999", decoration: "line-through", flex: 0 }, { type: "text", text: String(`${timeText(reschSource.time || "")}`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#999999", decoration: "line-through", flex: 0 } ] },
               { type: "box", layout: "horizontal", margin: "md", spacing: "sm", contents: [ { type: "text", text: "新：", size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#0e6ba8", flex: 0 }, { type: "text", text: String(`${list[0].date} (${list[0].weekday})`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", flex: 0 }, { type: "text", text: String(`${list[0].time}`), size: (isSolo() ? "sm" : "lg"), weight: "bold", color: "#1a2321", flex: 0 } ] }
           );
       } else {
