@@ -802,7 +802,7 @@
               function parseItem(item) { if (Array.isArray(item)) item.forEach(parseItem); else if (typeof item === 'object' && item !== null) { if(Object.keys(item).length > 0) parsedList.push(item); } else if (typeof item === 'string' && item.trim() !== "") { try { let obj = JSON.parse(item); if (Array.isArray(obj)) obj.forEach(parseItem); else parsedList.push(obj); } catch (e) {} } }
               parseItem(rawResults);
               const resText = (cancelKind === 'solo' && typeof (result.Results ?? result.results) === 'string') ? String(result.Results ?? result.results) : null;
-              const nzc = s => String(s).replace(/\s/g, '').replace(/[\/.]/g, '-');
+              const nzc = s => String(s).replace(/\([^)]*\)/g, '').replace(/\s/g, '').replace(/[\/.]/g, '-');  // 去掉「(六)」星期再比對
               bookingsToCancel.forEach(booking => {
                   if (resText !== null) {
                       const key = nzc(`${booking.date}${booking.time}`), seg = resText.split('、').find(s => nzc(s).includes(key));
