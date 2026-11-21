@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>支點運動空間｜場租&amp;自主</title>
+  <script>/* 從「我的預約」連結進入時，LINE 標題列一開始就顯示「我的預約」 */ (function(){ try { var s = location.search; var st = new URLSearchParams(s).get('liff.state') || ''; if (/[?&]page=record\b/.test(s) || /page=record\b/.test(decodeURIComponent(st))) document.title = '支點運動空間｜我的預約'; } catch(e){} })();</script>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
@@ -597,6 +598,7 @@
           const sVal = r.students || r.people; const studentDisplay = (String(sVal)==='包班' || parseInt(sVal)>=3) ? '包班' : (sVal ? `${sVal} 人` : '—');
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
           if (state.recordTab !== 'all' && recKind(r) !== state.recordTab) return;
+          { const st = createSafeDate(r.date, r.time); if (new Date() >= new Date(st.getTime() + (parseInt(r.duration,10) || 60) * 60000)) return; }   // 已結束的預約不顯示
           const ptRec = isPtRec(r);
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
@@ -1169,6 +1171,7 @@
       const p = document.getElementById('navToggle'), t = document.getElementById('pageTitle');
       const isRecord = state.mode === 'record';
       if(p) p.textContent = isRecord ? '‹ 返回預約' : '我的預約 ›';
+      document.title = isRecord ? '支點運動空間｜我的預約' : '支點運動空間｜場租&自主';   // LINE 標題列
       if(t) t.textContent = isRecord ? '支點運動空間｜我的預約' : (state.step >= 2 && state.kind ? `支點運動空間｜${isPtKind() ? '私課改期' : (isSolo() ? '自主訓練預約' : '場租預約')}` : '支點運動空間｜場租&自主預約');
   }
 

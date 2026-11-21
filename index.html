@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>支點運動空間｜私課</title>
+  <script>/* 從「我的預約」連結進入時，LINE 標題列一開始就顯示「我的預約」 */ (function(){ try { var s = location.search; var st = new URLSearchParams(s).get('liff.state') || ''; if (/[?&]page=record\b/.test(s) || /page=record\b/.test(decodeURIComponent(st))) document.title = '支點運動空間｜我的預約'; } catch(e){} })();</script>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
@@ -502,6 +503,7 @@
           const courseDisplay = ptRec ? ptLabel(r) : '';
           if (state.recordTab !== 'all' && recKind(r) !== state.recordTab) return;
           if (r.改期狀態 === 'yes' || r.改期狀態 === '作廢') return;
+          { const st = createSafeDate(r.date, r.time); if (new Date() >= new Date(st.getTime() + (parseInt(r.duration,10) || 60) * 60000)) return; }   // 已結束的預約不顯示
           const sVal = r.students || r.people; const studentDisplay = (String(sVal)==='包班' || parseInt(sVal)>=3) ? '包班' : (sVal ? `${sVal} 人` : '—');
           filteredCount++; const isMarked = state.selectedRecords.has(originalIndex);
           const classTime = createSafeDate(r.date, r.time); const now = new Date(); 
@@ -563,7 +565,7 @@
       const htmlText = `${warnBox}<div style="text-align:center; font-size:14px; color:#555; line-height:1.6;">更改以下${kName}預約時段：</div><div style="text-align:center; font-size:17px; font-weight:950; color:#1a2321; margin-top:6px; white-space:nowrap;">${m}月${d}日 (${oWd}) ${oSlot}</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', width: '95%', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#127a69' }).then((res) => {
           if (!res.isConfirmed) return;
-          state.mode = 'reschedule'; state.rescheduleSource = record; state.rk = solo ? 'solo' : 'rent';
+          state.mode = 'reschedule'; setDocTitle(false); state.rescheduleSource = record; state.rk = solo ? 'solo' : 'rent';
           state.duration = solo ? (parseInt(record.duration,10) || 60) : null;   // 改期時長不變
           state.students = solo ? 1 : normalizePlan(record.students || record.people || 1);
           state.coach = { name: record.coach || state.name, avatar: '', tags: [] }; state.course = null;
@@ -580,7 +582,7 @@
       let htmlText = isExpired ? `<div style="white-space: nowrap;">此堂購買效期已過，僅供更改時段乙次。</div><div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</div>` : `<div style="white-space: nowrap;">更改 ${m}月${d}日 (${oWd}) ${oTime} 的預約時段？</div>`;
       Swal.fire({ title: '更改時段？', html: htmlText, icon: 'question', showCancelButton: true, cancelButtonText: '返回', confirmButtonText: '確定更改', confirmButtonColor: '#127a69' }).then((res) => {
           if (res.isConfirmed) {
-              state.mode = 'reschedule'; state.rescheduleSource = record; const matchCoach = COACHES.find(c => c.name === record.coach);
+              state.mode = 'reschedule'; setDocTitle(false); state.rescheduleSource = record; const matchCoach = COACHES.find(c => c.name === record.coach);
               if (matchCoach) state.coach = matchCoach; state.course = getCourseName(record.course, record.people);
               const cardWrap = document.getElementById('trainerCardWrap');
               if(cardWrap && matchCoach) { cardWrap.classList.remove('hide'); document.getElementById('tcAvatar').src = matchCoach.avatar; document.getElementById('tcName').textContent = matchCoach.name; document.getElementById('tcJobTitle').textContent = matchCoach.jobTitle || '資深教練'; const tcTags = document.getElementById('tcTags'); tcTags.innerHTML = ''; matchCoach.tags.forEach(t => { const el = document.createElement('div'); el.className = 'tag'; el.textContent = t; tcTags.appendChild(el); }); }
@@ -740,9 +742,12 @@
       if(nextWeek) nextWeek.onclick = () => { const limit = getLimitDate(); if (addDays(state.weekStart, 7) <= limit) { state.weekStart = addDays(state.weekStart, 7); renderWeekStrip(); renderSlotsStep2(); } };
   }
 
+  // LINE 標題列：我的預約頁一律顯示「我的預約」，其他頁顯示「私課」
+  function setDocTitle(isRecord){ document.title = isRecord ? '支點運動空間｜我的預約' : '支點運動空間｜私課'; }
+
   // ✨ NEW Requirement 2: 載入全狀態鎖定
   async function loadMyRecords() {
-      state.mode = 'record'; state.rk = null; state.isLoadingRecords = true; 
+      state.mode = 'record'; state.rk = null; state.isLoadingRecords = true; setDocTitle(true);
       stepBar.classList.add('hide'); card1.classList.add('hide'); card2.classList.add('hide'); card3.classList.add('hide');
       cardRecord.classList.remove('hide'); btnBack.classList.add('hide'); btnNext.classList.add('hide'); recordBtns.classList.remove('hide'); 
       $('#recordListTitle').innerHTML = `<span class="name-highlight">${state.name}</span> 的預約清單`;
@@ -911,7 +916,7 @@
     } catch(err) { setStatus('載入失敗，請重新整理', true); }
 
     btnBack.onclick=()=>{ if(state.step===2 && state.rk){ state.rescheduleSource = null; state.cart = []; loadMyRecords(); return; } if(state.step===2) setStep(1); else setStep(2); };   // 自主/場租改期沒有 Step1，上一步回我的預約
-    btnHome.onclick = () => { window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; state.rk = null; state.duration = null; state.students = null; state.rescheduleSource = null; state.cart = []; state.course = null; state.coach = null; renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); };
+    btnHome.onclick = () => { window.history.replaceState({}, document.title, window.location.pathname); state.mode = 'book'; setDocTitle(false); state.rk = null; state.duration = null; state.students = null; state.rescheduleSource = null; state.cart = []; state.course = null; state.coach = null; renderCart(); stepBar.classList.remove('hide'); cardRecord.classList.add('hide'); recordBtns.classList.add('hide'); renderCoaches(); renderCourse(); renderCourseTip(); state.weekStart = weekStartMonday(new Date()); renderWeekStrip(); setStep(1); };
     
     document.getElementById('btnCancelBatch').addEventListener('click', async () => {
         const count = state.selectedRecords.size; if(count === 0) return;
