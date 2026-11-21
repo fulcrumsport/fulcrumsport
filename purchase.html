@@ -1140,7 +1140,9 @@
         const v = parseInt(recGet(r, c.col, c.num), 10);
         if(v > 0){ categoryLabel = c.label; credits = v; catKey = c.key; break; }
       }
-      const orderId = recGet(r, '購買訂單編號', '21') || '';
+      // 舊單補的內部編號（M+列號）不顯示給學員
+      const rawOrderId = String(recGet(r, '購買訂單編號', '21') || '');
+      const orderId = /^M\d+$/.test(rawOrderId) ? '' : rawOrderId;
       const paidDate = String(recGet(r, '購買日期', '12') || '').trim();
       return {
         orderId: orderId,
